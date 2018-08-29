@@ -1,0 +1,6 @@
+application-name: sledge
+logging:
+    path: logs
+    type: file-rotation
+server-socket: localhost:10200
+version: 1.0.0

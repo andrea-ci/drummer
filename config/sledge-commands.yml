@@ -1,0 +1,7 @@
+commands:
+    - ship <name> move <x> <y> [--speed | --power] -v
+    - ship new <name> -v
+    - ship shoot <x> <y>
+    - mine (set|remove) <x> <y> [--moored | --drifting]
+    - (-h | --help)
+    - --version
