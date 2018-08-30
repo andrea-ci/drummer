@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import re
 from sys import exit as sys_exit
-from utils.yamlfile import YamlFile
 
 # token detection
 RE_CMD = re.compile(r'\w+')
@@ -21,23 +20,8 @@ REQ_GROUP = 'req_group'
 OPT_GROUP = 'opt_group'
 
 
-class CommandException(Exception):
+class UsageException(Exception):
     pass
-
-
-class CommandLoader():
-
-    @staticmethod
-    def load():
-
-        try:
-            filedata = YamlFile.read('config/sledge-commands.yml')
-            commands = filedata['commands']
-
-        except:
-            raise CommandException('cannot load commands from file')
-
-        return commands
 
 
 class Token():
@@ -227,10 +211,10 @@ class Help():
 
 class Pattern():
 
-    def __init__(self):
+    def __init__(self, usage_lines):
 
         # command patterns
-        self.usage_lines = CommandLoader.load()
+        self.usage_lines = usage_lines
 
 
     def compare_with(self, user_line):
@@ -256,7 +240,7 @@ class Pattern():
                 break
 
         if not pattern_match:
-            
+
             # gracefully exit
             print(Help.get(self.usage_lines))
             sys_exit()
@@ -362,7 +346,7 @@ class Pattern():
                     matching = True
 
             else:
-                raise CommandException('token not supported')
+                raise UsageException('token not supported')
 
             ii += 1
 
