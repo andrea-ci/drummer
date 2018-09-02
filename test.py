@@ -1,51 +1,22 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from console.loader import CommandLoader
-from console.parsing import Tokenizer, TokenTree
+import argparse
 
-# load patterns from file
-patterns = CommandLoader.load()
+parser = argparse.ArgumentParser(description='Process some integers.')
 
-tokens = {}
-tokenizer = Tokenizer()
-token_tree = TokenTree()
+parser.add_argument(    'echo',
+                        help='echo the string you use here')
 
-for p in patterns:
+parser.add_argument(    '-v', '--verbose',
+                        help='increase output verbosity',
+                        action='count',
+                        default=0)
 
-    print(p)
+#parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
 
-    # tokenize
-    tokens, locs = tokenizer.from_source(p, tokens)
-
-    token_tree.build(tokens, locs)
+#parser.add_argument('--sum', dest='accumulate', action='store_const', const=sum, default=max, help='sum the integers (default: find the max)')
 
 
-
-
-"""
-# build pattern tree
-for p in patterns:
-
-    pattern_tree = {}
-
-    positions = []
-    for idx, tok in tokens.items():
-        #print(tok.content)
-
-        pos = p.find(tok.content)
-
-        if pos>0:
-            positions.append(pos)
-
-    sorted_positions = sorted(range(len(positions)), key=positions.__getitem__)
-
-    for ii,jj in enumerate(sorted_positions[:-1]):
-        pattern_tree[jj] = sorted_positions[ii+1]
-
-    print(sorted_positions)
-    print(pattern_tree)
-
-
-for ii,t in tokens.items():
-    print(t.content)
-"""
+args = parser.parse_args()
+print(args)
+#print(args.accumulate(args.integers))
