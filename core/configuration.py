@@ -10,10 +10,13 @@ class ConfigurationException(Exception):
 class Configuration():
 
     @staticmethod
-    def get():
+    def load():
 
-        filename = path.join('config', 'sledge-config.yaml')
+        filename = path.join('config','sledge-config.yml')
 
-        configuration = YamlFile.read(filename)
+        try:
+            configuration = YamlFile.read(filename)
+        except:
+            raise ConfigurationException('configuration not found')
 
         return configuration

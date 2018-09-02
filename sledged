@@ -1,42 +1,32 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils.argparsing import Pattern
-from utils.yamlfile import YamlFile
 from core.daemonctl import DaemonCtl
-from core.daemon import Daemon
+from core.server import SocketServer
 from sys import argv as sys_argv
+import argparse
 
 if __name__ == '__main__':
 
-    """Daemon test logic.
+    parser = argparse.ArgumentParser(description= 'Sledge daemon')
 
-    This logic must be called as seperate executable (i.e. python3
-    daemon.py start/stop/restart).
+    parser.add_argument('command',
+                        choices=['start', 'stop', 'restart'],
+                        action='store',
+                        help="start|stop|restart the daemon")
 
-    See test_daemon.py for implementation.
+    parser.add_argument('-v', '--verbose',
+                        help='increase output verbosity',
+                        action='count',
+                        default=0)
 
-    usage = 'Missing parameter, usage of test logic:\n' + \
-            ' % python3 daemon.py start|restart|stop\n'
-    """
+    args = parser.parse_args()
 
-    usage = [
-        'start',
-        'stop',
-        'restart'
-    ]
+    # manage daemon
+    dc = DaemonCtl(SocketServer)
 
-    pattern = Pattern(usage)
-    user_command = pattern.compare_with(sys_argv)
-
-    # load configuration
-    configuration = YamlFile.read('config/sledge-config.yml')
-    pidfile = configuration['pidfile']
-
-    dc = DaemonCtl(Daemon, pidfile)
-
-    if user_command.get('start'):
+    if args.command == 'start':
         dc.start()
-    elif user_command.get('stop'):
+    elif args.command == 'stop':
         dc.stop()
-    elif user_command.get('restart'):
+    elif args.command == 'restart':
         dc.restart()

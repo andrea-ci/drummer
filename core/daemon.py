@@ -94,6 +94,8 @@ class Daemon:
         It will be called after the process has been daemonized
         by start() or restart(). You'll have to overwrite this
         method with the daemon program logic.
-        """
+
         while True:
             time.sleep(1)
+        """
+        pass
