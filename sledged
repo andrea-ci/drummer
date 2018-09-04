@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from core.daemonctl import DaemonCtl
 from core.server import SocketServer
-from sys import argv as sys_argv
 import argparse
 
 if __name__ == '__main__':

@@ -1,7 +1,10 @@
 application-name: sledge
+socket: localhost:10200
+daemon:
+    pidfile: /tmp/sledged.pid
+    workdir: '/'
 logging:
     path: logs
     type: file-rotation
-server-socket: localhost:10200
-pidfile: /tmp/sledged.pid
+    level: INFO
 version: 1.0.0

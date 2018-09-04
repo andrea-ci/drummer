@@ -1,22 +1,65 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import argparse
+from multiprocessing import Process, Pipe
+from workers.socketserver import SocketServer
 
-parser = argparse.ArgumentParser(description='Process some integers.')
-
-parser.add_argument(    'echo',
-                        help='echo the string you use here')
-
-parser.add_argument(    '-v', '--verbose',
-                        help='increase output verbosity',
-                        action='count',
-                        default=0)
-
-#parser.add_argument('integers', metavar='N', type=int, nargs='+', help='an integer for the accumulator')
-
-#parser.add_argument('--sum', dest='accumulate', action='store_const', const=sum, default=max, help='sum the integers (default: find the max)')
+def sender(conn, msgs):
+    """ function to send messages to other end of pipe """
+    
+    for msg in msgs:
+        conn.send(msg)
+        print("Sent the message: {}".format(msg))
+        conn.close()
 
 
-args = parser.parse_args()
-print(args)
-#print(args.accumulate(args.integers))
+class Sender(Process):
+
+    def __init__(self, conn, msgs):
+
+        super().__init__()
+
+        self.conn = conn
+        self.msgs = msgs
+
+
+    def run(self):
+
+        for msg in self.msgs:
+            self.conn.send(msg)
+            print("Sent the message: {}".format(msg))
+
+        self.conn.close()
+
+
+def receiver(conn):
+
+    while 1:
+        msg = conn.recv()
+        if msg == "END":
+            break
+        print("Received the message: {}".format(msg))
+
+
+if __name__ == "__main__":
+
+    # messages to be sent
+    msgs = ["hello", "hey", "hru?", "END"]
+
+    # creating a pipe
+    parent_conn, child_conn = Pipe()
+
+    # creating new processes
+    #p1 = Process(target=sender, args=(parent_conn,msgs))
+    p1 = Sender(parent_conn,msgs)
+    p2 = Process(target=receiver, args=(child_conn,))
+    p3 = SocketServer()
+
+    # running processes
+    p1.start()
+    p2.start()
+    p3.start()
+
+    # wait until processes finish
+    p1.join()
+    p2.join()
+    p3.join()

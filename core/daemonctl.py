@@ -4,7 +4,7 @@ from core.configuration import Configuration
 import sys, os, time, signal
 
 class DaemonCtl:
-    """ Control class for a daemon.
+    """ Control class for a daemon
 
     Usage:
     >>>    dc = DaemonCtl(daemon_base, '/tmp/foo.pid')
@@ -24,10 +24,11 @@ class DaemonCtl:
         """
 
         configuration = Configuration.load()
+        daemon_config = configuration.get('daemon')
 
         self.Daemon = Daemon
-        self.pidfile = configuration.get('pidfile')
-        self.workdir = workdir
+        self.pidfile = daemon_config.get('pidfile')
+        self.workdir = daemon_config.get('workdir')
 
 
     def start(self):

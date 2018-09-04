@@ -2,24 +2,22 @@
 # -*- coding: utf-8 -*-
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 from xmlrpc.server import SimpleXMLRPCServer
-from core.daemon import Daemon
+from core.configuration import Configuration
+from multiprocessing import Process
 
 # Restrict to a particular path.
 class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
 
 
-class SocketServer(Daemon):
+class SocketServer(Process):
 
     def run(self):
 
-
-        #configuration = Configuration.load()
-        #socket_data = configuration.get('server-socket').split(':')
-        #hostname = socket_data[0]
-        #port = int(socket_data[1])
-        hostname = 'localhost'
-        port = 10200
+        config = Configuration.load()
+        socket_data = config.get('socket').split(':')
+        hostname = socket_data[0]
+        port = int(socket_data[1])
 
         server = SimpleXMLRPCServer((hostname,port), requestHandler=RequestHandler)
 

@@ -19,13 +19,14 @@ class MiniLogger():
         # ------------------------------------------------------- #
 
         name = configuration.get('application-name')
+        logging_config = configuration.get('logging')
 
         logger = logging.getLogger(name)
 
         # avoid multiple initializations
         if not logger.handlers:
 
-            logpath = configuration.get('logging').get('path')
+            logpath = logging_config.get('path')
             logfile = path.join(logpath, name)
 
             fileLogFormatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s', datefmt='%Y-%m-%d %H:%M')
@@ -39,6 +40,6 @@ class MiniLogger():
             logger.addHandler(streamLogHandler)
             logger.addHandler(fileLogHandler)
 
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging_config.get('level'))
 
         return logger
