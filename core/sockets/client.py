@@ -12,7 +12,7 @@ class SocketClient():
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Connect the socket to the port where the server is listening
-        server_address = ('localhost', 10300)
+        server_address = ('localhost', 10200)
 
         return sock, server_address
 

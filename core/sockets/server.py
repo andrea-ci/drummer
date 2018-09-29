@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 import socket
-from messages import Message, MessageCode
+from core.configuration import Configuration
+from core.sockets.messages import Message, MessageCode
 
 # accepted connections
 class SocketServerException(Exception):
@@ -7,13 +10,21 @@ class SocketServerException(Exception):
 
 class SocketServer():
 
+    def __init__(self, conn):
+
+        self.conn_s2m = conn
+
+
     def init_socket(self):
 
-        hostname = 'localhost'
-        port = 10300
+        config = Configuration.load()
+        socket_config = config.get('socket')
 
-        max_connections = 1
-        buffer_size = 4096
+        hostname = socket_config.get('address')
+        port = socket_config.get('port')
+
+        max_connections = socket_config.get('max_connections')
+        buffer_size = socket_config.get('buffer_size')
 
         # create TCP/IP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -64,7 +75,8 @@ class SocketServer():
 
                     # decode client request
                     request = Message.from_bytes(data)
-                    print(request)
+
+                    self.conn_s2m.send(request)
 
                     connection = self.send_response(connection, received_data)
 

@@ -1,46 +1,50 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from workers import Scheduler, Listener, Runner
 from multiprocessing import Process, Pipe
 from utils.filelogger import FileLogger
-from workers.scheduler import Scheduler
-from workers.listener import Listener
-from workers.runner import Runner
 
 
 if __name__ == "__main__":
 
+    import sys
+    print(sys.path)
+    exit()
+
+    
     # pipe between master and listener
-    m2s_conn, s2m_conn = Pipe()
+    conn_m2s, conn_s2m = Pipe()
 
     # start socket listener
-    listener = Listener(s2m_conn)
+    listener = Listener(conn_s2m)
     listener.start()
 
     while True:
 
         # check messages from console
-        if m2s_conn.poll():
+        if conn_m2s.poll():
 
             print('processing a new request')
-            request = m2s_conn.recv()
+            request = conn_m2s.recv()
 
-            print('command: {0}'.format(request.body['command']))
-            print('params: {0}'.format(request.body['parameters']))
+            print('received request:')
+            print(request)
 
+            """
             # pipe between master and runner
-            m2r_conn, r2m_conn = Pipe()
+            conn_m2r, conn_r2m = Pipe()
 
             # start runner
-            runner = Runner(r2m_conn, request)
+            runner = Runner(conn_r2m, request)
             runner.start()
 
             # get response from runner
-            response = m2r_conn.recv()
-            m2r_conn.close()
+            response = conn_m2r.recv()
+            conn_m2r.close()
 
             # send response to console
-            m2s_conn.send(response)
-
+            conn_m2s.send(response)
+            """
 
         # check messages from scheduler
         # pass
