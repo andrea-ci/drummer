@@ -1,29 +1,19 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from console import parser as console_parser
-from console.commandloader import CommandLoader
-from utils.filelogger import FileLogger
+from commands import parser as console_parser
+from utils.classloader import ClassLoader
 from sys import argv as sys_argv
 
 if __name__ == '__main__':
 
-    # get logger
-    logger = FileLogger.get()
+    # get request from console
+    request = console_parser.process_input(sys_argv)
 
-    # parse console input
-    command, args = console_parser.process_input(sys_argv)
+    # load command
+    classpath = request.classpath
+    classname = request.classname
+    Command = ClassLoader().load(classpath, classname)
 
     # execute command
-    response = CommandLoader.execute(command, args)
-
-    """
-    # create request
-    request = Request(command, args)
-
-    response = Router().perform_request(request)
-
-    # send serialized request
-    response = SocketClient().send(request)
-
-    print(response)
-    """
+    response = Command().execute(request)
+    #response = CommandLoader.execute(request)

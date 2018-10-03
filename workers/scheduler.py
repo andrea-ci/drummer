@@ -1,13 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.configuration import Configuration
-from multiprocessing import Process
+from workers.worker import Worker
+from time import sleep
 
+class Scheduler(Worker):
 
-class Scheduler(Process):
+    def work(self):
 
-    def __init__(self, conn):
+        while True:
 
-        super().__init__()
-
-        self.conn = conn
+            sleep(1)

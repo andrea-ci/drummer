@@ -1,28 +1,30 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.configuration import Configuration
-from multiprocessing import Process
+from workers.worker import Worker
 
+class Runner(Worker):
+    """ this worker executes commands and tasks"""
 
-class Runner(Process):
+    def work(self):
 
-    def __init__(self, conn, request):
+        conn = self.conn
 
-        super().__init__()
+        while True:
 
-        self.conn = conn
+            # check for requests from listener
+            if conn.poll():
 
-        self.request = request
+                # get the request
+                request = conn.recv()
 
+                # get class name
+                class_name = request['class_name']
 
-    def run(self):
+                mod_to_import = 'commands.remote.{0}'.format(class_name.lower())
+                mod = __import__(mod_to_import, fromlist=[class_name])
 
-        if self.request == 'date':
+                CommandClass = getattr(mod, class_name)
 
-            # do stuff
-            response = 'date is today!'
+                CommandClass().execute(request)
 
-            self.conn.send(response)
-            self.conn.close()
-
-            return
+                break

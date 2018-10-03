@@ -1,31 +1,50 @@
-import socket
-from core.sockets.messages import Message
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+from base import Message
+from core.sockets.commonsocket import CommonSocket
+
 
 class SocketClientException(Exception):
     pass
 
-class SocketClient():
 
-    def init_socket(self):
+class SocketClient(CommonSocket):
 
-        # Create TCP/IP socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    def check_connection(self):
 
-        # Connect the socket to the port where the server is listening
-        server_address = ('localhost', 10200)
+        connected = False
 
-        return sock, server_address
+        sock = self.sock
+        server_address = self.server_address
+
+        # establish a connection
+        try:
+            sock.connect(server_address)
+
+        except ConnectionRefusedError as e:
+            raise SocketClientException('socket refused connection')
+
+        except Exception:
+            raise SocketClientException('connection error')
+
+        else:
+            connected = True
+
+        finally:
+            # close connection
+            sock.close()
+
+        return connected
 
 
-    def send(self, request):
+    def send_request(self, request):
 
         # init socket
-        sock, server_address = self.init_socket()
+        sock = self.sock
+        server_address = self.server_address
+        MSG_LEN = self.MSG_LEN
 
         print('connecting to port {0}'.format(server_address))
-
-        # get size of request
-        req_size = str(len(request))
 
         # establish a connection
         try:
@@ -39,35 +58,28 @@ class SocketClient():
 
         try:
 
-            # Send data size
-            print('sending request size')
+            #size_ack = self.ask_handshake(request)
+            #print('ack received: {0}'.format(size_ack.decode('utf-8')))
 
-            res = sock.sendall(req_size.encode('utf-8'))
+            # send request
+            res = sock.sendall(request)
 
             if res:
-                raise SocketClientException('cannot send request size to server')
+                raise SocketClientException('cannot send request message to server')
 
-            size_ack = sock.recv(4096)
+            # wait for response
+            print('waiting for response')
+            #data_size = self.serve_handshake(sock)
+            #print('data size: {0}'.format(data_size))
 
-            if size_ack:
+            # get data from server
+            data = self.receive_data(sock)
 
-                print('ack received: {0}'.format(size_ack.decode('utf-8')))
+            # decode server response
+            response = Message.from_bytes(data)
 
-                # send message
-                print('sending now request message')
-
-                res = sock.sendall(request)
-
-                if res:
-                    raise SocketClientException('cannot send request message to server')
-
-                response = self.get_response(sock)
-
-            else:
-                raise SocketClientException('impossible to send request to server')
-
-        except Exception:
-            raise SocketClientException('generic error, impossible to send request')
+        except:
+            raise SocketClientException('impossible to send request to server')
 
         finally:
             # close connection
@@ -92,23 +104,3 @@ class SocketClient():
                 receiving = False
 
         return response
-
-
-if __name__ == '__main__':
-
-    #request = Request.encode('ciaociao', 'noargs')
-    #request = 'ciao'.encode('utf-8')
-
-    request = (
-        Message()
-        .add_entry('type', 'request')
-        .add_entry('content', 'ciao ciao')
-        .add_entry('exec_path', '/opt/sledge/tasks/remotedummy')
-        .add_entry('parameters', 'verbose')
-        .to_bytes()
-    )
-
-    sc = SocketClient()
-    response = sc.send(request)
-
-    print(Message.from_bytes(response))

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils.yamlfile import YamlFile
+from utils.files import YamlFile
 from os import path
 
 class ConfigurationException(Exception):

@@ -21,9 +21,19 @@ class Queue(Base):
 class Schedule(Base):
     __tablename__ = 'schedule'
 
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
     id = Column(Integer, primary_key=True)
+
+    # job name
+    name = Column(String(SHORT_STRING), nullable=False)
+
+    # job description
+    description = Column(String(LONG_STRING), nullable=False)
+
+    # cron expression
+    cronexp = Column(String(SHORT_STRING), nullable=False)
+
+    # chain of tasks
+    task_chain = Column(String(LONG_STRING), nullable=False)
 
 
 class Worklog(Base):

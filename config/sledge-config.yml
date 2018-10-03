@@ -3,7 +3,7 @@ socket:
     address: localhost
     port: 10200
     max_connections: 1
-    buffer_size: 4096
+    message_len: 1024
 daemon:
     pidfile: /tmp/sledged.pid
     workdir: '/'
@@ -12,4 +12,11 @@ logging:
     filename: sledge.log
     type: file-rotation
     level: DEBUG
+tasks:
+    -
+        class: DummyTask
+        description: a dummy task
+    -
+        class: DummyTask2
+        description: another dummy task
 version: 1.0.0

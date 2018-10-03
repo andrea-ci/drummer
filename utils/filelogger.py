@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from logging.handlers import TimedRotatingFileHandler
-from core.configuration import Configuration
+from base.configuration import Configuration
 from os import path
 import logging
 
@@ -22,7 +22,7 @@ class FileLogger():
         # ------------------------------------------------------- #
 
         name = config.get('application-name')
-        
+
         logger = logging.getLogger(name)
 
         # avoid multiple initializations

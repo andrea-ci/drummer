@@ -4,15 +4,16 @@ import argparse
 
 class UsagePattern():
 
-    def __init__(self, name, description = '', argparser = None, task_class = None):
+    def __init__(self, name, description = '', argparser = None, classpath = None, classname = None):
 
+        # name and description
         self.name = name
-
         self.description = description
-
+        # argparser
         self.argparser = argparser
-
-        self.task_class = task_class
+        # classpath
+        self.classpath = classpath
+        self.classname = classname
 
 
 class PatternLoader():
@@ -60,7 +61,8 @@ class PatternLoader():
                 name,
                 description = 'list all tasks',
                 argparser = parser,
-                task_class = 'TaskList'
+                classpath = 'commands/local',
+                classname = 'TaskList'
             )
         )
 
@@ -75,11 +77,6 @@ class PatternLoader():
             usage = common_usage.format(name)
             )
         parser.add_argument(
-            'task_id',
-            action = 'store',
-            help = 'task to execute'
-            )
-        parser.add_argument(
             '-v', '--verbose',
             help = 'increase output verbosity',
             action = 'count',
@@ -91,7 +88,8 @@ class PatternLoader():
                 name,
                 description = 'execute a task',
                 argparser = parser,
-                task_class = 'TaskExec'
+                classpath = 'commands/local',
+                classname = 'TaskExec'
             )
         )
 
@@ -111,26 +109,31 @@ class PatternLoader():
             action = 'count',
             default = 0
             )
-
         commands.append(
             UsagePattern(
                 name,
                 description = 'add a schedule',
                 argparser = parser,
-                task_class = 'ScheduleAdd'
+                classpath = 'commands/local',
+                classname = 'AddSchedule'
             )
         )
 
 
-        # dummy command
+        # execute a schedule
         # ----------------------------------------------- #
 
-        name = 'dummy:local'
+        name = 'schedule:exec'
 
         parser = argparse.ArgumentParser(
             description = 'sledge {0} command'.format(name),
             usage = common_usage.format(name)
             )
+        parser.add_argument(
+        'task_id',
+        action = 'store',
+        help = 'task to execute'
+        )
         parser.add_argument(
             '-v', '--verbose',
             help = 'increase output verbosity',
@@ -141,40 +144,16 @@ class PatternLoader():
         commands.append(
             UsagePattern(
                 name,
-                description = 'a dummy command',
+                description = 'exec a schedule',
                 argparser = parser,
-                task_class = 'Dummy'
+                classpath = 'commands/local',
+                classname = 'ScheduleExec'
             )
         )
 
 
-        # dummy command
+        # return usage commands and patterns
         # ----------------------------------------------- #
-
-        name = 'dummy:remote'
-        description = 'a remote dummy command'
-        execution = 'remote'
-
-        parser = argparse.ArgumentParser(
-            description = 'sledge {0} command'.format(name),
-            usage = common_usage.format(name)
-            )
-        parser.add_argument(
-            '-v', '--verbose',
-            help = 'increase output verbosity',
-            action = 'count',
-            default = 0
-            )
-
-        commands.append(
-            UsagePattern(
-                name,
-                description = 'a remote dummy command',
-                argparser = parser,
-                task_class = 'RemoteDummy'
-            )
-        )
-
 
         usage = PatternLoader.get_usage(commands)
 

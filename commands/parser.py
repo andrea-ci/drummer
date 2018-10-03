@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from console.patterns import PatternLoader
+from commands.patterns import PatternLoader
 from sys import exit as sys_exit
+from base.messages import Request
 import argparse
-
 
 def process_input(sys_argv):
 
@@ -22,9 +22,9 @@ def process_input(sys_argv):
 
     if command in command_names:
 
-        selected_command = [cmd for cmd in commands if cmd.name == command][0]
+        command_to_execute = [cmd for cmd in commands if cmd.name == command][0]
 
-        argparser = selected_command.argparser
+        argparser = command_to_execute.argparser
 
     else:
         print('command not supported')
@@ -32,6 +32,12 @@ def process_input(sys_argv):
 
     # parse command arguments
     args = argparser.parse_args(sys_argv[2:])
-    args = vars(args)
+    parameters = vars(args)
 
-    return (selected_command, args)
+    # send request
+    request = Request()
+    request.set_classname(command_to_execute.classname)
+    request.set_classpath(command_to_execute.classpath)
+    request.set_parameters(parameters)
+
+    return request

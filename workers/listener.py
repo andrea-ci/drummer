@@ -1,22 +1,14 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.configuration import Configuration
-from core.sockets import SocketServer
-from multiprocessing import Process
+from core.sockets.server import SocketServer
+from workers.worker import Worker
 
-class Listener(Process):
-    """ this worker starts socket server with a pipe to communicate with master """
+class Listener(Worker):
+    """ this worker starts socket server """
 
-    def __init__(self, conn):
-
-        super().__init__()
-
-        self.conn = conn
-
-
-    def run(self):
+    def work(self):
 
         # run socket server
         server = SocketServer(self.conn)
-        
+
         server.run()
