@@ -16,4 +16,5 @@ if __name__ == '__main__':
 
     # execute command
     response = Command().execute(request)
-    #response = CommandLoader.execute(request)
+
+    print('Result: {0} -> {1}'.format(response.status, response.description))

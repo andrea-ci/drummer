@@ -61,12 +61,13 @@ class Extender(sched.scheduler):
         # schedule next job
         self.enterabs(exec_time, 1, self._ext_action, argument=(job,), kwargs={})
 
-        # run the job
+        # run current job
         job.run()
 
 
     def run(self):
 
+        # init job schedulation
         for job in self.jobs:
 
             # get next exec time

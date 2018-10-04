@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from base import Configuration
-from base import Message, MessageCode
 import socket
 
 class CommonSocketException(Exception):
@@ -33,50 +32,6 @@ class CommonSocket():
         self.MSG_LEN = MSG_LEN
 
 
-    def ask_handshake(self, message):
-
-        sock = self.sock
-        buffer_size = self.buffer_size
-
-        msg_size = str(len(message))
-        print('sending msg size {0}'.format(msg_size))
-
-        try:
-
-            # send message size
-            res = sock.sendall(msg_size.encode('utf-8'))
-
-            if res:
-                raise CommonSocketException('cannot send message size to server')
-
-            # wait for answer
-            size_ack = sock.recv(buffer_size)
-
-        except:
-            raise CommonSocketException('cannot start handshake')
-
-        return size_ack
-
-
-    def serve_handshake(self, connection):
-
-        buffer_size = self.buffer_size
-
-        try:
-
-            # wait for handshake
-            data_size = connection.recv(buffer_size).decode('utf-8')
-            #print('received {0}'.format(data_size))
-
-            # send response about message size
-            connection.send(MessageCode.STATUS_OK.encode('utf-8'))
-
-        except:
-            raise CommonSocketException('cannot complete handshake')
-
-        return data_size
-
-
     def receive_data(self, connection):
 
         MSG_LEN = self.MSG_LEN
@@ -91,7 +46,7 @@ class CommonSocket():
             bytes_received += len(chunk)
 
             if chunk == b'':
-                raise CommonSocketException('socket breakdown')
+                raise CommonSocketException('Socket breakdown')
 
             data += chunk
 

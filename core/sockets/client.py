@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from base import Message
+from base.messages import ByteMessage
 from core.sockets.commonsocket import CommonSocket
 
 
@@ -44,7 +44,7 @@ class SocketClient(CommonSocket):
         server_address = self.server_address
         MSG_LEN = self.MSG_LEN
 
-        print('connecting to port {0}'.format(server_address))
+        bytemessage = ByteMessage(MSG_LEN)
 
         # establish a connection
         try:
@@ -58,25 +58,16 @@ class SocketClient(CommonSocket):
 
         try:
 
-            #size_ack = self.ask_handshake(request)
-            #print('ack received: {0}'.format(size_ack.decode('utf-8')))
-
-            # send request
+            # encode and send request
+            request = bytemessage.encode(request)
             res = sock.sendall(request)
 
             if res:
                 raise SocketClientException('cannot send request message to server')
 
-            # wait for response
-            print('waiting for response')
-            #data_size = self.serve_handshake(sock)
-            #print('data size: {0}'.format(data_size))
-
-            # get data from server
-            data = self.receive_data(sock)
-
-            # decode server response
-            response = Message.from_bytes(data)
+            # get data from server and decode
+            response = self.receive_data(sock)
+            response = bytemessage.decode(response)
 
         except:
             raise SocketClientException('impossible to send request to server')

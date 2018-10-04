@@ -3,6 +3,7 @@
 from workers import Scheduler, Listener, Runner
 from utils.filelogger import FileLogger
 from multiprocessing import Pipe
+from time import sleep
 
 class Sledged():
 
@@ -40,6 +41,9 @@ class Sledged():
         master2socket = self.start_worker(Listener)
         master2scheduler = self.start_worker(Scheduler)
 
+        # init runner list
+        runners = []
+
         while True:
 
             # check for requests from listener
@@ -56,14 +60,20 @@ class Sledged():
                 # send request to runner
                 master2runner.send(request)
 
-                #print('received request:')
-                #print(request)
+                #runners.append(master2runner)
 
-                # send response
-                master2socket.send('ok')
+                # get response from runner
+                response = master2runner.recv()
+
+                # send response to listener
+                master2socket.send(response)
+
+
 
             # check messages from scheduler
             # pass
+
+            sleep(0.5)
 
 
 if __name__ == "__main__":

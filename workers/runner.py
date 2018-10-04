@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from workers.worker import Worker
+from utils.classloader import ClassLoader
 
 class Runner(Worker):
     """ this worker executes commands and tasks"""
@@ -9,7 +10,8 @@ class Runner(Worker):
 
         conn = self.conn
 
-        while True:
+        running = True
+        while running:
 
             # check for requests from listener
             if conn.poll():
@@ -17,14 +19,17 @@ class Runner(Worker):
                 # get the request
                 request = conn.recv()
 
-                # get class name
-                class_name = request['class_name']
+                # load class to exec
+                classname = request.classname
+                classpath = request.classpath
 
-                mod_to_import = 'commands.remote.{0}'.format(class_name.lower())
-                mod = __import__(mod_to_import, fromlist=[class_name])
+                ClassToExec = ClassLoader().load(classpath, classname)
 
-                CommandClass = getattr(mod, class_name)
+                response = ClassToExec().execute(request)
 
-                CommandClass().execute(request)
+                conn.send(response)
 
-                break
+                # done
+                running = False
+
+        return

@@ -1,23 +1,20 @@
-from core.sockets.messages import Message
-from core.sockets.client import SocketClient
+from core.database.models import *
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from sqlite3 import dbapi2 as sqlite
 
-sc = SocketClient()
 
-#print(sc.check_connection())
+# create engine
+db_engine = create_engine('sqlite+pysqlite:///database/sledge.db', module=sqlite)
 
-request = (
-    Message()
-    .add_entry('type', 'request')
-    .add_entry('content', 'ciao ciao')
-    .add_entry('exec_path', '/opt/sledge/tasks/remotedummy')
-    .add_entry('parameters', 'verbose')
-    .to_bytes(4096)
-)
+# create session
+Session = sessionmaker(bind=db_engine)
+session = Session()
 
-sc = SocketClient()
+# create and add object
+schedule = Schedule(name='pippo', description='pop', cronexp='30 0 * * *')
+session.add(schedule)
 
-#print(sc.check_connection)
-
-response = sc.send_request(request)
-
-print(response)
+# save
+session.commit()
+session.close()

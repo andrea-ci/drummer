@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.sockets.commonsocket import CommonSocket
-from base import Message, MessageCode
+from base.messages import ByteMessage, Response, StatusCode
 
 # accepted connections
 class SocketServerException(Exception):
@@ -24,6 +24,8 @@ class SocketServer(CommonSocket):
         max_connections = self.max_connections
         MSG_LEN = self.MSG_LEN
 
+        bytemessage = ByteMessage(MSG_LEN)
+
         # bind socket
         sock.bind(server_address)
 
@@ -39,33 +41,21 @@ class SocketServer(CommonSocket):
 
                 try:
 
-                    # handle data handshake
-                    #data_size = self.serve_handshake(connection)
-
                     # get data from client
-                    data = self.receive_data(connection)
+                    encoded_request = self.receive_data(connection)
 
                     # decode client request
-                    request = Message.from_bytes(data)
+                    request = bytemessage.decode(encoded_request)
 
                     # send request to master
                     self.conn_s2m.send(request)
 
-                    
-
-
+                    # wait for response
+                    response = self.conn_s2m.recv()
 
                     # send response to client
-                    response = Message()
-                    response.add_entry('type', 'response')
-                    response.add_entry('status', MessageCode.STATUS_OK)
-                    data = response.to_bytes(MSG_LEN)
-
-                    # start size handshake
-                    #size_ack = self.ask_handshake(response)
-
-                    #connection = self.send_response(connection, received_data)
-                    res = connection.sendall(data)
+                    encoded_response = bytemessage.encode(response)
+                    res = connection.sendall(encoded_response)
 
                 except Exception:
                     raise SocketServerException('error in server socket')
