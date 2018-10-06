@@ -4,9 +4,6 @@ socket:
     port: 10200
     max_connections: 1
     message_len: 1024
-daemon:
-    pidfile: /tmp/sledged.pid
-    workdir: '/'
 logging:
     path: logs
     filename: sledge.log
@@ -19,4 +16,4 @@ tasks:
     -
         class: DummyTask2
         description: another dummy task
-version: 1.0.0
+fork-limit: 4

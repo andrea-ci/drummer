@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.database.models import Schedule
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
-from sqlite3 import dbapi2 as sqlite
+from database.models.schedule import ScheduleWriter
 from base.messages import Response, StatusCode
 
 class JobAdd():
@@ -14,23 +11,13 @@ class JobAdd():
 
         try:
 
-            # create engine
-            db_engine = create_engine('sqlite+pysqlite:///database/sledge.db', module=sqlite)
-
-            # create session
-            Session = sessionmaker(bind=db_engine)
-            session = Session()
+            parameters = request.parameters
 
             # create and add new schedule
-            name = request.parameters.get('name')
-            description = request.parameters.get('description')
-            cronexp = request.parameters.get('cronexp')
-
-            schedule = Schedule(name=name, description=description, cronexp=cronexp)
-            session.add(schedule)
-
-            # save schedule
-            session.commit()
+            schedule_writer = ScheduleWriter()
+            schedule_writer.create_session()
+            schedule_writer.set_schedule(parameters)
+            schedule_writer.close_session()
 
         except Exception:
 
@@ -40,9 +27,5 @@ class JobAdd():
         else:
             response.set_status(StatusCode.STATUS_OK)
             response.set_description('Schedule has been added!')
-
-        finally:
-            session.close()
-
 
         return response

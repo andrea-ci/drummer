@@ -37,42 +37,53 @@ class Sledged():
         logger = self.logger
         logger.info('Starting Sledged now...')
 
-        # start workers
+        # start listener and scheduler
         master2socket = self.start_worker(Listener)
         master2scheduler = self.start_worker(Scheduler)
 
-        # init runner list
-        runners = []
+        # handle runners
+        runner_conns = []
+        max_runners = 4
 
         while True:
 
             # check for requests from listener
             if master2socket.poll():
 
-                logger.info('Serving a new request')
+                # handle request from listener
+                logger.info('Serving a new request from console')
 
                 # get the request
                 request = master2socket.recv()
 
                 # start a new runner
-                master2runner = self.start_worker(Runner)
+                m2socketrunner = self.start_worker(Runner)
 
                 # send request to runner
-                master2runner.send(request)
-
-                #runners.append(master2runner)
+                m2socketrunner.send(request)
 
                 # get response from runner
-                response = master2runner.recv()
+                response = m2socketrunner.recv()
 
                 # send response to listener
                 master2socket.send(response)
 
 
-
             # check messages from scheduler
-            # pass
+            if master2scheduler.poll():
 
+                # handle request from listener
+                logger.info('Starting a new request from scheduler')
+
+                # get the request
+                request = master2scheduler.recv()
+
+            # check
+            if len(runner_conns)>0:
+                for conn in runner_conns:
+                    pass
+
+            # idle time
             sleep(0.5)
 
 
