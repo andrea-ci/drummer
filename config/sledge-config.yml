@@ -11,9 +11,9 @@ logging:
     level: DEBUG
 tasks:
     -
-        class: DummyTask
+        classname: DummyTask
         description: a dummy task
     -
-        class: DummyTask2
+        classname: DummyTask2
         description: another dummy task
 fork-limit: 4

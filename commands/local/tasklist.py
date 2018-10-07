@@ -15,7 +15,7 @@ class TaskList():
 
             for tsk in registered_tasks:
 
-                print('name: {0}'.format(tsk['class']))
+                print('name: {0}'.format(tsk['classname']))
                 print('description: {0}\n'.format(tsk['description']))
 
         except:

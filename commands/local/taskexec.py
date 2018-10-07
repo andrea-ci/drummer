@@ -22,7 +22,7 @@ class TaskExec():
             print('Select a task to run:\n')
 
             for ii, tsk in enumerate(registered_tasks):
-                print('Id {0} - Name: {1}'.format(ii, tsk['class']))
+                print('Id {0} - Name: {1}'.format(ii, tsk['classname']))
             print('')
 
             task_to_run = int(input('> '))
@@ -30,7 +30,7 @@ class TaskExec():
             if task_to_run<=ii:
 
                 classpath = 'tasks/'
-                classname = registered_tasks[task_to_run]['class']
+                classname = registered_tasks[task_to_run]['classname']
 
             else:
                 raise Exception

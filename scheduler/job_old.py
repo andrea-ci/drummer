@@ -19,7 +19,7 @@ class Job():
         self._croniter = croniter(self._cronexp, _base)
 
 
-    def _get_exec_time(self):
+    def get_exec_time(self):
 
         # get next execution absolute time
         dt_obj = self._croniter.get_next(datetime)

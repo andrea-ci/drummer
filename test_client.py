@@ -1,4 +1,5 @@
 from database.models.schedule import ScheduleWriter
+from scheduler.extender import Extender
 """
 from core.database.models import *
 from sqlalchemy.orm import sessionmaker
@@ -7,6 +8,15 @@ from sqlite3 import dbapi2 as sqlite
 """
 if __name__ == '__main__':
 
+    extender = Extender()
+
+    print(extender.load_schedules())
+    extender.load_jobs()
+
+    extender.run()
+
+
+"""
     parameters = dict()
     parameters['name'] = 'Poppo'
     parameters['description'] = 'hello task'
@@ -16,7 +26,7 @@ if __name__ == '__main__':
     schedule_writer.create_session()
     schedule_writer.set_schedule(parameters)
     schedule_writer.close_session()
-"""
+
     qp = QueueReader()
     qp.create_session()
     print(qp.is_empty())

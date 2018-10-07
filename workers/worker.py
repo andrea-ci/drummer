@@ -23,5 +23,4 @@ class Worker(Process):
 
 
     def work():
-        """ this method must be overriden by the concrete worker """
-        pass
+        raise NotImplementedError('Worker must override this method')

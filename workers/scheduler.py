@@ -1,12 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from workers.worker import Worker
-from time import sleep
+from scheduler.extender import Extender
 
 class Scheduler(Worker):
+    """ this worker starts the scheduling extender """
 
     def work(self):
+        """ start extender """
 
-        while True:
+        extender = Extender()
 
-            sleep(1)
+        extender.load_jobs()
+        extender.run()

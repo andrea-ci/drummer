@@ -38,6 +38,8 @@ class QueueWriter(SessionHandler):
 
     def set_queue(self, data):
 
+        session = self.session
+        
         classname = data.get('classname')
         parameters = data.get('parameters')
 
