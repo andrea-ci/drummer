@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.sockets.commonsocket import CommonSocket
-from base.messages import ByteMessage, Response, StatusCode
+from core.foundation import ByteMessage, Response, StatusCode
 
 # accepted connections
 class SocketServerException(Exception):

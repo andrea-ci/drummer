@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from base import Configuration
+from utils import Configuration
 import socket
 
 class CommonSocketException(Exception):

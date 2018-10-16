@@ -1,13 +1,20 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from workers.workermanager import WorkerManager
-from utils.filelogger import FileLogger
+from utils import FileLogger, Queued
+from core.foundation import JobManager, TaskRunner
+from core.workers import Worker
 from time import sleep
 
-class Sledged():
+class Sledged:
 
     def __init__(self):
+
+        # get logger
         self.logger = FileLogger.get()
+
+        # create task queues
+        self.queue_tasks_todo = Queued()
+        self.queue_tasks_done = Queued()
 
 
     def start(self):
@@ -16,49 +23,99 @@ class Sledged():
         logger = self.logger
         logger.info('Starting Sledged now...')
 
-        worker_manager = WorkerManager()
+        # load internal queues
+        queue_tasks_todo = self.queue_tasks_todo
+        queue_tasks_done = self.queue_tasks_done
 
-        # start listener and scheduler
-        master2socket = worker_manager.create_worker('Listener')
-        master2scheduler = worker_manager.create_worker('Scheduler')
+        # create task runner
+        task_runner = TaskRunner()
+
+        # create job manager
+        job_manager = JobManager()
+
+        # start listener and scheduler workers
+        queue_listener = Worker.from_classname('Listener')
+        queue_scheduler = Worker.from_classname('Scheduler')
 
         # handle runners
-        runner_conns = []
-        max_runners = 4
+        #runner_conns = []
+        #max_runners = 4
 
+        # main loop
         while True:
 
-            # check for requests from listener
-            if master2socket.poll():
+            # check for messages from listener
+            self.check_messages_from_listener(queue_listener)
 
-                # handle request from listener
-                logger.info('Serving a new request from console')
+            # check for messages from scheduler
+            job_manager = self.check_messages_from_scheduler(job_manager, queue_scheduler)
 
-                # get the request
-                request = master2socket.recv()
+            # check task done
+            queue_tasks_done = task_runner.load_task_result(queue_tasks_done)
 
-                # start a new runner
-                conn_socketrunner = worker_manager.create_worker('Runner')
+            # check tasks to be executed
+            queue_tasks_todo = task_runner.run_task(queue_tasks_todo)
 
-                # send request to runner
-                conn_socketrunner.send(request)
-
-                # get response from runner
-                response = conn_socketrunner.recv()
-
-                # send response to listener
-                master2socket.send(response)
-
-
-            # check status of scheduler
-
-            # check
-            if len(runner_conns)>0:
-                for conn in runner_conns:
-                    pass
+            # update todo queue
+            queue_tasks_todo, queue_tasks_done = job_manager.update_status(queue_tasks_todo, queue_tasks_done)
 
             # idle time
-            sleep(0.5)
+            sleep(0.1)
+
+        return
+
+
+    def check_messages_from_listener(self, queue_listener):
+
+        logger = self.logger
+
+        # check for requests from listener
+        if not queue_listener.empty():
+
+            # handle request from listener
+            logger.debug('Serving a new request from console')
+
+            # get the request
+            request = queue_listener.get()
+
+            # start a new runner
+            logger.debug('Creating a new runner instance')
+            conn_event_runner = Worker.from_classname('Runner')
+
+            # send request to runner
+            conn_event_runner.send(request)
+
+            # get response from runner
+            response = conn_event_runner.recv()
+
+            # send response to listener
+            queue_listener.send(response)
+
+        return
+
+
+    def check_messages_from_scheduler(self, job_manager, queue_scheduler):
+
+        logger = self.logger
+        queue_tasks_todo = self.queue_tasks_todo
+
+        while not queue_scheduler.empty():
+
+            # handle request from scheduler
+            logger.debug('A new job to execute has been sent from scheduler')
+
+            # pick job to be executed
+            job = queue_scheduler.get()
+
+            # add job to be managed
+            queue_tasks_todo = job_manager.add_job(job, queue_tasks_todo)
+
+            #print(queue_tasks_todo.get())
+
+        return job_manager
+
+
+
 
 
 if __name__ == "__main__":

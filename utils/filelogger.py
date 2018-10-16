@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from logging.handlers import TimedRotatingFileHandler
-from base.configuration import Configuration
+from utils.configuration import Configuration
 from os import path
 import logging
 

@@ -17,3 +17,4 @@ tasks:
         classname: DummyTask2
         description: another dummy task
 fork-limit: 4
+idle-time: 0.1
