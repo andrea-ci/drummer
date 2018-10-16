@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from base.messages import ByteMessage
+from core.foundation import ByteMessage
 from core.sockets.commonsocket import CommonSocket
 
 

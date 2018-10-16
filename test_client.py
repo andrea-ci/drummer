@@ -1,5 +1,5 @@
 from database.models.schedule import ScheduleWriter
-from scheduler.extender import Extender
+from scheduling.extender import Extender
 """
 from core.database.models import *
 from sqlalchemy.orm import sessionmaker
@@ -8,6 +8,8 @@ from sqlite3 import dbapi2 as sqlite
 """
 if __name__ == '__main__':
 
+    
+    exit()
     extender = Extender()
 
     print(extender.load_schedules())

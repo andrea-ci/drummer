@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from base.messages import Response, StatusCode
+from core.foundation import Response, StatusCode
 from datetime import datetime
 
 class DummyTask():
 
-    def run(self):
+    def run(self, params):
 
         response = Response()
 
@@ -23,7 +23,7 @@ class DummyTask():
             response.set_description('all right')
 
         except Exception:
-            
+
             response.set_status(StatusCode.STATUS_ERROR)
             response.set_description('something was wrong')
 
