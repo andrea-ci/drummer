@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.database import ScheduleManager
-from core.foundation.job import Job
+from core.foundation import Job
 import sched
 import time
 

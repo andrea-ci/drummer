@@ -39,7 +39,7 @@ class TaskExec(BaseCommand):
         Task = ClassLoader().load(classpath, classname)
 
         # task execution
-        response = Task().run()
+        response = Task().run({})
 
         print('Task executed:')
         print('Status: {0}'.format(response.status))

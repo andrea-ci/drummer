@@ -4,7 +4,7 @@ import argparse
 
 class UsagePattern():
 
-    def __init__(self, name, description = '', argparser = None, classpath = None, classname = None):
+    def __init__(self, name, description, argparser, classpath, classname):
 
         # name and description
         self.name = name
@@ -35,7 +35,6 @@ class PatternLoader():
 
          # init
         commands = []
-
         # usage string
         common_usage = 'sledge {0} [arguments] [options]'
 
@@ -55,7 +54,6 @@ class PatternLoader():
             action = 'count',
             default = 0
             )
-
         commands.append(
             UsagePattern(
                 name,
@@ -82,7 +80,6 @@ class PatternLoader():
             action = 'count',
             default = 0
             )
-
         commands.append(
             UsagePattern(
                 name,
@@ -140,7 +137,6 @@ class PatternLoader():
             action = 'count',
             default = 0
             )
-
         commands.append(
             UsagePattern(
                 name,

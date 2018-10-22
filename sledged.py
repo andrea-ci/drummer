@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils import FileLogger, Queued
 from core.foundation import JobManager, TaskRunner
+from utils import Configuration, FileLogger, Queued
 from core.workers import Worker
 from time import sleep
 
@@ -12,6 +12,9 @@ class Sledged:
         # get logger
         self.logger = FileLogger.get()
 
+        # get configuration
+        self.config = Configuration.load()
+
         # create task queues
         self.queue_tasks_todo = Queued()
         self.queue_tasks_done = Queued()
@@ -21,7 +24,10 @@ class Sledged:
 
         # get logger
         logger = self.logger
-        logger.info('Starting Sledged now...')
+        logger.info('Starting Sledged service now...')
+
+        # load config
+        idle_time = self.config['idle-time']
 
         # load internal queues
         queue_tasks_todo = self.queue_tasks_todo
@@ -60,7 +66,7 @@ class Sledged:
             queue_tasks_todo, queue_tasks_done = job_manager.update_status(queue_tasks_todo, queue_tasks_done)
 
             # idle time
-            sleep(0.1)
+            sleep(idle_time)
 
         return
 

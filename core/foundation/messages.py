@@ -8,15 +8,15 @@ class RequestException(Exception):
 
 
 class StatusCode():
-    STATUS_OK = 'ok'
-    STATUS_WARNING = 'warning'
-    STATUS_ERROR = 'error'
+    STATUS_OK = 'OK'
+    STATUS_WARNING = 'WARNING'
+    STATUS_ERROR = 'ERROR'
 
 
 class MessageType():
-    TYPE_REQUEST = 'request'
-    TYPE_RESPONSE = 'response'
-    TYPE_INFO = 'info'
+    TYPE_REQUEST = 'REQUEST'
+    TYPE_RESPONSE = 'RESPONSE'
+    TYPE_INFO = 'INFO'
 
 
 class Info:

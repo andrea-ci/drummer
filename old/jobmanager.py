@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-import uuid
-from .taskexecution import TaskExecution
+#from .taskexecution import TaskExecution
+from .tasking import TaskExecution
 from .messages import StatusCode
 from utils import FileLogger
 
@@ -51,11 +51,7 @@ class JobManager:
             # get task executed
             executed_task = queue_tasks_done.get()
 
-            print(executed_task.result.status)
-
             next_task = self.get_next_task(executed_task)
-
-            print(next_task)
 
             if next_task:
 
@@ -63,7 +59,7 @@ class JobManager:
                 job = self.get_job_by_name(executed_task.related_job)
 
                 queue_tasks_todo = self.add_to_queue(job, next_task, queue_tasks_todo)
-                
+
             else:
                 self.remove_job(executed_task.related_job)
 
@@ -72,10 +68,18 @@ class JobManager:
 
     def get_next_task(self, executed_task):
 
+        # init next task classname
         next_task = None
 
+        # take result of executed task
         result = executed_task.result
 
+        # check result consistency
+        if result.status not in (StatusCode.STATUS_OK, StatusCode.STATUS_WARNING, StatusCode.STATUS_ERROR):
+            raise Exception('Status code not supported')
+
+        # get next task classname
+        # if job is finished next task is None
         if executed_task.task._on_pipe:
 
             next_task = executed_task.task._on_pipe
@@ -89,7 +93,8 @@ class JobManager:
             next_task = executed_task.task._on_fail
 
         else:
-            raise Exception('status code not supported')
+            # no more tasks to execute
+            pass
 
         return next_task
 
@@ -101,9 +106,9 @@ class JobManager:
         return job
 
 
-    def remove_job(self, job):
+    def remove_job(self, job_name):
 
-        idx_to_remove = [j for j in self.jobs if j == job][0]
+        idx = [ii for ii in range(len(self.jobs)) if self.jobs[ii]._name == job_name][0]
 
         del self.jobs[idx]
 
