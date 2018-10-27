@@ -13,7 +13,7 @@ class ScheduleManager(SessionHandler):
 
     def get_all(self):
         """ get all schedule objects from database """
-        
+
         session = self.create_session()
 
         q = session.query(Schedule).group_by(Schedule.name)
@@ -45,3 +45,8 @@ class ScheduleManager(SessionHandler):
         session.close()
 
         return True
+
+
+    def set_status(self, status):
+        """ enable/disable a schdule """
+        pass
