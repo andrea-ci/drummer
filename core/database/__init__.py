@@ -5,12 +5,7 @@
 from core.database.sessionhandler import SessionHandler
 from core.database.sqlbase import Base
 
-# entities
-from core.database.entities.queue import Queue
-from core.database.entities.schedule import Schedule
-from core.database.entities.worklog import Worklog
-
-# entity managers
-from core.database.managers.queue import QueueManager
-from core.database.managers.schedule import ScheduleManager
-from core.database.managers.worklog import WorklogManager
+# orm
+from core.database.orm.schedule import Schedule, ScheduleManager
+from core.database.orm.worklog import Worklog, WorklogManager
+from core.database.orm.queue import Queue, QueueManager

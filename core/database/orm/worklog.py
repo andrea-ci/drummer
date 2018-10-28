@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, Integer, String, ForeignKey
+from core.database import SessionHandler
 from sqlalchemy.orm import relationship
 from core.database.sqlbase import Base
 
@@ -21,3 +22,6 @@ class Worklog(Base):
     person_id = Column(Integer, ForeignKey('person.id'))
     person = relationship(Person)
     """
+
+class WorklogManager(SessionHandler):
+    pass
