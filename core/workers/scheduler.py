@@ -1,23 +1,30 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation import Request
-from core.scheduling import Extender
+from core.scheduling.extender import Extender
+from multiprocessing import Process, Queue
+from queue import Queue as threading_queue
+from os import getpid as os_getpid
 from threading import Thread
-from .worker import Worker
-from queue import Queue
 from time import sleep
 
 
-class Scheduler(Worker):
+class Scheduler(Process):
     """ This worker starts the scheduling extender as a thread """
 
-    def __init__(self, queue_w2m, queue_m2w):
+    def __init__(self):
 
         # worker init
-        super().__init__(queue_w2m, queue_m2w)
+        super().__init__()
+
+        # queue worker -> master
+        self.queue_w2m = Queue(100)
 
         # create queue for messages
-        self.queue_extender = Queue(100)
+        self.queue_extender = threading_queue(100)
+
+
+    def get_queues(self):
+        return self.queue_w2m
 
 
     def start_extender(self):
@@ -27,6 +34,16 @@ class Scheduler(Worker):
 
         extender.load_jobs()
         extender.run()
+
+
+    def run(self):
+
+        # get pid and send to master
+        pid = os_getpid()
+        self.queue_w2m.put(pid)
+
+        # begin working
+        self.work()
 
 
     def work(self):

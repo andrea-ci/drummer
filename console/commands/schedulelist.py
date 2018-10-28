@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from core.sockets.client import SocketClient
-from core.foundation import Request
+from core.foundation.messages import Request
 from .base import BaseCommand
 
 

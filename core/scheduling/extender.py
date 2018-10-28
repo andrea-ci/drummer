@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.database import ScheduleManager
-from core.foundation import Job
+from core.foundation.jobs import Job
 import sched
 import time
 
@@ -59,13 +59,6 @@ class Extender(sched.scheduler):
         self.message_queue.put(job)
 
         return
-
-
-    def trigger_job(self, job):
-        """ send a job execution request to master """
-
-        request = Request()
-        request.set_data(job)
 
 
     def run(self):

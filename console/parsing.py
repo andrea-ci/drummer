@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.foundation import Request
+from core.foundation.messages import Request
 from sys import argv as sys_argv
 from sys import exit as sys_exit
 import argparse
@@ -29,13 +29,6 @@ class ArgParser:
         request.set_data(args)
 
         return request
-
-        """
-        if args.get('classname'):
-        else:
-            print('Syntax not supported. See Sledge.py --help.')
-            sys_exit()
-        """
 
 
     def define_parsers(self):
