@@ -5,10 +5,13 @@ from core.database import SessionHandler, Schedule
 class ScheduleManager(SessionHandler):
 
     def is_empty(self):
-
+        """ check if schedule table is empty """
+        
         session = self.create_session()
+        empty = session.query(Schedule).count()==0
+        session.close()
 
-        return session.query(Schedule).count()==0
+        return empty
 
 
     def get_all(self):

@@ -28,10 +28,13 @@ class TaskRunner:
             logger.debug('Task {0} is going to run with UID {1}'.format(task_to_exec.task.classname, task_to_exec.uid))
 
             # start a new runner for task
-            queue_runner = Worker.from_classname('Runner')
-            queue_runner.put(task_to_exec)
+            queue_runner_w2m, queue_runner_m2w = Worker.from_classname('Runner')
 
-            self.runners.append(queue_runner)
+            # write task to exec
+            queue_runner_m2w.put(task_to_exec)
+
+            # append queue with task executed
+            self.runners.append(queue_runner_w2m)
 
         return queue_tasks_todo
 
@@ -43,7 +46,6 @@ class TaskRunner:
 
         # check runners' results
         for q in self.runners:
-
             if not q.empty():
 
                 # pick the task

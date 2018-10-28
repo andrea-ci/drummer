@@ -10,13 +10,13 @@ class SocketServerException(Exception):
 
 class SocketServer(CommonSocket):
 
-    def __init__(self, conn):
+    def __init__(self, queue_w2m, queue_m2w):
 
         super().__init__()
 
-        self.conn_s2m = conn
-
-
+        self.queue_w2m = queue_w2m
+        self.queue_m2w = queue_m2w
+        
     def run(self):
 
         sock = self.sock
@@ -48,10 +48,10 @@ class SocketServer(CommonSocket):
                     request = bytemessage.decode(encoded_request)
 
                     # send request to master
-                    self.conn_s2m.send(request)
+                    self.queue_w2m.put(request)
 
                     # wait for response
-                    response = self.conn_s2m.recv()
+                    response = self.queue_m2w.get(block=True, timeout=None)
 
                     # send response to client
                     encoded_response = bytemessage.encode(response)
@@ -61,7 +61,5 @@ class SocketServer(CommonSocket):
                     raise SocketServerException('error in server socket')
 
                 finally:
-
                     # Clean up the connection
-                    #connection = self.send_response(connection)
                     connection.close()

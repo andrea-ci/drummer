@@ -9,17 +9,18 @@ class Runner(Worker):
 
     def work(self):
 
-        # get shared queue
-        queue = self.queue
+        # get shared queues
+        queue_w2m = self.queue_w2m
+        queue_m2w = self.queue_m2w
 
         running = True
         while running:
 
             # check for requests from listener
-            if not queue.empty():
+            if not queue_m2w.empty():
 
                 # get the request
-                task_executing = queue.get()
+                task_executing = queue_m2w.get()
 
                 task = task_executing.task
 
@@ -38,7 +39,7 @@ class Runner(Worker):
                 task_executing.result = task_result
 
                 # queue_done
-                queue.put(task_executing)
+                queue_w2m.put(task_executing)
 
                 # work is done
                 running = False

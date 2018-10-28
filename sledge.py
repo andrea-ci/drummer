@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from utils.classloader import ClassLoader
 from sys import argv as sys_argv
@@ -15,7 +15,4 @@ if __name__ == '__main__':
     Command = ClassLoader().load(classpath, classname)
 
     # execute command
-    response = Command().execute(request)
-
-    if response:
-        print('Result: {0} -> {1}'.format(response.status, response.description))
+    Command().execute(request)

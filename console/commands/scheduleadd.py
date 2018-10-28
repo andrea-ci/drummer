@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from core.sockets.client import SocketClient
 from core.foundation import Request
@@ -6,6 +6,7 @@ from sys import exit as sys_exit
 from .base import BaseCommand
 from croniter import croniter
 import json
+
 
 class AddSchedule(BaseCommand):
 
@@ -38,7 +39,9 @@ class AddSchedule(BaseCommand):
         sc = SocketClient()
         response = sc.send_request(request)
 
-        return response
+        print('Result: {0} -> {1}'.format(response.status, response.description))
+
+        return
 
 
     def set_name(self):

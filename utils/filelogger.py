@@ -36,7 +36,7 @@ class FileLogger():
 
             logfile = path.join(logpath, filename)
 
-            fileLogFormatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s', datefmt='%Y-%m-%d %H:%M')
+            fileLogFormatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
             fileLogHandler = TimedRotatingFileHandler(logfile, when='d', interval=7, backupCount=4)
             fileLogHandler.setFormatter(fileLogFormatter)
 

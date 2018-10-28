@@ -10,7 +10,6 @@ class JobAdd():
         response = Response()
 
         try:
-
             # get schedulation data from the user
             schedulation = request.data
 
@@ -19,7 +18,6 @@ class JobAdd():
             schedule_manager.set_schedule(schedulation)
 
         except Exception:
-
             response.set_status(StatusCode.STATUS_ERROR)
             response.set_description('Impossible to add schedule')
 

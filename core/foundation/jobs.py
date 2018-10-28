@@ -10,7 +10,7 @@ import time
 
 
 class JobManager:
-    """ manages status of jobs to be executed """
+    """ Manage status of jobs to be executed """
 
     def __init__(self):
 
@@ -36,6 +36,7 @@ class JobManager:
 
 
     def add_to_queue(self, job, classname, queue_tasks_todo):
+        """ add a new task to todo queue """
 
         # get task data
         task = job.get_task_data(classname)
@@ -59,21 +60,19 @@ class JobManager:
 
             if next_task:
 
-                # get job object
+                # add next task to todo queue
                 job = self.get_job_by_name(executed_task.related_job)
-
                 queue_tasks_todo = self.add_to_queue(job, next_task, queue_tasks_todo)
 
             else:
+                # job is finished, remove it
                 self.remove_job(executed_task.related_job)
 
         return queue_tasks_todo, queue_tasks_done
 
 
     def get_next_task(self, executed_task):
-
-        # init next task classname
-        next_task = None
+        """ get next task to be executed within job """
 
         # take result of executed task
         result = executed_task.result
@@ -95,12 +94,13 @@ class JobManager:
 
         else:
             # no more tasks to execute
-            pass
+            next_task = None
 
         return next_task
 
 
     def get_job_by_name(self, job_name):
+        """ get job by name """
 
         job = [j for j in self.jobs if j._name == job_name][0]
 
@@ -108,9 +108,9 @@ class JobManager:
 
 
     def remove_job(self, job_name):
+        """ remove a job by name """
 
         idx = [ii for ii in range(len(self.jobs)) if self.jobs[ii]._name == job_name][0]
-
         del self.jobs[idx]
 
         return
@@ -137,7 +137,6 @@ class Job:
 
     def __str__(self):
         return '{0} - {1}'.format(self._name, self._description)
-
 
     def __eq__(self, other):
         return self._name == other._name

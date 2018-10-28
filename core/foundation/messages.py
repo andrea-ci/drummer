@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import json
 
 class ResponseException(Exception):
     pass
@@ -85,7 +86,8 @@ class Response:
     def __init__(self):
         self.type = MessageType.TYPE_RESPONSE
         self.status = None
-        self.description = None
+        self.description = ''
+        self.data = {}
 
     def set_status(self, status):
         """ set status code """
@@ -94,11 +96,18 @@ class Response:
         self.status = status
 
     def set_description(self, description):
-        """ set an optional message for the response """
+        """ set description to include into response """
         if isinstance(description, str):
             self.description = description
         else:
-            raise ResponseException('Description must be a string')
+            raise ResponseException('Description of a response must be a string')
+
+    def set_data(self, data):
+        """ set data to include into response """
+        if isinstance(data, dict):
+            self.data = data
+        else:
+            raise ResponseException('Data of a response must be a dictionary')
 
 
 class ByteMessage:
@@ -139,9 +148,8 @@ class ByteMessage:
 
         s = 'type={0}&'.format(message.type)
         s += 'status={0}&'.format(message.status)
-
-        if message.description:
-            s += 'description={0}&'.format(message.description)
+        s += 'data={0}&'.format(message.description)
+        s += 'data={0}&'.format(json.dumps(message.data))
 
         # encode
         byte_data = s.encode('utf-8')
@@ -200,23 +208,30 @@ class ByteMessage:
         # get status
         status = msg_parts[1].split('=')[1]
 
-        # get description
-        if len(msg_parts) == 3:
-            description = msg_parts[2].split('=')[1]
-        else:
-            description = None
+        description = msg_parts[2].split('=')[1]
+
+        data = json.loads(msg_parts[3].split('=')[1])
 
         # build response
         response = Response()
         response.set_status(status)
-        if description:
-            response.set_description(description)
+        response.set_description(description)
+        response.set_data(data)
 
         return response
 
 
 if __name__ == '__main__':
 
-    info = Info()
-    info.content = 8
-    print(info.content)
+    response = Response()
+    response.set_status(StatusCode.STATUS_OK)
+    #response.set_description('tutto ok')
+
+    data = {'0': 'pippo', '1': {'a': 'pluto', 'b': 'minnie'}}
+    response.set_data(data)
+
+    encoded = ByteMessage(1024).encode(response)
+    print(encoded)
+    decoded = ByteMessage(1024).decode(encoded)
+    print(decoded.description)
+    print(decoded.data)

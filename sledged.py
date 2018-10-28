@@ -1,8 +1,8 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.foundation import JobManager, TaskRunner
 from utils import Configuration, FileLogger, Queued
-from core.workers import Worker
+from core.foundation import JobManager, TaskRunner
+from core.workers import Worker, EventRunner
 from time import sleep
 
 class Sledged:
@@ -39,9 +39,12 @@ class Sledged:
         # create job manager
         job_manager = JobManager()
 
+        # create event runner
+        event_runner = EventRunner()
+
         # start listener and scheduler workers
-        queue_listener = Worker.from_classname('Listener')
-        queue_scheduler = Worker.from_classname('Scheduler')
+        queue_listener_w2m, queue_listener_m2w  = Worker.from_classname('Listener')
+        queue_scheduler_w2m = Worker.from_classname('Scheduler')
 
         # handle runners
         #runner_conns = []
@@ -51,10 +54,10 @@ class Sledged:
         while True:
 
             # check for messages from listener
-            self.check_messages_from_listener(queue_listener)
+            self.check_listener_requests(event_runner, queue_listener_w2m, queue_listener_m2w)
 
             # check for messages from scheduler
-            job_manager = self.check_messages_from_scheduler(job_manager, queue_scheduler)
+            job_manager = self.check_messages_from_scheduler(job_manager, queue_scheduler_w2m)
 
             # check task done
             queue_tasks_done = task_runner.load_task_result(queue_tasks_done)
@@ -71,47 +74,40 @@ class Sledged:
         return
 
 
-    def check_messages_from_listener(self, queue_listener):
+    def check_listener_requests(self, event_runner, queue_listener_w2m, queue_listener_m2w):
 
         logger = self.logger
 
         # check for requests from listener
-        if not queue_listener.empty():
+        if not queue_listener_w2m.empty():
 
             # handle request from listener
             logger.debug('Serving a new request from console')
 
             # get the request
-            request = queue_listener.get()
+            request = queue_listener_w2m.get()
 
             # start a new runner
-            logger.debug('Creating a new runner instance')
-            conn_event_runner = Worker.from_classname('Runner')
+            logger.debug('Activating the EventRunner')
 
-            # send request to runner
-            conn_event_runner.send(request)
-
-            # get response from runner
-            response = conn_event_runner.recv()
-
-            # send response to listener
-            queue_listener.send(response)
+            response = event_runner.work(request)
+            queue_listener_m2w.put(response)
 
         return
 
 
-    def check_messages_from_scheduler(self, job_manager, queue_scheduler):
+    def check_messages_from_scheduler(self, job_manager, queue_scheduler_w2m):
 
         logger = self.logger
         queue_tasks_todo = self.queue_tasks_todo
 
-        while not queue_scheduler.empty():
+        while not queue_scheduler_w2m.empty():
 
             # handle request from scheduler
             logger.debug('A new job to execute has been sent from scheduler')
 
             # pick job to be executed
-            job = queue_scheduler.get()
+            job = queue_scheduler_w2m.get()
 
             # add job to be managed
             queue_tasks_todo = job_manager.add_job(job, queue_tasks_todo)
@@ -119,9 +115,6 @@ class Sledged:
             #print(queue_tasks_todo.get())
 
         return job_manager
-
-
-
 
 
 if __name__ == "__main__":

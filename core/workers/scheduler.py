@@ -7,16 +7,18 @@ from .worker import Worker
 from queue import Queue
 from time import sleep
 
-class Scheduler(Worker):
-    """ this worker starts the scheduling extender as a thread """
 
-    def __init__(self, queue_master):
+class Scheduler(Worker):
+    """ This worker starts the scheduling extender as a thread """
+
+    def __init__(self, queue_w2m, queue_m2w):
 
         # worker init
-        super().__init__(queue_master)
+        super().__init__(queue_w2m, queue_m2w)
 
         # create queue for messages
-        self.queue_extender = Queue()
+        self.queue_extender = Queue(100)
+
 
     def start_extender(self):
         """ start extender thread """
@@ -30,7 +32,7 @@ class Scheduler(Worker):
     def work(self):
 
         # connection to master
-        queue_master = self.queue
+        queue_w2m = self.queue_w2m
 
         # start extender thread
         thread_extender = Thread(target=self.start_extender, args=())
@@ -43,12 +45,6 @@ class Scheduler(Worker):
 
                 job = self.queue_extender.get()
 
-                """
-                request = Request()
-                request.set_classname('JobExec')
-                request.set_classpath('core/events')
-                request.set_data(job)
-                """
-                queue_master.put(job)
+                queue_w2m.put(job)
 
             sleep(0.1)
