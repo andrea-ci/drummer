@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, Integer, String, ForeignKey
 from core.database import SessionHandler
