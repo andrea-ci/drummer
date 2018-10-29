@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+#from core.workers.listener import Listener
+#from core.workers.scheduler import Scheduler
+#from core.workers.eventrunner import EventRunner
+from core.workers import Listener, Scheduler, EventRunner
 from utils import Configuration, FileLogger, Queued
-from core.foundation import JobManager, TaskRunner
-from core.workers import Worker, EventRunner
+from core.foundation.tasking import TaskRunner
+from core.foundation.jobs import JobManager
 from time import sleep
 
 class Sledged:
@@ -43,8 +47,23 @@ class Sledged:
         event_runner = EventRunner()
 
         # start listener and scheduler workers
-        queue_listener_w2m, queue_listener_m2w  = Worker.from_classname('Listener')
-        queue_scheduler_w2m = Worker.from_classname('Scheduler')
+        #queue_listener_w2m, queue_listener_m2w  = Worker.from_classname('Listener')
+
+        # [LISTENER]
+        logger.debug('Starting Listener')
+        listener = Listener()
+        queue_listener_w2m, queue_listener_m2w = listener.get_queues()
+        listener.start()
+        pid = queue_listener_w2m.get()
+        logger.debug('Listener successfully started with pid {0}'.format(pid))
+
+        # [SCHEDULER]
+        logger.debug('Starting Scheduler')
+        scheduler = Scheduler()
+        queue_scheduler_w2m = scheduler.get_queues()
+        scheduler.start()
+        pid = queue_scheduler_w2m.get()
+        logger.debug('Scheduler successfully started with pid {0}'.format(pid))
 
         # handle runners
         #runner_conns = []

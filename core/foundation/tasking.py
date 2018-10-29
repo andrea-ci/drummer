@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from utils.filelogger import FileLogger
-from core.workers import Worker
+from core.workers.runner import Runner
 import uuid
 
 class TaskRunner:
@@ -28,10 +28,15 @@ class TaskRunner:
             logger.debug('Task {0} is going to run with UID {1}'.format(task_to_exec.task.classname, task_to_exec.uid))
 
             # start a new runner for task
-            queue_runner_w2m, queue_runner_m2w = Worker.from_classname('Runner')
+            logger.debug('Starting Runner')
+            runner = Runner(task_to_exec)
+            queue_runner_w2m = runner.get_queues()
+            runner.start()
+            pid = queue_runner_w2m.get()
+            logger.debug('Runner successfully started with pid {0}'.format(pid))
 
             # write task to exec
-            queue_runner_m2w.put(task_to_exec)
+            #queue_runner_m2w.put(task_to_exec)
 
             # append queue with task executed
             self.runners.append(queue_runner_w2m)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from .tasking import Task, TaskExecution
-from .messages import StatusCode
+from core.foundation.tasking import Task, TaskExecution
+from core.foundation.messages import StatusCode
 from datetime import datetime
 from croniter import croniter
 from utils import FileLogger

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation import Response, StatusCode
+from core.foundation.messages import Response, StatusCode
 from core.database import ScheduleManager
 
 class JobAdd():
