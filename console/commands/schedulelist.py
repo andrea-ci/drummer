@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from core.sockets.client import SocketClient
-from core.foundation.messages import Request
+from core.foundation.messages import Request, StatusCode
 from .base import BaseCommand
 
 
 class ScheduleList(BaseCommand):
 
-    def execute(self, request):
+    def execute(self, params):
 
         # test socket connection
         # TBD
@@ -20,20 +20,27 @@ class ScheduleList(BaseCommand):
         request = Request()
         request.set_classname('JobList')
         request.set_classpath('core/events')
+        request.set_data(params)
 
         # send request to listener
         sc = SocketClient()
         response = sc.send_request(request)
 
-        data = response.data
-        print(' Scheduled jobs:')
-        print(data)
-        for schedule in data.values():
+        if response.status == StatusCode.STATUS_OK:
 
-            print(schedule)
+            result = response.data['result']
 
-            name = schedule.get('name')
-            description = schedule.get('description')
-            cronexp = schedule.get('cronexp')
+            print(' Scheduled jobs:')
 
-            print('{0} - {1} - {2}'.format(name, description, cronexp))
+            for ii in range(len(result)):
+
+                schedule = result[str(ii)]
+
+                name = schedule.get('name')
+                description = schedule.get('description')
+                cronexp = schedule.get('cronexp')
+
+                print('{0} - {1} - {2}'.format(name, description, cronexp))
+
+        else:
+            print('Impossible to execute the command')

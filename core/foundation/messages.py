@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 import json
 
-class ResponseException(Exception):
+class MessageException(Exception):
     pass
+
 class RequestException(Exception):
     pass
 
@@ -50,14 +51,68 @@ class Info:
             raise RequestException('Sender must be a string')
 
 
+class SerializableMessage:
+    """ General class for serializable messages """
 
-class Request:
-    """ Request object """
     def __init__(self):
+        self.type = None
+        self.data = None
+
+    def set_data(self, data):
+        """ set data """
+        if isinstance(data, dict) and self._is_serializable(data):
+            self.data = data
+        else:
+            raise RequestException('Sorry, data must be a serializable dict')
+
+    def _is_serializable(self, data):
+        """ check if data is json-serializable """
+        try:
+            json.dumps(data)
+            return True
+        except:
+            return False
+
+    def obj_to_dict(self):
+        """ converts to dict """
+
+        data_dict = {}
+        data_dict['type'] = self.type
+        data_dict['data'] = self.data
+
+        return data_dict
+
+    def encode(self, MSG_LEN):
+        """ converts to fixed-length byte data """
+
+        data_dict = self.obj_to_dict()
+        byte_data = json.dumps(data_dict).encode('utf-8')
+        # zero padding
+        byte_data += b'0' * (MSG_LEN - len(byte_data))
+        return byte_data
+
+    @staticmethod
+    def encoded_to_dict(data):
+        try:
+            # convert to string
+            padded_data = data.decode('utf-8')
+            # remove zero padding
+            sep = padded_data.find('}0')+1
+            data_dict = json.loads(padded_data[:sep])
+        except:
+            raise MessageException('Message cannot be decoded')
+
+        return data_dict
+
+
+class Request(SerializableMessage):
+    """ Request object """
+
+    def __init__(self):
+        super().__init__()
         self.type = MessageType.TYPE_REQUEST
         self.classname = None
         self.classpath = None
-        self.data = None
 
     def set_classname(self, classname):
         """ class to invoke for fulfilling the request """
@@ -71,23 +126,36 @@ class Request:
         if isinstance(classpath, str):
             self.classpath = classpath
         else:
-            raise RequestException('Classname must be a string')
+            raise RequestException('Classpath must be a string')
 
-    def set_data(self, data):
-        """ data is a dict of param -> value """
-        if isinstance(data, dict):
-            self.data = data
-        else:
-            raise RequestException('Data of a request must be a dictionary')
+    def obj_to_dict(self):
+        """ converts to dict """
+
+        data_dict = super().obj_to_dict()
+        data_dict['classname'] = self.classname
+        data_dict['classpath'] = self.classpath
+
+        return data_dict
+
+    @staticmethod
+    def decode(encoded):
+
+        data_dict = SerializableMessage.encoded_to_dict(encoded)
+
+        request = Request()
+        request.classname = data_dict.get('classname')
+        request.classpath = data_dict.get('classpath')
+
+        return request
 
 
-class Response:
+class Response(SerializableMessage):
     """ Response object """
+
     def __init__(self):
+        super().__init__()
         self.type = MessageType.TYPE_RESPONSE
         self.status = None
-        self.description = ''
-        self.data = {}
 
     def set_status(self, status):
         """ set status code """
@@ -95,128 +163,22 @@ class Response:
             raise ResponseException('Status code not supported')
         self.status = status
 
-    def set_description(self, description):
-        """ set description to include into response """
-        if isinstance(description, str):
-            self.description = description
-        else:
-            raise ResponseException('Description of a response must be a string')
+    def obj_to_dict(self):
+        """ converts to dict """
 
-    def set_data(self, data):
-        """ set data to include into response """
-        if isinstance(data, dict):
-            self.data = data
-        else:
-            raise ResponseException('Data of a response must be a dictionary')
+        data_dict = super().obj_to_dict()
+        data_dict['status'] = self.status
 
+        return data_dict
 
-class ByteMessage:
-    def __init__(self, MSG_LEN):
-        self.MSG_LEN = MSG_LEN
+    @staticmethod
+    def decode(encoded):
 
-    def encode(self, message):
-        """ encode a message to fixed-length byte array """
+        data_dict = SerializableMessage.encoded_to_dict(encoded)
 
-        if message.type == MessageType.TYPE_REQUEST:
-            encoded = self.encode_request(message)
-        elif message.type == MessageType.TYPE_RESPONSE:
-            encoded = self.encode_response(message)
-        elif message.type == MessageType.TYPE_INFO:
-            encoded = self.encode_log(message)
-        else:
-            raise Exception('Message type not supported')
-        return encoded
-
-    def encode_request(self, message):
-
-        s = 'type={0}&'.format(message.type)
-        s += 'classname={0}&'.format(message.classname)
-        s += 'classpath={0}&'.format(message.classpath)
-
-        if message.data:
-            for key, value in message.data.items():
-                s += '{0}={1}&'.format(key, value)
-
-        # convert to byets
-        byte_data = s.encode('utf-8')
-        # zero padding
-        byte_data += b'0' * (self.MSG_LEN - len(byte_data))
-
-        return byte_data
-
-    def encode_response(self, message):
-
-        s = 'type={0}&'.format(message.type)
-        s += 'status={0}&'.format(message.status)
-        s += 'data={0}&'.format(message.description)
-        s += 'data={0}&'.format(json.dumps(message.data))
-
-        # encode
-        byte_data = s.encode('utf-8')
-
-        # zero padding
-        byte_data += b'0' * (self.MSG_LEN - len(byte_data))
-
-        return byte_data
-
-    def encode_log(self, message):
-        pass
-
-    def decode(self, message):
-        """ decode message """
-
-        # convert to string
-        message = message.decode('utf-8')
-
-        msg_parts = message.split('&')[:-1]
-
-        # check message type
-        msg_type = msg_parts[0].split('=')[1]
-
-        if msg_type == MessageType.TYPE_REQUEST:
-            decoded = self.decode_request(msg_parts)
-        elif msg_type == MessageType.TYPE_RESPONSE:
-            decoded = self.decode_response(msg_parts)
-        elif msg_type == MessageType.TYPE_INFO:
-            decoded = self.decode_log(msg_parts)
-        else:
-            raise Exception('Message type not supported')
-        return decoded
-
-    def decode_request(self, msg_parts):
-
-        # get class name/path
-        classname = msg_parts[1].split('=')[1]
-        classpath = msg_parts[2].split('=')[1]
-
-        # get parameters
-        parameters = dict()
-        for t in msg_parts[3:]:
-            k, v = t.split('=')
-            parameters[k] = v
-
-        # build request
-        request = Request()
-        request.set_classname(classname)
-        request.set_classpath(classpath)
-        request.set_data(parameters)
-
-        return request
-
-    def decode_response(self, msg_parts):
-
-        # get status
-        status = msg_parts[1].split('=')[1]
-
-        description = msg_parts[2].split('=')[1]
-
-        data = json.loads(msg_parts[3].split('=')[1])
-
-        # build response
         response = Response()
-        response.set_status(status)
-        response.set_description(description)
-        response.set_data(data)
+        response.status = data_dict.get('status')
+        response.data = data_dict.get('data')
 
         return response
 
@@ -230,8 +192,9 @@ if __name__ == '__main__':
     data = {'0': 'pippo', '1': {'a': 'pluto', 'b': 'minnie'}}
     response.set_data(data)
 
-    encoded = ByteMessage(1024).encode(response)
+    encoded = response.encode(1024)
     print(encoded)
-    decoded = ByteMessage(1024).decode(encoded)
-    print(decoded.description)
-    print(decoded.data)
+    decoded = Response.decode(encoded)
+    print(decoded.obj_to_dict())
+    #encoded = ByteMessage(1024).encode(response)
+    #decoded = ByteMessage(1024).decode(encoded)

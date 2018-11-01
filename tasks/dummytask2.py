@@ -20,12 +20,12 @@ class DummyTask2():
 
             # task response
             response.set_status(StatusCode.STATUS_OK)
-            response.set_description('all right')
+            response.set_data({'msg': 'all right'})
 
         except Exception:
 
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_description('something was wrong')
+            response.set_data({'msg': 'something was wrong'})
 
         finally:
             return response

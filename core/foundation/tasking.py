@@ -25,7 +25,7 @@ class TaskRunner:
 
             # pick the task
             task_to_exec = queue_tasks_todo.get()
-            logger.debug('Task {0} is going to run with UID {1}'.format(task_to_exec.task.classname, task_to_exec.uid))
+            logger.info('Task {0} is going to run with UID {1}'.format(task_to_exec.task.classname, task_to_exec.uid))
 
             # start a new runner for task
             logger.debug('Starting Runner')
@@ -33,7 +33,7 @@ class TaskRunner:
             queue_runner_w2m = runner.get_queues()
             runner.start()
             pid = queue_runner_w2m.get()
-            logger.debug('Runner successfully started with pid {0}'.format(pid))
+            logger.info('Runner successfully started with pid {0}'.format(pid))
 
             # write task to exec
             #queue_runner_m2w.put(task_to_exec)
@@ -55,7 +55,7 @@ class TaskRunner:
 
                 # pick the task
                 executed_task = q.get()
-                logger.debug('Task ended with result {0}'.format(executed_task.result.status))
+                logger.info('Task ended with result {0}'.format(executed_task.result.status))
 
                 queue_tasks_done.put(executed_task)
 

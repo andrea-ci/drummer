@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from utils.classloader import ClassLoader
-from threading import Thread
-from queue import Queue
 
 
 class EventRunner:

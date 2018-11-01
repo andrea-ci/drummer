@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import ByteMessage
+from core.foundation.messages import Response
 from core.sockets.commonsocket import CommonSocket
 
 
@@ -22,10 +22,10 @@ class SocketClient(CommonSocket):
             sock.connect(server_address)
 
         except ConnectionRefusedError as e:
-            raise SocketClientException('socket refused connection')
+            raise SocketClientException('Socket refused connection')
 
         except Exception:
-            raise SocketClientException('connection error')
+            raise SocketClientException('Connection error')
 
         else:
             connected = True
@@ -44,33 +44,29 @@ class SocketClient(CommonSocket):
         server_address = self.server_address
         MSG_LEN = self.MSG_LEN
 
-        bytemessage = ByteMessage(MSG_LEN)
-
         # establish a connection
         try:
             sock.connect(server_address)
-
         except ConnectionRefusedError as e:
-            raise SocketClientException('socket refused connection')
-
+            raise SocketClientException('Socket refused connection')
         except Exception:
-            raise SocketClientException('connection error')
+            raise SocketClientException('Connection error')
 
         try:
-
             # encode and send request
-            request = bytemessage.encode(request)
-            res = sock.sendall(request)
+            encoded_request = request.encode(MSG_LEN)
 
+            res = sock.sendall(encoded_request)
             if res:
-                raise SocketClientException('cannot send request message to server')
+                raise SocketClientException('Cannot send request message to server')
 
             # get data from server and decode
-            response = self.receive_data(sock)
-            response = bytemessage.decode(response)
+            encoded_response = self.receive_data(sock)
+
+            response = Response.decode(encoded_response)
 
         except:
-            raise SocketClientException('impossible to send request to server')
+            raise SocketClientException('Impossible to send request to server')
 
         finally:
             # close connection
@@ -82,15 +78,12 @@ class SocketClient(CommonSocket):
     def get_response(self, sock):
 
         response = b''
-
         receiving = True
         while receiving:
 
             new_data = sock.recv(4096)
-
             if new_data:
                 response += new_data
-
             else:
                 receiving = False
 
