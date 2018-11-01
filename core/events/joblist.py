@@ -9,12 +9,13 @@ class JobList():
 
         response = Response()
 
+        data = {}
         try:
             # create and add new schedule
             schedule_manager = ScheduleManager()
             schedules = schedule_manager.get_all()
 
-            data = {}
+            result = {}
             for ii,s in enumerate(schedules):
 
                 d = {}
@@ -23,17 +24,19 @@ class JobList():
                 d['cronexp'] = s.cronexp
                 d['enabled'] = s.enabled
 
-                data[ii] = d
+                result[ii] = d
 
-            print(data)
-            response.set_data(data)
-
+            data['result'] = result
+            
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_description('Impossible to list schedules')
+            data['status'] = 'Impossible to list schedules'
 
         else:
             response.set_status(StatusCode.STATUS_OK)
-            response.set_description('List of schedule generated')
+            data['status'] = 'List of schedule generated'
+
+        finally:
+            response.set_data(data)
 
         return response

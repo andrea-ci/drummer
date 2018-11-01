@@ -19,10 +19,10 @@ class JobAdd():
 
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_description('Impossible to add schedule')
+            response.set_data({'msg': 'Impossible to add schedule'})
 
         else:
             response.set_status(StatusCode.STATUS_OK)
-            response.set_description('Schedule has been added!')
+            response.set_data({'msg': 'Schedule has been added!'})
 
         return response

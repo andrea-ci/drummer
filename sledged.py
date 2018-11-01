@@ -50,20 +50,20 @@ class Sledged:
         #queue_listener_w2m, queue_listener_m2w  = Worker.from_classname('Listener')
 
         # [LISTENER]
-        logger.debug('Starting Listener')
+        logger.info('Starting Listener')
         listener = Listener()
         queue_listener_w2m, queue_listener_m2w = listener.get_queues()
         listener.start()
         pid = queue_listener_w2m.get()
-        logger.debug('Listener successfully started with pid {0}'.format(pid))
+        logger.info('Listener successfully started with pid {0}'.format(pid))
 
         # [SCHEDULER]
-        logger.debug('Starting Scheduler')
+        logger.info('Starting Scheduler')
         scheduler = Scheduler()
         queue_scheduler_w2m = scheduler.get_queues()
         scheduler.start()
         pid = queue_scheduler_w2m.get()
-        logger.debug('Scheduler successfully started with pid {0}'.format(pid))
+        logger.info('Scheduler successfully started with pid {0}'.format(pid))
 
         # handle runners
         #runner_conns = []
@@ -101,15 +101,15 @@ class Sledged:
         if not queue_listener_w2m.empty():
 
             # handle request from listener
-            logger.debug('Serving a new request from console')
+            logger.info('Serving a new request from console')
 
             # get the request
             request = queue_listener_w2m.get()
 
-            # start a new runner
-            logger.debug('Activating the EventRunner')
-
+            # run the request
             response = event_runner.work(request)
+
+            # send the response
             queue_listener_m2w.put(response)
 
         return
@@ -118,15 +118,16 @@ class Sledged:
     def check_messages_from_scheduler(self, job_manager, queue_scheduler_w2m):
 
         logger = self.logger
+
         queue_tasks_todo = self.queue_tasks_todo
 
         while not queue_scheduler_w2m.empty():
 
-            # handle request from scheduler
-            logger.debug('A new job to execute has been sent from scheduler')
-
             # pick job to be executed
             job = queue_scheduler_w2m.get()
+
+            # handle request from scheduler
+            logger.info('Job {0} is going to be executed'.format(job))
 
             # add job to be managed
             queue_tasks_todo = job_manager.add_job(job, queue_tasks_todo)

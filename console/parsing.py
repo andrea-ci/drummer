@@ -13,22 +13,14 @@ class ArgParser:
 
         args = vars(parser.parse_args(sys_argv[1:]))
 
-        request = self.create_request(args)
+        # get command classname
+        classname = args.get('classname')
+        del args['classname']
 
-        return request
+        # command parameters
+        params = args
 
-
-    def create_request(self, args):
-
-        classpath = 'console/commands'
-
-        # send request
-        request = Request()
-        request.set_classpath(classpath)
-        request.set_classname(args.get('classname'))
-        request.set_data(args)
-
-        return request
+        return classname, params
 
 
     def define_parsers(self):

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.sockets.commonsocket import CommonSocket
-from core.foundation.messages import ByteMessage, Response, StatusCode
+from core.foundation.messages import Request, Response, StatusCode
 
 # accepted connections
 class SocketServerException(Exception):
@@ -24,8 +24,6 @@ class SocketServer(CommonSocket):
         max_connections = self.max_connections
         MSG_LEN = self.MSG_LEN
 
-        bytemessage = ByteMessage(MSG_LEN)
-
         # bind socket
         sock.bind(server_address)
 
@@ -38,14 +36,13 @@ class SocketServer(CommonSocket):
             connection, client_address = sock.accept()
 
             with connection:
-
                 try:
 
                     # get data from client
                     encoded_request = self.receive_data(connection)
 
                     # decode client request
-                    request = bytemessage.decode(encoded_request)
+                    request = Request.decode(encoded_request)
 
                     # send request to master
                     self.queue_w2m.put(request)
@@ -54,7 +51,7 @@ class SocketServer(CommonSocket):
                     response = self.queue_m2w.get(block=True, timeout=None)
 
                     # send response to client
-                    encoded_response = bytemessage.encode(response)
+                    encoded_response = response.encode(MSG_LEN)
                     res = connection.sendall(encoded_response)
 
                 except Exception:
