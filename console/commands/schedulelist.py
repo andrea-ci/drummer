@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.sockets.client import SocketClient
 from core.foundation.messages import Request, StatusCode
+from core.sockets.client import SocketClient
+from prettytable import PrettyTable
 from .base import BaseCommand
 
 
@@ -28,9 +29,15 @@ class ScheduleList(BaseCommand):
 
         if response.status == StatusCode.STATUS_OK:
 
-            result = response.data['result']
+            result = response.data['Result']
 
-            print(' Scheduled jobs:')
+            table = PrettyTable()
+            table.field_names = ['No.', 'Name', 'Description', 'Cronexp']
+            table.align['Name'] = 'l'
+            table.align['Description'] = 'l'
+            table.align['Cronexp'] = 'l'
+
+            print('\nScheduled jobs:')
 
             for ii in range(len(result)):
 
@@ -40,7 +47,10 @@ class ScheduleList(BaseCommand):
                 description = schedule.get('description')
                 cronexp = schedule.get('cronexp')
 
-                print('{0} - {1} - {2}'.format(name, description, cronexp))
+                table.add_row([ii, name, description, cronexp])
 
+            print(table)
+            print()
+            
         else:
             print('Impossible to execute the command')

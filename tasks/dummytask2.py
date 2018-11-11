@@ -10,7 +10,6 @@ class DummyTask2():
         response = Response()
 
         try:
-
             # task logic
             dd = datetime.now()
 
@@ -20,12 +19,12 @@ class DummyTask2():
 
             # task response
             response.set_status(StatusCode.STATUS_OK)
-            response.set_data({'msg': 'all right'})
+            response.set_data({'Description': 'all right'})
 
         except Exception:
 
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_data({'msg': 'something was wrong'})
+            response.set_data({'Description': 'something was wrong'})
 
         finally:
             return response

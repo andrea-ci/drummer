@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from core.foundation.messages import Request
-from sys import argv as sys_argv
 from sys import exit as sys_exit
+from sys import argv as sys_argv
 import argparse
 
 class ArgParser:
@@ -10,17 +10,21 @@ class ArgParser:
     def process(self, sys_argv):
 
         parser = self.define_parsers()
-
         args = vars(parser.parse_args(sys_argv[1:]))
 
         # get command classname
-        classname = args.get('classname')
-        del args['classname']
+        if args:
+            classname = args.get('classname')
+            del args['classname']
 
-        # command parameters
-        params = args
+            # command parameters
+            params = args
 
-        return classname, params
+            return classname, params
+
+        else:
+            print('Syntax error. Use -h option for help.')
+            sys_exit()
 
 
     def define_parsers(self):
@@ -39,7 +43,7 @@ class ArgParser:
 
         # task:exec
         parser_te = subparsers.add_parser('task:exec', help='Execute a task')
-        #parser_te.add_argument('task_id', action='store', help='ID of task to execute')
+        parser_te.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
         parser_te.set_defaults(classname='TaskExec')
 
         # schedule:add

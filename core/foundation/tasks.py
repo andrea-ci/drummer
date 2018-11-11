@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 from utils.filelogger import FileLogger
 from core.workers.runner import Runner
+from datetime import datetime
 import uuid
 
-class TaskRunner:
+class TaskManager:
     """ manages tasks to be run """
 
     def __init__(self):
@@ -12,8 +13,8 @@ class TaskRunner:
         # get logger
         self.logger = FileLogger.get()
 
-        # list of queues with runners
-        self.runners = []
+        # management of runners
+        self.execution_data = []
 
 
     def run_task(self, queue_tasks_todo):
@@ -23,43 +24,104 @@ class TaskRunner:
 
         if not queue_tasks_todo.empty():
 
-            # pick the task
+            # pick a task
             task_to_exec = queue_tasks_todo.get()
             logger.info('Task {0} is going to run with UID {1}'.format(task_to_exec.task.classname, task_to_exec.uid))
 
             # start a new runner for task
             logger.debug('Starting Runner')
             runner = Runner(task_to_exec)
+
+            # get runner queue
             queue_runner_w2m = runner.get_queues()
+
+            # start runner process
             runner.start()
+
+            # get pid
             pid = queue_runner_w2m.get()
             logger.info('Runner successfully started with pid {0}'.format(pid))
 
-            # write task to exec
-            #queue_runner_m2w.put(task_to_exec)
-
-            # append queue with task executed
-            self.runners.append(queue_runner_w2m)
+            # add task data object
+            self.execution_data.append({
+                'classname':    task_to_exec.task.classname,
+                'uid':          task_to_exec.uid,
+                'handle':       runner,
+                'queue':        queue_runner_w2m,
+                'timestamp':    datetime.now(),
+                'timeout':      task_to_exec.task._timeout,
+            })
 
         return queue_tasks_todo
 
 
-    def load_task_result(self, queue_tasks_done):
+    def load_results(self, queue_tasks_done):
         """ load task result from runners and save to local queue """
 
         logger = self.logger
 
-        # check runners' results
-        for q in self.runners:
-            if not q.empty():
+        idx_runners_to_terminate = []
+
+        # check tasks executed by runners
+        for ii,execution in enumerate(self.execution_data):
+
+            if not execution['queue'].empty():
 
                 # pick the task
-                executed_task = q.get()
-                logger.info('Task ended with result {0}'.format(executed_task.result.status))
+                task_result = execution['queue'].get()
+                logger.info('Task {0} (UID {1}) ended with result {2}'.format(
+                    execution['classname'],
+                    execution['uid'],
+                    task_result.result.status
+                ))
 
-                queue_tasks_done.put(executed_task)
+                # update done queue
+                queue_tasks_done.put(task_result)
+
+                # prepare runners to clean
+                idx_runners_to_terminate.append(ii)
+
+        # clean-up finished runners
+        if idx_runners_to_terminate:
+
+            logger.debug('Going to clean-up finished runners')
+            self._cleanup_runners(idx_runners_to_terminate)
 
         return queue_tasks_done
+
+
+    def check_timeouts(self):
+
+        for ii,runner_data in enumerate(self.execution_data):
+
+            total_seconds = (datetime.now()-runner_data['timestamp']).total_seconds()
+
+            if (total_seconds > runner_data['timeout']):
+                logger.debug('Timeout exceeded, going to terminate task')
+                self._cleanup_runners([ii])
+
+
+    def _cleanup_runners(self, idx_runners_to_terminate):
+        """ clean-up: explicitly terminate runner processes and remove their queues """
+
+        logger = self.logger
+
+        logger.debug('Num. of runners before cleaning: {0}'.format(len(self.execution_data)))
+
+        # clean handles
+        execution_data = []
+        for ii,execution in enumerate(self.execution_data):
+
+            if ii in idx_runners_to_terminate:
+                execution['handle'].terminate()
+            else:
+                execution_data.append(execution)
+
+        self.execution_data = execution_data
+
+        logger.debug('Num. of runners after cleaning: {0}'.format(len(self.execution_data)))
+
+        return
 
 
 class TaskExecution:

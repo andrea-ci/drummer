@@ -3,7 +3,6 @@
 from multiprocessing import Process, Queue
 from utils.classloader import ClassLoader
 from os import getpid as os_getpid
-#import signal
 
 class Runner(Process):
     """ This worker executes commands and tasks"""
@@ -62,8 +61,3 @@ class Runner(Process):
         queue_w2m.put(task_executing)
 
         return
-
-
-    def handler(signum, frame):
-        """ timeout handler """
-        raise Exception("task ended in timeout")

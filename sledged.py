@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#from core.workers.listener import Listener
-#from core.workers.scheduler import Scheduler
-#from core.workers.eventrunner import EventRunner
 from core.workers import Listener, Scheduler, EventRunner
 from utils import Configuration, FileLogger, Queued
-from core.foundation.tasking import TaskRunner
+from core.foundation.tasks import TaskManager
 from core.foundation.jobs import JobManager
 from time import sleep
 
@@ -38,7 +35,7 @@ class Sledged:
         queue_tasks_done = self.queue_tasks_done
 
         # create task runner
-        task_runner = TaskRunner()
+        task_manager = TaskManager()
 
         # create job manager
         job_manager = JobManager()
@@ -46,24 +43,11 @@ class Sledged:
         # create event runner
         event_runner = EventRunner()
 
-        # start listener and scheduler workers
-        #queue_listener_w2m, queue_listener_m2w  = Worker.from_classname('Listener')
-
         # [LISTENER]
-        logger.info('Starting Listener')
-        listener = Listener()
-        queue_listener_w2m, queue_listener_m2w = listener.get_queues()
-        listener.start()
-        pid = queue_listener_w2m.get()
-        logger.info('Listener successfully started with pid {0}'.format(pid))
+        listener, queue_listener_w2m, queue_listener_m2w = self.create_listener()
 
         # [SCHEDULER]
-        logger.info('Starting Scheduler')
-        scheduler = Scheduler()
-        queue_scheduler_w2m = scheduler.get_queues()
-        scheduler.start()
-        pid = queue_scheduler_w2m.get()
-        logger.info('Scheduler successfully started with pid {0}'.format(pid))
+        scheduler, queue_scheduler_w2m = self.create_scheduler()
 
         # handle runners
         #runner_conns = []
@@ -72,17 +56,23 @@ class Sledged:
         # main loop
         while True:
 
+            # check scheduler
+            scheduler, queue_scheduler_w2m = self.check_scheduler(scheduler, queue_scheduler_w2m)
+
+            # check listener
+            listener, queue_listener_w2m, queue_listener_m2w = self.check_listener(listener, queue_listener_w2m, queue_listener_m2w)
+
             # check for messages from listener
-            self.check_listener_requests(event_runner, queue_listener_w2m, queue_listener_m2w)
+            self.check_messages_from_listener(event_runner, queue_listener_w2m, queue_listener_m2w)
 
             # check for messages from scheduler
             job_manager = self.check_messages_from_scheduler(job_manager, queue_scheduler_w2m)
 
             # check task done
-            queue_tasks_done = task_runner.load_task_result(queue_tasks_done)
+            queue_tasks_done = task_manager.load_results(queue_tasks_done)
 
             # check tasks to be executed
-            queue_tasks_todo = task_runner.run_task(queue_tasks_todo)
+            queue_tasks_todo = task_manager.run_task(queue_tasks_todo)
 
             # update todo queue
             queue_tasks_todo, queue_tasks_done = job_manager.update_status(queue_tasks_todo, queue_tasks_done)
@@ -93,7 +83,7 @@ class Sledged:
         return
 
 
-    def check_listener_requests(self, event_runner, queue_listener_w2m, queue_listener_m2w):
+    def check_messages_from_listener(self, event_runner, queue_listener_w2m, queue_listener_m2w):
 
         logger = self.logger
 
@@ -135,6 +125,57 @@ class Sledged:
             #print(queue_tasks_todo.get())
 
         return job_manager
+
+
+    def create_listener(self):
+
+        logger = self.logger
+        logger.info('Starting Listener')
+
+        listener = Listener()
+        queue_listener_w2m, queue_listener_m2w = listener.get_queues()
+
+        listener.start()
+        pid = queue_listener_w2m.get()
+
+        logger.info('Listener successfully started with pid {0}'.format(pid))
+
+        return listener, queue_listener_w2m, queue_listener_m2w
+
+
+    def create_scheduler(self):
+
+        logger = self.logger
+        logger.info('Starting Scheduler')
+
+        scheduler = Scheduler()
+        queue_scheduler_w2m = scheduler.get_queues()
+
+        scheduler.start()
+        pid = queue_scheduler_w2m.get()
+
+        logger.info('Scheduler successfully started with pid {0}'.format(pid))
+
+        return scheduler, queue_scheduler_w2m
+
+
+    def check_listener(self, listener, queue_listener_w2m, queue_listener_m2w):
+
+        if not listener.is_alive():
+            self.logger.warning('Listener has exited, going to restart')
+            listener, queue_listener_w2m, queue_listener_m2w = self.create_listener()
+
+        return listener, queue_listener_w2m, queue_listener_m2w
+
+
+    def check_scheduler(self, scheduler, queue_scheduler_w2m):
+
+        if not scheduler.is_alive():
+
+            self.logger.warning('Scheduler has exited, going to restart')
+            scheduler, queue_scheduler_w2m = self.create_scheduler()
+
+        return scheduler, queue_scheduler_w2m
 
 
 if __name__ == "__main__":
