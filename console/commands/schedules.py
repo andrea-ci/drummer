@@ -1,16 +1,48 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from core.foundation.messages import Request, StatusCode
 from core.sockets.client import SocketClient
-from core.foundation import Request
+from prettytable import PrettyTable
 from sys import exit as sys_exit
 from .base import BaseCommand
 from croniter import croniter
 import json
 
 
-class AddSchedule(BaseCommand):
+class ScheduleCommand(BaseCommand):
+
+    def test_socket_connection(self):
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('SocketTest')
+        request.set_classpath('core/events')
+
+        try:
+
+            # send request to listener
+            sc = SocketClient()
+            response = sc.send_request(request)
+
+            assert response.status == StatusCode.STATUS_OK
+
+            return True
+
+        except:
+
+            print('Connection test failed, maybe socket is down.')
+            sys_exit()
+
+        else:
+            return
+
+
+class ScheduleAdd(ScheduleCommand):
 
     def execute(self, request):
+
+        # test socket connection
+        self.test_socket_connection()
 
         registered_tasks = self.config['tasks']
 
@@ -151,3 +183,65 @@ class AddSchedule(BaseCommand):
             status = 0
 
         return status
+
+
+class ScheduleList(ScheduleCommand):
+
+    def execute(self, args):
+
+        # test socket connection
+        self.test_socket_connection()
+
+        # handle command parameters
+        # args = request.args
+        # ...
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('JobList')
+        request.set_classpath('core/events')
+        request.set_data(args)
+
+        # send request to listener
+        sc = SocketClient()
+        response = sc.send_request(request)
+
+        if response.status == StatusCode.STATUS_OK:
+
+            result = response.data['Result']
+
+            table = PrettyTable()
+            table.field_names = ['No.', 'Name', 'Description', 'Cronexp']
+            table.align['Name'] = 'l'
+            table.align['Description'] = 'l'
+            table.align['Cronexp'] = 'l'
+
+            print('\nScheduled jobs:')
+
+            for ii in range(len(result)):
+
+                schedule = result[str(ii)]
+
+                name = schedule.get('name')
+                description = schedule.get('description')
+                cronexp = schedule.get('cronexp')
+
+                table.add_row([ii, name, description, cronexp])
+
+            print(table)
+            print()
+
+        else:
+            print('Impossible to execute the command')
+
+
+class ScheduleEnable(ScheduleCommand):
+    pass
+
+
+class ScheduleDisable(ScheduleCommand):
+    pass
+
+
+class ScheduleExec(ScheduleCommand):
+    pass

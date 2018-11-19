@@ -4,9 +4,10 @@ from sqlalchemy.orm import sessionmaker
 from sqlite3 import dbapi2 as sqlite
 from sqlalchemy import create_engine
 
-class SessionHandler():
+class SqliteSession():
 
-    def create_session(self):
+    @staticmethod
+    def create():
 
         # create engine
         db_engine = create_engine('sqlite+pysqlite:///database/sledge.db', module=sqlite)

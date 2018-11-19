@@ -68,8 +68,11 @@ class Sledged:
             # check for messages from scheduler
             job_manager = self.check_messages_from_scheduler(job_manager, queue_scheduler_w2m)
 
-            # check task done
+            # check finished tasks
             queue_tasks_done = task_manager.load_results(queue_tasks_done)
+
+            # check for task timeouts
+            task_manager.check_timeouts()
 
             # check tasks to be executed
             queue_tasks_todo = task_manager.run_task(queue_tasks_todo)

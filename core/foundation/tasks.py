@@ -97,10 +97,13 @@ class TaskManager:
             total_seconds = (datetime.now()-runner_data['timestamp']).total_seconds()
 
             if (total_seconds > runner_data['timeout']):
-                logger.debug('Timeout exceeded, going to terminate task')
+                # inserire dati del task
+                logger.debug('Timeout exceeded, going to terminate task {0} (UID: {1})'.format(runner_data['classname'], runner_data['uid']))
                 self._cleanup_runners([ii])
 
+        return True
 
+        
     def _cleanup_runners(self, idx_runners_to_terminate):
         """ clean-up: explicitly terminate runner processes and remove their queues """
 

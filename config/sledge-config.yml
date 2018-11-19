@@ -16,5 +16,8 @@ tasks:
     -
         classname: DummyTask2
         description: another dummy task
+    -
+        classname: DummyTask3
+        description: never-ending dummy task
 fork-limit: 4
 idle-time: 0.1

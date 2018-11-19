@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.database import ScheduleManager
+from core.database import SqliteSession, Schedule
 from core.foundation.jobs import Job
 import sched
 import time
@@ -31,17 +31,14 @@ class Extender(sched.scheduler):
 
 
     def load_schedules(self):
-        """ load schedules from database """
+        """ load enabled schedules from database """
 
-        # init schedule reader and get schedules
-        schedule_manager = ScheduleManager()
+        # get all enabled schedules
+        session = SqliteSession.create()
 
-        schedules = []
-        for schedule in schedule_manager.get_all():
+        schedules = session.query(Schedule).filter(Schedule.enabled==True).all()
 
-            # only enabled schedules
-            if schedule.enabled:
-                schedules.append(schedule)
+        session.close()
 
         return schedules
 

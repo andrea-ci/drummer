@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from core.foundation.messages import Request, StatusCode
+from core.sockets.client import SocketClient
 from utils import Configuration
 
 class BaseCommand():
@@ -10,5 +12,6 @@ class BaseCommand():
         # load configuration
         self.config = Configuration.load()
 
-    def test_socket_connection(self):
-        return True
+
+    def execute(self):
+        raise NotImplementedError('This is an abstract method to override')

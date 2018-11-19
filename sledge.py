@@ -7,10 +7,10 @@ from console import ArgParser
 if __name__ == '__main__':
 
     # get command from console
-    classname, params = ArgParser().process(sys_argv)
+    classname, args = ArgParser().process(sys_argv)
 
     # load command
     Command = ClassLoader().load('console/commands', classname)
 
     # execute command
-    Command().execute(params)
+    Command().execute(args)

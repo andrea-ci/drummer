@@ -138,6 +138,7 @@ class Job:
     def __str__(self):
         return '{0} - {1}'.format(self._name, self._description)
 
+
     def __eq__(self, other):
         return self._name == other._name
 

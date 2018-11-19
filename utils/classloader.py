@@ -1,23 +1,24 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from os import path
+#from os import path
 
 class ClassLoaderException(Exception):
     pass
 
 class ClassLoader():
-    """ loads and returns a class given its full path """
+    """ loads class from the given module path """
 
-    def load(self, classpath, classname):
+    def load(self, module_path, classname):
 
         try:
             # import the class
-            mod_to_import = path.join(classpath, classname.lower()).replace('/','.')
-            
+            #mod_to_import = path.join(module_path, classname.lower()).replace('/','.')
+            mod_to_import = module_path.replace('/','.')
+
             mod = __import__(mod_to_import, fromlist=[classname])
             LoadedClass = getattr(mod, classname)
 
         except:
-            raise ClassLoaderException('unable to load class')
+            raise ClassLoaderException('Unable to load class')
 
         return LoadedClass

@@ -5,7 +5,7 @@ from utils.classloader import ClassLoader
 from os import getpid as os_getpid
 
 class Runner(Process):
-    """ This worker executes commands and tasks"""
+    """ This worker executes commands and tasks """
 
     def __init__(self, task_executing):
 
@@ -44,8 +44,8 @@ class Runner(Process):
         task = task_executing.task
 
         # load class to exec
-        classpath = 'tasks'
         classname = task.classname
+        classpath = 'tasks/{0}'.format(classname.lower())
 
         timeout = task.timeout
         params = task.params

@@ -10,8 +10,8 @@ class EventRunner:
         self.running = True
 
         # load class to exec
-        classpath = request.classpath
         classname = request.classname
+        classpath = request.classpath
 
         # run the task and get task result
         EventToExec = ClassLoader().load(classpath, classname)

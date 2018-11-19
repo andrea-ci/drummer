@@ -9,22 +9,23 @@ class ArgParser:
 
     def process(self, sys_argv):
 
+        if len(sys_argv)==1:
+            print('Command missing. See -h for usage.')
+            sys_exit()
+
         parser = self.define_parsers()
         args = vars(parser.parse_args(sys_argv[1:]))
 
         # get command classname
-        if args:
-            classname = args.get('classname')
-            del args['classname']
+        #if args:
+        classname = args.get('classname')
+        del args['classname']
 
-            # command parameters
-            params = args
+        return classname, args
 
-            return classname, params
-
-        else:
-            print('Syntax error. Use -h option for help.')
-            sys_exit()
+        #else:
+        #    print('Syntax error. Use -h option for help.')
+        #    sys_exit()
 
 
     def define_parsers(self):
