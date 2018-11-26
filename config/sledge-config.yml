@@ -3,7 +3,7 @@ socket:
     address: localhost
     port: 10200
     max_connections: 1
-    message_len: 1024
+    message_len: 4096
 logging:
     path: logs
     filename: sledge.log

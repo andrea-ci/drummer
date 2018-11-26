@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation.tasks import Task, TaskExecution
-from core.foundation.messages import StatusCode
+from .messages import StatusCode
+from .tasks import Task, TaskExecution
 from datetime import datetime
 from croniter import croniter
 from utils import FileLogger
@@ -22,7 +22,7 @@ class JobManager:
 
 
     def add_job(self, job, queue_tasks_todo):
-        """ add the job to be executed """
+        """ add a new job to be executed """
 
         # update job list
         self.jobs.append(job)
@@ -83,14 +83,14 @@ class JobManager:
 
         # get next task classname
         # if job is finished next task is None
-        if executed_task.task._on_pipe:
-            next_task = executed_task.task._on_pipe
+        if executed_task.on_pipe:
+            next_task = executed_task.on_pipe
 
-        elif executed_task.task._on_done and result.status == StatusCode.STATUS_OK:
-            next_task = executed_task.task._on_done
+        elif executed_task.on_done and result.status == StatusCode.STATUS_OK:
+            next_task = executed_task.on_done
 
-        elif executed_task.task._on_fail and result.status == StatusCode.STATUS_ERROR:
-            next_task = executed_task.task._on_fail
+        elif executed_task.on_fail and result.status == StatusCode.STATUS_ERROR:
+            next_task = executed_task.on_fail
 
         else:
             # no more tasks to execute
@@ -117,22 +117,23 @@ class JobManager:
 
 
 class Job:
-    """ Job object used for manipulation from/to from schedules """
+    """ A Job is an active instance of a schedulation """
 
     def __init__(self, schedule):
-        """ takes schedule entity """
+        """ takes a Schedule object and provides a convenient mapping """
 
         # job name/description
         self._name = schedule.name
         self._description = schedule.description
+
         # job root task and task data
         self._root, self._tasks = self._set_task_data(schedule.parameters)
+
         # job cron
         self._cron = croniter(schedule.cronexp, datetime.now())
+
         # job enabled flag
         self._enabled = schedule.enabled
-        # job status
-        self._terminated = False
 
 
     def __str__(self):

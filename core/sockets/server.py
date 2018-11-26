@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.sockets.commonsocket import CommonSocket
-from core.foundation.messages import Request, Response, StatusCode
+from .commonsocket import CommonSocket
+from core.foundation import Request, Response, StatusCode
 
 # accepted connections
 class SocketServerException(Exception):
@@ -16,6 +16,7 @@ class SocketServer(CommonSocket):
 
         self.queue_w2m = queue_w2m
         self.queue_m2w = queue_m2w
+
 
     def run(self):
 

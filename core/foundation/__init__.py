@@ -1,5 +1,9 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#from core.foundation import ByteMessage, Request, Response, StatusCode
-#from core.foundation import TaskManager, TaskExecution, Task
-#from core.foundation import Job, JobManager
+
+""" this package exports foundation classes """
+
+# extender
+from .messages import StatusCode, Request, Response, FollowUp
+from .jobs import Job,  JobManager
+from .tasks import TaskManager

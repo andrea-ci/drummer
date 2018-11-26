@@ -3,6 +3,7 @@
 
 class Queued:
     """ a simple FIFO queue """
+    
     def __init__(self):
         self._queue = []
 

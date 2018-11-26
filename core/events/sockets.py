@@ -1,13 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import Response, StatusCode
+from core.foundation.messages import Response, StatusCode, FollowUp
 
-class SocketTest:
+class SocketTestEvent:
     """ simple event to check socket connection """
 
     def execute(self, request):
 
         response = Response()
+
+        follow_up = FollowUp(None)
 
         try:
             response.set_status(StatusCode.STATUS_OK)
@@ -15,4 +17,4 @@ class SocketTest:
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
 
-        return response
+        return response, follow_up

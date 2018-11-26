@@ -6,8 +6,8 @@ from prettytable import PrettyTable
 from sys import exit as sys_exit
 from .base import BaseCommand
 from croniter import croniter
+import inquirer
 import json
-
 
 class ScheduleCommand(BaseCommand):
 
@@ -15,7 +15,7 @@ class ScheduleCommand(BaseCommand):
 
         # prepare request to listener
         request = Request()
-        request.set_classname('SocketTest')
+        request.set_classname('SocketTestEvent')
         request.set_classpath('core/events')
 
         try:
@@ -37,33 +37,77 @@ class ScheduleCommand(BaseCommand):
             return
 
 
+class ScheduleList(ScheduleCommand):
+
+    def execute(self, args):
+
+        # test socket connection
+        self.test_socket_connection()
+
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['ID', 'Name', 'Description', 'Cronexp', 'Enabled']
+        table.align['Name'] = 'l'
+        table.align['Description'] = 'l'
+        table.align['Cronexp'] = 'l'
+
+        # handle command parameters
+        # args = request.args
+        # ...
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('ScheduleListEvent')
+        request.set_classpath('core/events')
+        #request.set_data(args)
+
+        # send request to listener
+        sc = SocketClient()
+        response = sc.send_request(request)
+
+        if response.status == StatusCode.STATUS_OK:
+
+            schedule_list = response.data['Result']
+
+            print('\nScheduled jobs:')
+
+            for s in schedule_list:
+
+                uid = s.get('id')
+                name = s.get('name')
+                description = s.get('description')
+                cronexp = s.get('cronexp')
+                enabled = s.get('enabled')
+
+                table.add_row([uid, name, description, cronexp, enabled])
+
+            print(table)
+            print()
+
+        else:
+            print('Impossible to execute the command')
+
+
 class ScheduleAdd(ScheduleCommand):
 
-    def execute(self, request):
+    def execute(self, args):
+
+        # handle command parameters
+        # ...
 
         # test socket connection
         self.test_socket_connection()
 
         registered_tasks = self.config['tasks']
 
-        # test socket connection
-        # TBD
-
-        # handle command parameters
-        # parameters = request.parameters
-        # ...
+        schedulation = self.ask_basics()
 
         # get schedulation data from the user
-        schedulation = {}
-        schedulation['name'] = self.set_name()
-        schedulation['description'] = self.set_description()
-        schedulation['cronexp'] = self.set_cronexp()
         schedulation['parameters'] = self.set_schedulation_parameters(registered_tasks)
-        schedulation['enabled'] = self.set_job_status()
 
         # prepare request to listener
         request = Request()
-        request.set_classname('JobAdd')
+        request.set_classname('ScheduleAddEvent')
         request.set_classpath('core/events')
         request.set_data(schedulation)
 
@@ -71,48 +115,85 @@ class ScheduleAdd(ScheduleCommand):
         sc = SocketClient()
         response = sc.send_request(request)
 
-        print('Result: {0} -> {1}'.format(response.status, response.description))
+        print('Result: {0} -> {1}'.format(response.status, response.data))
 
         return
 
 
-    def set_name(self):
-        # get job information
-        name = input('Name of the Job: ')
-        return name
+    @staticmethod
+    def check_cron(_, candidate):
+        return croniter.is_valid(candidate)
 
 
-    def set_description(self):
-        description = input('Brief description of job: ')
-        return description
+    @staticmethod
+    def check_int(_, candidate):
+        try:
+            int(candidate)
+            return True
+        except:
+            return False
 
 
-    def set_cronexp(self):
+    def ask_basics(self):
 
-        # cron expression
-        cronexp = input('Cron expression: ')
+        questions = [
+            inquirer.Text(
+                'name',
+                message = 'Name of schedule'
+            ),
+            inquirer.Text(
+                'description',
+                message = 'Description of schedule',
+            ),
+            inquirer.Text(
+                'cronexp',
+                message = 'Cron expression',
+                validate = self.check_cron,
+            ),
+            inquirer.Confirm(
+                'enabled',
+                message = 'Enable the job?',
+                default = True,
+            )
+        ]
 
-        if not croniter.is_valid(cronexp):
-            print('cron expression not valid')
-            sys_exit()
-        return cronexp
+        schedulation = inquirer.prompt(questions)
+
+        return schedulation
 
 
     def set_task(self, registered_tasks, schedulation_parameters):
 
+        classnames = [tsk['classname'] for tsk in registered_tasks]
+
         # select a task
-        print('\nChoose a task to execute:')
+        choices = ['{0} - {1}'.format(tsk['classname'], tsk['description']) for tsk in registered_tasks]
 
-        for ii,tsk in enumerate(registered_tasks):
-            print('[{0}]: {1} - {2}'.format(ii, tsk['classname'], tsk['description']))
+        questions = [
+            inquirer.List('task',
+                  message = "Select task to execute",
+                  choices = choices,
+                  carousel = True,
+              ),
+              inquirer.Text(
+                  'timeout',
+                  message = 'Timeout',
+                  default = '600',
+                  validate = self.check_int
+              ),
+              inquirer.Text(
+                  'parameters',
+                  message = 'Task parameters'
+              ),
+        ]
 
-        task_no = int(input('Task no.: '))
-        classname = registered_tasks[task_no]['classname']
+        ans = inquirer.prompt(questions)
+        classname = classnames[choices.index(ans['task'])]
 
         # set task parameters
         task = {}
-        task['timeout'] = self.set_timeout()
-        task['parameters'] = self.set_task_parameters(classname)
+        task['timeout'] = ans['timeout']
+        task['parameters'] = ans['parameters']
         task['onPipe'] = None
         task['onSuccess'] = None
         task['onFail'] = None
@@ -122,26 +203,44 @@ class ScheduleAdd(ScheduleCommand):
         return schedulation_parameters, classname
 
 
-    def set_task_parameters(self, classname):
-        ans = input('[{0}] Set task parameters (none)'.format(classname))
-
-
     def set_connection(self, registered_tasks, parameters, base_task):
 
-        ans = input('[{0}] Do you want to pipe another task? (n)'.format(base_task))
-        if ans == 'y':
+        question_pipe = [
+            inquirer.Confirm('onPipe',
+                message = '[{0}] Do you want to pipe another task?'.format(base_task),
+                default = False,
+            )
+        ]
+        question_success = [
+            inquirer.Confirm('onSuccess',
+                message = '[{0}] Do you want to execute another task on success?'.format(base_task),
+                default = False,
+            )
+        ]
+        question_fail = [
+            inquirer.Confirm('onFail',
+                message = '[{0}] Do you want to execute another task on fail?'.format(base_task),
+                default = False,
+            )
+        ]
+
+        ans = inquirer.prompt(question_pipe)
+
+        if ans['onPipe']:
             parameters, next_task = self.set_task(registered_tasks, parameters)
             parameters['tasklist'][base_task]['onPipe'] = next_task
             parameters = self.set_connection(registered_tasks, parameters, next_task)
 
-        ans = input('[{0}] Do you want to execute another task OnSuccess? (n)'.format(base_task))
-        if ans == 'y':
+        ans = inquirer.prompt(question_success)
+
+        if ans['onSuccess']:
             parameters, next_task = self.set_task(registered_tasks, parameters)
             parameters['tasklist'][base_task]['onSuccess'] = next_task
             parameters = self.set_connection(registered_tasks, parameters, next_task)
 
-        ans = input('[{0}] Do you want to execute another task OnFail? (n)'.format(base_task))
-        if ans == 'y':
+        ans = inquirer.prompt(question_fail)
+
+        if ans['onFail']:
             parameters, next_task = self.set_task(registered_tasks, parameters)
             parameters['tasklist'][base_task]['onFail'] = next_task
             parameters = self.set_connection(registered_tasks, parameters, next_task)
@@ -165,40 +264,16 @@ class ScheduleAdd(ScheduleCommand):
         return schedulation_parameters
 
 
-    def set_timeout(self):
-
-        timeout = input('Task timeout [s] (600): ')
-        try:
-            timeout = int(timeout)
-        except:
-            timeout = 600
-        return timeout
-
-
-    def set_job_status(self):
-
-        status = 1
-        enabled = input('Enable schedule? (y): ')
-        if enabled == 'n':
-            status = 0
-
-        return status
-
-
-class ScheduleList(ScheduleCommand):
+class ScheduleRemove(ScheduleCommand):
 
     def execute(self, args):
 
         # test socket connection
         self.test_socket_connection()
 
-        # handle command parameters
-        # args = request.args
-        # ...
-
         # prepare request to listener
         request = Request()
-        request.set_classname('JobList')
+        request.set_classname('ScheduleRemoveEvent')
         request.set_classpath('core/events')
         request.set_data(args)
 
@@ -206,41 +281,54 @@ class ScheduleList(ScheduleCommand):
         sc = SocketClient()
         response = sc.send_request(request)
 
-        if response.status == StatusCode.STATUS_OK:
+        print('Result: {0} -> {1}'.format(response.status, response.data))
 
-            result = response.data['Result']
-
-            table = PrettyTable()
-            table.field_names = ['No.', 'Name', 'Description', 'Cronexp']
-            table.align['Name'] = 'l'
-            table.align['Description'] = 'l'
-            table.align['Cronexp'] = 'l'
-
-            print('\nScheduled jobs:')
-
-            for ii in range(len(result)):
-
-                schedule = result[str(ii)]
-
-                name = schedule.get('name')
-                description = schedule.get('description')
-                cronexp = schedule.get('cronexp')
-
-                table.add_row([ii, name, description, cronexp])
-
-            print(table)
-            print()
-
-        else:
-            print('Impossible to execute the command')
+        return
 
 
 class ScheduleEnable(ScheduleCommand):
-    pass
+
+    def execute(self, args):
+
+        # test socket connection
+        self.test_socket_connection()
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('ScheduleEnableEvent')
+        request.set_classpath('core/events')
+        request.set_data(args)
+
+        # send request to listener
+        sc = SocketClient()
+        response = sc.send_request(request)
+
+        print('Result: {0} -> {1}'.format(response.status, response.data))
+
+        return
+
 
 
 class ScheduleDisable(ScheduleCommand):
-    pass
+
+    def execute(self, args):
+
+        # test socket connection
+        self.test_socket_connection()
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('ScheduleDisableEvent')
+        request.set_classpath('core/events')
+        request.set_data(args)
+
+        # send request to listener
+        sc = SocketClient()
+        response = sc.send_request(request)
+
+        print('Result: {0} -> {1}'.format(response.status, response.data))
+
+        return
 
 
 class ScheduleExec(ScheduleCommand):

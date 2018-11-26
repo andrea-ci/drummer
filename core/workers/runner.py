@@ -7,7 +7,7 @@ from os import getpid as os_getpid
 class Runner(Process):
     """ This worker executes commands and tasks """
 
-    def __init__(self, task_executing):
+    def __init__(self, executing_task):
 
         # worker init
         super().__init__()
@@ -16,7 +16,7 @@ class Runner(Process):
         self.queue_w2m = Queue(1)
         # queue master -> worker
         #self.queue_m2w = Queue(1)
-        self.task_executing = task_executing
+        self.executing_task = executing_task
 
 
     def get_queues(self):
@@ -40,24 +40,22 @@ class Runner(Process):
         queue_w2m = self.queue_w2m
 
         # get the task to exec
-        task_executing = self.task_executing
-        task = task_executing.task
+        executing_task = self.executing_task
 
         # load class to exec
-        classname = task.classname
+        classname = executing_task.classname
         classpath = 'tasks/{0}'.format(classname.lower())
 
-        timeout = task.timeout
-        params = task.params
+        timeout = executing_task.timeout
+        params = executing_task.params
 
         # run the task and get task result
         TaskToExec = ClassLoader().load(classpath, classname)
         task_result = TaskToExec().run(params)
 
-        task_executing.terminated = True
-        task_executing.result = task_result
+        executing_task.result = task_result
 
         # queue_done
-        queue_w2m.put(task_executing)
+        queue_w2m.put(executing_task)
 
         return

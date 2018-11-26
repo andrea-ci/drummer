@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import Response
-from core.sockets.commonsocket import CommonSocket
+from core.foundation import Response
+from .commonsocket import CommonSocket
 
 
 class SocketClientException(Exception):
@@ -9,32 +9,6 @@ class SocketClientException(Exception):
 
 
 class SocketClient(CommonSocket):
-
-    def check_connection(self):
-
-        connected = False
-
-        sock = self.sock
-        server_address = self.server_address
-
-        # establish a connection
-        try:
-            sock.connect(server_address)
-
-        except ConnectionRefusedError as e:
-            raise SocketClientException('Socket refused connection')
-
-        except Exception:
-            raise SocketClientException('Connection error')
-
-        else:
-            connected = True
-
-        finally:
-            # close connection
-            sock.close()
-
-        return connected
 
 
     def send_request(self, request):
@@ -47,8 +21,10 @@ class SocketClient(CommonSocket):
         # establish a connection
         try:
             sock.connect(server_address)
+
         except ConnectionRefusedError as e:
             raise SocketClientException('Socket refused connection')
+
         except Exception:
             raise SocketClientException('Connection error')
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utils.classloader import ClassLoader
 from sys import argv as sys_argv
+from utils import ClassLoader
 from console import ArgParser
 
 if __name__ == '__main__':

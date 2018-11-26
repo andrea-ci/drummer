@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import Request
 from sys import exit as sys_exit
 from sys import argv as sys_argv
 import argparse
@@ -23,10 +22,6 @@ class ArgParser:
 
         return classname, args
 
-        #else:
-        #    print('Syntax error. Use -h option for help.')
-        #    sys_exit()
-
 
     def define_parsers(self):
 
@@ -47,32 +42,38 @@ class ArgParser:
         parser_te.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
         parser_te.set_defaults(classname='TaskExec')
 
-        # schedule:add
-        parser_sa = subparsers.add_parser('schedule:add', help='Add a new schedule')
-        parser_sa.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
-        parser_sa.set_defaults(classname='ScheduleAdd')
-
         # schedule:list
-        parser_sa = subparsers.add_parser('schedule:list', help='List aviable schedules')
-        parser_sa.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
-        parser_sa.set_defaults(classname='ScheduleList')
+        parser_s01 = subparsers.add_parser('schedule:list', help='List aviable schedules')
+        parser_s01.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s01.set_defaults(classname='ScheduleList')
 
-        # schedule:exec
-        parser_se = subparsers.add_parser('schedule:exec', help='Execute immediately a schedule')
-        parser_se.add_argument('job_id', action='store', help='Job ID to execute')
-        parser_se.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
-        parser_se.set_defaults(classname='ScheduleExec')
+        # schedule:add
+        parser_s02 = subparsers.add_parser('schedule:add', help='Add a new schedule')
+        parser_s02.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s02.set_defaults(classname='ScheduleAdd')
+
+        # schedule:remove
+        parser_s03 = subparsers.add_parser('schedule:remove', help='Remove a schedule')
+        parser_s03.add_argument('schedule_id', action='store', help='ID of schedule to remove')
+        parser_s03.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s03.set_defaults(classname='ScheduleRemove')
 
         # schedule:enable
-        parser_sen = subparsers.add_parser('schedule:enable', help='Enable a schedule')
-        parser_sen.add_argument('job_id', action='store', help='Job ID to enable')
-        parser_sen.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
-        parser_sen.set_defaults(classname='ScheduleEnable')
+        parser_s04 = subparsers.add_parser('schedule:enable', help='Enable a schedule')
+        parser_s04.add_argument('schedule_id', action='store', help='ID of schedule to enable')
+        parser_s04.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s04.set_defaults(classname='ScheduleEnable')
 
         # schedule:disable
-        parser_sd = subparsers.add_parser('schedule:disable', help='Disable a schedule')
-        parser_sd.add_argument('job_id', action='store', help='Job ID to disable')
-        parser_sd.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
-        parser_sd.set_defaults(classname='ScheduleDisable')
+        parser_s06 = subparsers.add_parser('schedule:disable', help='Disable a schedule')
+        parser_s06.add_argument('schedule_id', action='store', help='ID of schedule to disable')
+        parser_s06.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s06.set_defaults(classname='ScheduleDisable')
+
+        # schedule:exec
+        parser_s07 = subparsers.add_parser('schedule:exec', help='Execute immediately a schedule')
+        parser_s07.add_argument('schedule_id', action='store', help='ID of schedule to execute')
+        parser_s07.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s07.set_defaults(classname='ScheduleExec')
 
         return parser

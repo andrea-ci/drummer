@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.database import SqliteSession, Schedule
-from core.foundation.jobs import Job
+from core.foundation import Job
 import sched
 import time
 
@@ -11,8 +11,10 @@ class Extender(sched.scheduler):
 
         # init scheduler
         super().__init__(time.time, time.sleep)
+
         # threading queue
         self.message_queue = message_queue
+
         # list of jobs
         self.jobs = []
 
@@ -46,14 +48,14 @@ class Extender(sched.scheduler):
     def ext_action(self, job):
         """ re-schedules next execution time and writes into the scheduler queue """
 
+        # write to the queue
+        self.message_queue.put(job)
+
         # get next exec time
         exec_time = job.get_next_exec_time()
 
         # schedule next job
         self.enterabs(exec_time, 1, self.ext_action, argument=(job,), kwargs={})
-
-        # write to the queue
-        self.message_queue.put(job)
 
         return
 

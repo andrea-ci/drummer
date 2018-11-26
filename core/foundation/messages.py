@@ -9,46 +9,24 @@ class RequestException(Exception):
     pass
 
 
-class StatusCode():
+class FollowUp:
+
+    def __init__(self, action, value=None):
+
+        self.action = action
+        self.value = value
+
+
+class StatusCode:
     STATUS_OK = 'OK'
     STATUS_WARNING = 'WARNING'
     STATUS_ERROR = 'ERROR'
 
 
-class MessageType():
+class MessageType:
     TYPE_REQUEST = 'REQUEST'
     TYPE_RESPONSE = 'RESPONSE'
     TYPE_INFO = 'INFO'
-
-
-class Info:
-    """ Information message """
-    def __init__(self):
-        self.type = MessageType.TYPE_INFO
-        self._content = ''
-        self._sender = ''
-
-    @property
-    def content(self):
-        return self._content
-
-    @property
-    def sender(self):
-        return self._sender
-
-    @content.setter
-    def content(self, info):
-        if isinstance(info, str):
-            self._content = info
-        else:
-            raise RequestException('Information content must be a string')
-
-    @sender.setter
-    def sender(self, sender):
-        if isinstance(sender, str):
-            self._sender = sender
-        else:
-            raise RequestException('Sender must be a string')
 
 
 class SerializableMessage:
@@ -145,6 +123,7 @@ class Request(SerializableMessage):
         request = Request()
         request.classname = data_dict.get('classname')
         request.classpath = data_dict.get('classpath')
+        request.data = data_dict.get('data')
 
         return request
 

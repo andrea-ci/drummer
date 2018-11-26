@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import Request, StatusCode
 from core.sockets.client import SocketClient
 from utils import Configuration
 

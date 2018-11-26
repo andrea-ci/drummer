@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" this package exports all available events to the event runner """
+""" this package exports all available server-side events """
 
-from .jobs import JobAdd, JobList
-from .sockets import SocketTest
+from .schedules import ScheduleListEvent, ScheduleAddEvent, ScheduleRemoveEvent
+from .schedules import ScheduleDisableEvent, ScheduleEnableEvent
+from .sockets import SocketTestEvent

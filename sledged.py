@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.workers import Listener, Scheduler, EventRunner
-from utils import Configuration, FileLogger, Queued
-from core.foundation.tasks import TaskManager
-from core.foundation.jobs import JobManager
+from core.workers import Listener
+from scheduling import Scheduler
+from utils import Configuration, FileLogger, Queued, ClassLoader
+from core.foundation import TaskManager, JobManager
 from time import sleep
 
 class Sledged:
@@ -20,19 +20,28 @@ class Sledged:
         self.queue_tasks_todo = Queued()
         self.queue_tasks_done = Queued()
 
+        # create scheduler package
+        self.scheduler_bundle = self.create_scheduler()
+
+        # create listener package
+        self.listener_bundle = self.create_listener()
+
 
     def start(self):
+
+        # [INIT]
+        # ----------------------------------------------- #
 
         # get logger
         logger = self.logger
         logger.info('Starting Sledged service now...')
 
-        # load config
-        idle_time = self.config['idle-time']
-
         # load internal queues
         queue_tasks_todo = self.queue_tasks_todo
         queue_tasks_done = self.queue_tasks_done
+
+        # load config
+        idle_time = self.config['idle-time']
 
         # create task runner
         task_manager = TaskManager()
@@ -40,35 +49,47 @@ class Sledged:
         # create job manager
         job_manager = JobManager()
 
-        # create event runner
-        event_runner = EventRunner()
-
-        # [LISTENER]
-        listener, queue_listener_w2m, queue_listener_m2w = self.create_listener()
-
-        # [SCHEDULER]
-        scheduler, queue_scheduler_w2m = self.create_scheduler()
-
         # handle runners
         #runner_conns = []
         #max_runners = 4
 
-        # main loop
+
+        # [MAIN LOOP]
+        # ----------------------------------------------- #
         while True:
 
+            # [HEALTH CHECK]
+            # ----------------------------------------------- #
+
             # check scheduler
-            scheduler, queue_scheduler_w2m = self.check_scheduler(scheduler, queue_scheduler_w2m)
+            if not self.scheduler_bundle['handle'].is_alive():
+
+                # create new scheduler
+                self.logger.warning('Scheduler has exited, going to restart it')
+                self.scheduler_bundle = self.create_scheduler()
 
             # check listener
-            listener, queue_listener_w2m, queue_listener_m2w = self.check_listener(listener, queue_listener_w2m, queue_listener_m2w)
+            if not self.listener_bundle['handle'].is_alive():
+
+                # create new listener
+                self.logger.warning('Listener has exited, going to restart it')
+                self.listener_bundle = self.create_listener()
+
+
+            # [MESSAGE CHECK]
+            # ----------------------------------------------- #
 
             # check for messages from listener
-            self.check_messages_from_listener(event_runner, queue_listener_w2m, queue_listener_m2w)
+            self.check_messages_from_listener()
 
             # check for messages from scheduler
-            job_manager = self.check_messages_from_scheduler(job_manager, queue_scheduler_w2m)
+            job_manager = self.check_messages_from_scheduler(job_manager)
 
-            # check finished tasks
+
+            # [TASK/JOB CHECK]
+            # ----------------------------------------------- #
+
+            # check for finished tasks
             queue_tasks_done = task_manager.load_results(queue_tasks_done)
 
             # check for task timeouts
@@ -80,52 +101,76 @@ class Sledged:
             # update todo queue
             queue_tasks_todo, queue_tasks_done = job_manager.update_status(queue_tasks_todo, queue_tasks_done)
 
+
             # idle time
             sleep(idle_time)
 
         return
 
 
-    def check_messages_from_listener(self, event_runner, queue_listener_w2m, queue_listener_m2w):
+    def load_event(self, request):
+
+        # load event class to exec
+        classname = request.classname
+        classpath = request.classpath
+
+        # execute the event and get result
+        EventToExec = ClassLoader().load(classpath, classname)
+        response, follow_up = EventToExec().execute(request)
+
+        return response, follow_up
+
+
+    def check_messages_from_listener(self):
 
         logger = self.logger
 
+        # get listener components
+        listener_bundle = self.listener_bundle
+        listener_queue_w2m = listener_bundle['queue_w2m']
+
         # check for requests from listener
-        if not queue_listener_w2m.empty():
+        if not listener_queue_w2m.empty():
 
             # handle request from listener
             logger.info('Serving a new request from console')
 
             # get the request
-            request = queue_listener_w2m.get()
+            request = listener_queue_w2m.get()
 
             # run the request
-            response = event_runner.work(request)
+            response, follow_up = self.load_event(request)
 
             # send the response
-            queue_listener_m2w.put(response)
+            listener_queue_m2w = listener_bundle['queue_m2w']
+            listener_queue_m2w.put(response)
+
+            # process the event follow-up
+            if follow_up.action:
+                self.process_follow_up(follow_up)
 
         return
 
 
-    def check_messages_from_scheduler(self, job_manager, queue_scheduler_w2m):
+    def check_messages_from_scheduler(self, job_manager):
 
         logger = self.logger
 
+        scheduler_bundle = self.scheduler_bundle
+        scheduler_queue_w2m = scheduler_bundle['queue_w2m']
+
         queue_tasks_todo = self.queue_tasks_todo
 
-        while not queue_scheduler_w2m.empty():
+        while not scheduler_queue_w2m.empty():
 
             # pick job to be executed
-            job = queue_scheduler_w2m.get()
+            job = scheduler_queue_w2m.get()
 
             # handle request from scheduler
             logger.info('Job {0} is going to be executed'.format(job))
 
             # add job to be managed
             queue_tasks_todo = job_manager.add_job(job, queue_tasks_todo)
-
-            #print(queue_tasks_todo.get())
 
         return job_manager
 
@@ -136,14 +181,20 @@ class Sledged:
         logger.info('Starting Listener')
 
         listener = Listener()
-        queue_listener_w2m, queue_listener_m2w = listener.get_queues()
+        listener_queue_w2m, listener_queue_m2w = listener.get_queues()
 
         listener.start()
-        pid = queue_listener_w2m.get()
+        pid = listener_queue_w2m.get()
 
         logger.info('Listener successfully started with pid {0}'.format(pid))
 
-        return listener, queue_listener_w2m, queue_listener_m2w
+        listener_bundle = {
+            'handle': listener,
+            'queue_w2m': listener_queue_w2m,
+            'queue_m2w': listener_queue_m2w,
+        }
+
+        return listener_bundle
 
 
     def create_scheduler(self):
@@ -152,33 +203,39 @@ class Sledged:
         logger.info('Starting Scheduler')
 
         scheduler = Scheduler()
-        queue_scheduler_w2m = scheduler.get_queues()
+        scheduler_queue_w2m = scheduler.get_queues()
 
         scheduler.start()
-        pid = queue_scheduler_w2m.get()
+        pid = scheduler_queue_w2m.get()
 
         logger.info('Scheduler successfully started with pid {0}'.format(pid))
 
-        return scheduler, queue_scheduler_w2m
+        scheduler_bundle = {
+            'handle': scheduler,
+            'queue_w2m': scheduler_queue_w2m
+        }
+        return scheduler_bundle
 
 
-    def check_listener(self, listener, queue_listener_w2m, queue_listener_m2w):
+    def process_follow_up(self, follow_up):
 
-        if not listener.is_alive():
-            self.logger.warning('Listener has exited, going to restart')
-            listener, queue_listener_w2m, queue_listener_m2w = self.create_listener()
+        scheduler_bundle = self.scheduler_bundle
 
-        return listener, queue_listener_w2m, queue_listener_m2w
+        if follow_up.action == 'RELOAD':
 
+            self.logger.info('Schedulation has changed, restarting Scheduler')
 
-    def check_scheduler(self, scheduler, queue_scheduler_w2m):
+            # terminate current scheduler
+            scheduler_bundle['handle'].terminate()
+            scheduler_bundle['handle'].join()
 
-        if not scheduler.is_alive():
+            # start new scheduler
+            self.scheduler_bundle = self.create_scheduler()
 
-            self.logger.warning('Scheduler has exited, going to restart')
-            scheduler, queue_scheduler_w2m = self.create_scheduler()
+        elif follow_up.action == 'EXECUTE':
+            pass
 
-        return scheduler, queue_scheduler_w2m
+        return
 
 
 if __name__ == "__main__":
