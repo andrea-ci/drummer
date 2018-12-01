@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from core.database import SqliteSession, Schedule
-from core.foundation import Job
+from core.foundation.jobs import JobLoader
 import sched
 import time
 
@@ -16,33 +16,7 @@ class Extender(sched.scheduler):
         self.message_queue = message_queue
 
         # list of jobs
-        self.jobs = []
-
-
-    def load_jobs(self):
-        """ build job objects from database schedules """
-
-        schedules = self.load_schedules()
-
-        for schedule in schedules:
-
-            # create a job object
-            job = Job(schedule)
-
-            self.jobs.append(job)
-
-
-    def load_schedules(self):
-        """ load enabled schedules from database """
-
-        # get all enabled schedules
-        session = SqliteSession.create()
-
-        schedules = session.query(Schedule).filter(Schedule.enabled==True).all()
-
-        session.close()
-
-        return schedules
+        self.jobs = JobLoader().load_jobs()
 
 
     def ext_action(self, job):

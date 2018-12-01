@@ -5,5 +5,5 @@
 
 # extender
 from .messages import StatusCode, Request, Response, FollowUp
-from .jobs import Job,  JobManager
+from .jobs import Job, JobManager, JobLoader
 from .tasks import TaskManager

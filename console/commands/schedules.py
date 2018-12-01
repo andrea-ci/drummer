@@ -16,7 +16,7 @@ class ScheduleCommand(BaseCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('SocketTestEvent')
-        request.set_classpath('core/events')
+        request.set_classpath('events')
 
         try:
 
@@ -58,7 +58,7 @@ class ScheduleList(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleListEvent')
-        request.set_classpath('core/events')
+        request.set_classpath('events')
         #request.set_data(args)
 
         # send request to listener
@@ -108,7 +108,7 @@ class ScheduleAdd(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleAddEvent')
-        request.set_classpath('core/events')
+        request.set_classpath('events')
         request.set_data(schedulation)
 
         # send request to listener
@@ -274,7 +274,7 @@ class ScheduleRemove(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleRemoveEvent')
-        request.set_classpath('core/events')
+        request.set_classpath('events')
         request.set_data(args)
 
         # send request to listener
@@ -296,7 +296,7 @@ class ScheduleEnable(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleEnableEvent')
-        request.set_classpath('core/events')
+        request.set_classpath('events')
         request.set_data(args)
 
         # send request to listener
@@ -306,7 +306,6 @@ class ScheduleEnable(ScheduleCommand):
         print('Result: {0} -> {1}'.format(response.status, response.data))
 
         return
-
 
 
 class ScheduleDisable(ScheduleCommand):
@@ -319,7 +318,7 @@ class ScheduleDisable(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleDisableEvent')
-        request.set_classpath('core/events')
+        request.set_classpath('events')
         request.set_data(args)
 
         # send request to listener
@@ -332,4 +331,66 @@ class ScheduleDisable(ScheduleCommand):
 
 
 class ScheduleExec(ScheduleCommand):
-    pass
+
+    def execute(self, args):
+
+        # test socket connection
+        self.test_socket_connection()
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('ScheduleExecEvent')
+        request.set_classpath('events')
+        request.set_data(args)
+
+        # send request to listener
+        sc = SocketClient()
+        response = sc.send_request(request)
+
+        print('Result: {0} -> {1}'.format(response.status, response.data))
+
+        return
+
+
+class ScheduleGet(ScheduleCommand):
+
+    def execute(self, args):
+
+        # test socket connection
+        self.test_socket_connection()
+
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['ID', 'Name', 'Description', 'Cronexp', 'Enabled']
+        table.align['Name'] = 'l'
+        table.align['Description'] = 'l'
+        table.align['Cronexp'] = 'l'
+
+        # prepare request to listener
+        request = Request()
+        request.set_classname('ScheduleGetEvent')
+        request.set_classpath('events')
+        request.set_data(args)
+
+        # send request to listener
+        sc = SocketClient()
+        response = sc.send_request(request)
+
+        if response.status == StatusCode.STATUS_OK:
+
+            schedule_info = response.data['Result']
+
+            uid = schedule_info.get('id')
+            name = schedule_info.get('name')
+            description = schedule_info.get('description')
+            cronexp = schedule_info.get('cronexp')
+            enabled = schedule_info.get('enabled')
+
+            table.add_row([uid, name, description, cronexp, enabled])
+
+            print()
+            print(table)
+            print(schedule_info.get('parameters'))
+
+        else:
+            print('Impossible to get schedule info')

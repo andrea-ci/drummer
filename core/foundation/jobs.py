@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from .messages import StatusCode
+from core.database import SqliteSession, Schedule
 from .tasks import Task, TaskExecution
+from .messages import StatusCode
 from datetime import datetime
 from croniter import croniter
 from utils import FileLogger
@@ -182,3 +183,42 @@ class Job:
         next_exec_time = time.mktime(cron_time.timetuple())
 
         return next_exec_time
+
+
+class JobLoader:
+    """ Loads schedules from database and generates related jobs """
+
+    def load_jobs(self):
+        """ build job objects from database schedules """
+
+        schedules = self._load_schedules()
+
+        jobs = [Job(schedule) for schedule in schedules]
+
+        return jobs
+
+
+    def _load_schedules(self):
+        """ load enabled schedules from database """
+
+        # get all enabled schedules
+        session = SqliteSession.create()
+
+        schedules = session.query(Schedule).filter(Schedule.enabled==True).all()
+
+        session.close()
+
+        return schedules
+
+
+    def load_job_by_id(self, schedule_id):
+        """ load schedule by ID from database and generates related job """
+
+        # get all enabled schedules
+        session = SqliteSession.create()
+
+        schedule = session.query(Schedule).filter(Schedule.id==schedule_id).one()
+
+        session.close()
+
+        return Job(schedule)

@@ -4,4 +4,4 @@
 """ this package exports all available commands to sledge console """
 
 from .tasks import TaskExec, TaskList
-from .schedules import ScheduleAdd, ScheduleRemove, ScheduleList, ScheduleEnable, ScheduleDisable
+from .schedules import ScheduleAdd, ScheduleRemove, ScheduleList, ScheduleEnable, ScheduleDisable, ScheduleExec, ScheduleGet

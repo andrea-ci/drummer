@@ -201,3 +201,65 @@ class ScheduleEnableEvent:
             session.close()
 
         return response, follow_up
+
+
+class ScheduleExecEvent:
+
+    def execute(self, request):
+
+        # get schedulation id
+        args = request.data
+        schedule_id = args['schedule_id']
+
+        follow_up = FollowUp('EXECUTE', schedule_id)
+
+        response = Response()
+        response.set_status(StatusCode.STATUS_OK)
+        response.set_data({'msg': 'Schedule has been queued for execution.'})
+
+        return response, follow_up
+
+
+class ScheduleGetEvent:
+
+    def execute(self, request):
+
+        response = Response()
+        follow_up = FollowUp(None)
+
+        data = {}
+
+        try:
+
+            # get schedulation id
+            args = request.data
+            schedule_id = args['schedule_id']
+
+            # get all schedules
+            session = SqliteSession.create()
+
+            schedule = session.query(Schedule).filter(Schedule.id==schedule_id).one()
+
+            session.close()
+
+            schedule_dict = {
+                'id': schedule.id,
+                'name': schedule.name,
+                'description': schedule.description,
+                'cronexp': schedule.cronexp,
+                'enabled': schedule.enabled,
+                'parameters': schedule.parameters,
+            }
+
+            data['Result'] = schedule_dict
+
+        except Exception:
+            response.set_status(StatusCode.STATUS_ERROR)
+
+        else:
+            response.set_status(StatusCode.STATUS_OK)
+
+        finally:
+            response.set_data(data)
+
+        return response, follow_up

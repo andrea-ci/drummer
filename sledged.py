@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from utils import Configuration, FileLogger, Queued, ClassLoader
+from core.foundation import TaskManager, JobManager, JobLoader
 from core.workers import Listener
 from scheduling import Scheduler
-from utils import Configuration, FileLogger, Queued, ClassLoader
-from core.foundation import TaskManager, JobManager
 from time import sleep
 
 class Sledged:
@@ -12,7 +12,8 @@ class Sledged:
 
         # get logger
         self.logger = FileLogger.get()
-
+        self.logger.info('Starting Sledged service now...')
+        
         # get configuration
         self.config = Configuration.load()
 
@@ -34,7 +35,9 @@ class Sledged:
 
         # get logger
         logger = self.logger
-        logger.info('Starting Sledged service now...')
+
+        # create job manager
+        job_manager = JobManager()
 
         # load internal queues
         queue_tasks_todo = self.queue_tasks_todo
@@ -45,9 +48,6 @@ class Sledged:
 
         # create task runner
         task_manager = TaskManager()
-
-        # create job manager
-        job_manager = JobManager()
 
         # handle runners
         #runner_conns = []
@@ -100,7 +100,6 @@ class Sledged:
 
             # update todo queue
             queue_tasks_todo, queue_tasks_done = job_manager.update_status(queue_tasks_todo, queue_tasks_done)
-
 
             # idle time
             sleep(idle_time)
@@ -217,7 +216,7 @@ class Sledged:
         return scheduler_bundle
 
 
-    def process_follow_up(self, follow_up):
+    def process_follow_up(self, job_manager, follow_up):
 
         scheduler_bundle = self.scheduler_bundle
 
@@ -233,9 +232,16 @@ class Sledged:
             self.scheduler_bundle = self.create_scheduler()
 
         elif follow_up.action == 'EXECUTE':
-            pass
 
-        return
+            schedule_id = follow_up.value
+            self.logger.info('Schedulation {0} is sent to queue for immediate execution'.format(schedule_id))
+
+            job = JobLoader().load_job_by_id(schedule_id)
+
+            # add job to be managed
+            self.queue_tasks_todo = job_manager.add_job(job, self.queue_tasks_todo)
+
+        return job_manager
 
 
 if __name__ == "__main__":

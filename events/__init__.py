@@ -3,6 +3,6 @@
 
 """ this package exports all available server-side events """
 
-from .schedules import ScheduleListEvent, ScheduleAddEvent, ScheduleRemoveEvent
+from .schedules import ScheduleListEvent, ScheduleGetEvent, ScheduleAddEvent, ScheduleRemoveEvent, ScheduleExecEvent
 from .schedules import ScheduleDisableEvent, ScheduleEnableEvent
 from .sockets import SocketTestEvent

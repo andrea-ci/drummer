@@ -76,4 +76,10 @@ class ArgParser:
         parser_s07.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
         parser_s07.set_defaults(classname='ScheduleExec')
 
+        # schedule:get
+        parser_s08 = subparsers.add_parser('schedule:get', help='Get information about a schedule')
+        parser_s08.add_argument('schedule_id', action='store', help='ID of schedule to get info about')
+        parser_s08.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_s08.set_defaults(classname='ScheduleGet')
+
         return parser

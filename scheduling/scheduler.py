@@ -35,7 +35,6 @@ class Scheduler(Process):
 
         extender = Extender(self.queue_extender)
 
-        extender.load_jobs()
         extender.run()
 
 
