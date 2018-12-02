@@ -13,7 +13,7 @@ class Sledged:
         # get logger
         self.logger = FileLogger.get()
         self.logger.info('Starting Sledged service now...')
-        
+
         # get configuration
         self.config = Configuration.load()
 
@@ -43,11 +43,12 @@ class Sledged:
         queue_tasks_todo = self.queue_tasks_todo
         queue_tasks_done = self.queue_tasks_done
 
-        # load config
+        # load config parameters
         idle_time = self.config['idle-time']
+        max_runners = self.config['max-runners']
 
         # create task runner
-        task_manager = TaskManager()
+        task_manager = TaskManager(max_runners)
 
         # handle runners
         #runner_conns = []
@@ -166,7 +167,7 @@ class Sledged:
             job = scheduler_queue_w2m.get()
 
             # handle request from scheduler
-            logger.info('Job {0} is going to be executed'.format(job))
+            logger.info('Job "{0}" is going to be executed'.format(job))
 
             # add job to be managed
             queue_tasks_todo = job_manager.add_job(job, queue_tasks_todo)

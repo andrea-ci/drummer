@@ -19,5 +19,5 @@ tasks:
     -
         classname: DummyTask3
         description: never-ending dummy task
-fork-limit: 4
+max-runners: 4
 idle-time: 0.1
