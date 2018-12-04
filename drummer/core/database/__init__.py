@@ -7,4 +7,3 @@ from .sqlbase import Base
 
 # orm entities
 from .orm.schedule import Schedule
-from .orm.worklog import Worklog

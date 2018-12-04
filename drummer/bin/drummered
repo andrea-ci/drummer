@@ -10,12 +10,12 @@ class Sledged:
 
     def __init__(self):
 
+        # get configuration
+        self.config = Configuration.load()
+
         # get logger
         self.logger = FileLogger.get()
         self.logger.info('Starting Sledged service now...')
-
-        # get configuration
-        self.config = Configuration.load()
 
         # create task queues
         self.queue_tasks_todo = Queued()

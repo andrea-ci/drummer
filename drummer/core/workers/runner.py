@@ -44,7 +44,7 @@ class Runner(Process):
 
         # load class to exec
         classname = executing_task.classname
-        classpath = 'tasks/{0}'.format(classname.lower())
+        classpath = '../tasks/{0}'.format(classname.lower())
 
         timeout = executing_task.timeout
         params = executing_task.params
