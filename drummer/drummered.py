@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utils import Configuration, FileLogger, Queued, ClassLoader
-from core.foundation import TaskManager, JobManager, JobLoader
-from core.workers import Listener
-from scheduling import Scheduler
+from drummer.utils import Configuration, FileLogger, Queued, ClassLoader
+from drummer.foundation import TaskManager, JobManager, JobLoader
+from drummer.workers import Listener
+from drummer.scheduling import Scheduler
 from time import sleep
 
-class Sledged:
+class Drummered:
 
     def __init__(self):
 
@@ -15,7 +15,7 @@ class Sledged:
 
         # get logger
         self.logger = FileLogger.get()
-        self.logger.info('Starting Sledged service now...')
+        self.logger.info('Starting Drummer service now...')
 
         # create task queues
         self.queue_tasks_todo = Queued()
@@ -81,7 +81,7 @@ class Sledged:
             # ----------------------------------------------- #
 
             # check for messages from listener
-            self.check_messages_from_listener()
+            job_manager = self.check_messages_from_listener(job_manager)
 
             # check for messages from scheduler
             job_manager = self.check_messages_from_scheduler(job_manager)
@@ -121,7 +121,7 @@ class Sledged:
         return response, follow_up
 
 
-    def check_messages_from_listener(self):
+    def check_messages_from_listener(self, job_manager):
 
         logger = self.logger
 
@@ -147,9 +147,9 @@ class Sledged:
 
             # process the event follow-up
             if follow_up.action:
-                self.process_follow_up(follow_up)
+                self.process_follow_up(job_manager, follow_up)
 
-        return
+        return job_manager
 
 
     def check_messages_from_scheduler(self, job_manager):
@@ -243,9 +243,3 @@ class Sledged:
             self.queue_tasks_todo = job_manager.add_job(job, self.queue_tasks_todo)
 
         return job_manager
-
-
-if __name__ == "__main__":
-
-    sledged = Sledged()
-    sledged.start()

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import Response, StatusCode, FollowUp
+from drummer.foundation.messages import Response, StatusCode, FollowUp
 
 class SocketTestEvent:
     """ simple event to check socket connection """

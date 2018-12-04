@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils.filelogger import FileLogger
-from core.workers import Runner
+from drummer.utils.filelogger import FileLogger
+from drummer.workers import Runner
 from datetime import datetime
 import uuid
 

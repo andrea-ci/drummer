@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.sockets.server import SocketServer
+from drummer.sockets.server import SocketServer
 from multiprocessing import Process, Queue
 from os import getpid as os_getpid
 

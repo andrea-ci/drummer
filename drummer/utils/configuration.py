@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils.files import YamlFile
+from drummer.utils.files import YamlFile
 from os import path
 
 class ConfigurationException(Exception):
@@ -12,8 +12,8 @@ class Configuration():
     @staticmethod
     def load():
 
-        config_filename = path.join('..', *('config','drummer-config.yml'))
-        tasks_filename = path.join('..', *('config','drummer-tasks.yml'))
+        config_filename = path.join('config','drummer-config.yml')
+        tasks_filename = path.join('config','drummer-tasks.yml')
 
         try:
             configuration = YamlFile.read(config_filename)

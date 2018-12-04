@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.database import SqliteSession, Schedule
+from drummer.database import SqliteSession, Schedule
+from drummer.utils import FileLogger
 from .tasks import Task, TaskExecution
 from .messages import StatusCode
 from datetime import datetime
 from croniter import croniter
-from utils import FileLogger
 import json
 import time
 

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from utils import Configuration
+from drummer.utils import Configuration
 import socket
 
 class CommonSocketException(Exception):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from utils.classloader import ClassLoader
+from drummer.utils import ClassLoader
 from prettytable import PrettyTable
 from .base import BaseCommand
 import inquirer
@@ -38,19 +38,18 @@ class TaskExec(BaseCommand):
             task_to_run = registered_tasks[choice_idx]
 
             classname = task_to_run['classname']
-            classpath = '...tasks/{0}'.format(classname.lower())
+            classpath = 'tasks/{0}'.format(classname.lower())
 
             # loading task class
             Task = ClassLoader().load(classpath, classname)
 
-        except:
-            print('Impossible to execute task')
-
-
             # task execution
             response = Task().run(params)
 
-            print('\nTask executed.')
+        except:
+            print('Impossible to execute task')
+
+        else:
 
             result_table = PrettyTable()
             result_table.field_names = ['Response', 'Data']

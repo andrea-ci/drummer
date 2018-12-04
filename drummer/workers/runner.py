@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from multiprocessing import Process, Queue
-from utils.classloader import ClassLoader
+from drummer.utils.classloader import ClassLoader
 from os import getpid as os_getpid
 
 class Runner(Process):
@@ -44,7 +44,7 @@ class Runner(Process):
 
         # load class to exec
         classname = executing_task.classname
-        classpath = '../tasks/{0}'.format(classname.lower())
+        classpath = 'tasks/{0}'.format(classname.lower())
 
         timeout = executing_task.timeout
         params = executing_task.params

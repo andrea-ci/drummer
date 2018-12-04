@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-#from os import path
 
 class ClassLoaderException(Exception):
     pass
@@ -14,8 +13,6 @@ class ClassLoader():
             # import the class
             #mod_to_import = path.join(module_path, classname.lower()).replace('/','.')
             mod_to_import = module_path.replace('/','.')
-
-            print(mod_to_import)
 
             mod = __import__(mod_to_import, fromlist=[classname])
             LoadedClass = getattr(mod, classname)

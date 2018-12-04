@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.database import SqliteSession, Schedule
-from core.foundation.jobs import JobLoader
+from drummer.database import SqliteSession, Schedule
+from drummer.foundation.jobs import JobLoader
 import sched
 import time
 

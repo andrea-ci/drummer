@@ -10,7 +10,7 @@ class SqliteSession():
     def create():
 
         # create engine
-        db_engine = create_engine('sqlite+pysqlite:///../sledge.db', module=sqlite)
+        db_engine = create_engine('sqlite+pysqlite:///drummer.db', module=sqlite)
 
         # create session
         Session = sessionmaker(bind=db_engine)

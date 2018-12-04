@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
-from core.database.sessions import SqliteSession
-from core.database import Base
+from ..sessions import SqliteSession
+from ..sqlbase import Base
 
 SHORT_STRING = 30
 LONG_STRING  = 400

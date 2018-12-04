@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from core.foundation.messages import Request, StatusCode
-from core.sockets.client import SocketClient
+from drummer.foundation.messages import Request, StatusCode
+from drummer.sockets.client import SocketClient
 from prettytable import PrettyTable
 from sys import exit as sys_exit
 from .base import BaseCommand
@@ -16,7 +16,7 @@ class ScheduleCommand(BaseCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('SocketTestEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
 
         try:
 
@@ -58,7 +58,7 @@ class ScheduleList(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleListEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         #request.set_data(args)
 
         # send request to listener
@@ -108,7 +108,7 @@ class ScheduleAdd(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleAddEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         request.set_data(schedulation)
 
         # send request to listener
@@ -274,7 +274,7 @@ class ScheduleRemove(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleRemoveEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         request.set_data(args)
 
         # send request to listener
@@ -296,7 +296,7 @@ class ScheduleEnable(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleEnableEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         request.set_data(args)
 
         # send request to listener
@@ -318,7 +318,7 @@ class ScheduleDisable(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleDisableEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         request.set_data(args)
 
         # send request to listener
@@ -340,7 +340,7 @@ class ScheduleExec(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleExecEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         request.set_data(args)
 
         # send request to listener
@@ -369,7 +369,7 @@ class ScheduleGet(ScheduleCommand):
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleGetEvent')
-        request.set_classpath('events')
+        request.set_classpath(self.CLASSPATH)
         request.set_data(args)
 
         # send request to listener

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from core.foundation import Response, StatusCode, FollowUp
-from core.database import SqliteSession, Schedule
+from drummer.foundation import Response, StatusCode, FollowUp
+from drummer.database import SqliteSession, Schedule
 
 class ScheduleAddEvent:
 

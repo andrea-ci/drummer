@@ -7,7 +7,7 @@ with open('README.md','r') as f:
 
 setup(
       name='drummer',
-      version='1.0.1',
+      version='1.0.0',
       description='Secure file encryption and data access',
       author='andrea capitanelli',
       author_email='andrea.capitanelli@gmail.com',
@@ -16,14 +16,14 @@ setup(
       url='https://github.com/vegaviz/drummer',
       packages=['drummer'],
       install_requires=[
-          blessings,
-          croniter,
-          inquirer,
-          PTable,
-          PyYAML,
-          readchar,
-          six,
-          SQLAlchemy,
+          'blessings',
+          'croniter',
+          'inquirer',
+          'PTable',
+          'PyYAML',
+          'readchar',
+          'six',
+          'SQLAlchemy',
       ],
       long_description=long_description,
       keywords='scheduler extender multi-process multi-task',
@@ -33,8 +33,5 @@ setup(
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3',
           'Topic :: System'
-     ],
-     scripts=[
-        'bin/drummer-cli',
-        'bin/drummered'],
+     ]
 )

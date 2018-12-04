@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from .commonsocket import CommonSocket
-from core.foundation import Request, Response, StatusCode
+from drummer.foundation import Request, Response, StatusCode
 
 # accepted connections
 class SocketServerException(Exception):
