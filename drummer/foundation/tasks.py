@@ -90,7 +90,6 @@ class TaskManager:
         # clean-up finished runners
         if idx_runners_to_terminate:
 
-            logger.debug('Going to clean-up finished runners')
             self._cleanup_runners(idx_runners_to_terminate)
 
         return queue_tasks_done
@@ -115,10 +114,6 @@ class TaskManager:
     def _cleanup_runners(self, idx_runners_to_terminate):
         """ clean-up: explicitly terminate runner processes and remove their queues """
 
-        logger = self.logger
-
-        logger.debug('Num. of runners before cleaning: {0}'.format(len(self.execution_data)))
-
         # clean handles
         execution_data = []
         for ii,execution in enumerate(self.execution_data):
@@ -130,8 +125,6 @@ class TaskManager:
                 execution_data.append(execution)
 
         self.execution_data = execution_data
-
-        logger.debug('Num. of runners after cleaning: {0}'.format(len(self.execution_data)))
 
         return
 

@@ -28,6 +28,3 @@ class ServiceStart(BaseCommand):
 
         except Exception as err:
             print('Impossible to start Drummer service: {0}'.format(str(err)))
-
-        else:
-            print('Service started.')

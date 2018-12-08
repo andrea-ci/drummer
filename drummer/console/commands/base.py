@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from drummer.foundation.messages import Request, StatusCode
+from drummer.sockets.client import SocketClient
 
 class BaseCommand():
     """ Base command to be subclassed """
@@ -17,7 +19,7 @@ class BaseCommand():
 
 class RemoteCommand(BaseCommand):
     """ Base remote command to be sublcassed. It provides socket connection test """
-     
+
     def __init__(self, config):
 
         super().__init__(config)

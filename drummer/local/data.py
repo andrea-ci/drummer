@@ -28,7 +28,7 @@ After=multi-user.target
 
 [Service]
 Type=idle
-ExecStart=/home/ndr3a/Progetti/python-venvs/sledge-env/bin/python /home/ndr3a/Progetti/drummer-test/drummer-service.py
+ExecStart=<pythonpath> <command>
 
 [Install]
 WantedBy=multi-user.target
