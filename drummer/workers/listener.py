@@ -8,9 +8,11 @@ from os import getpid as os_getpid
 class Listener(Process):
     """ This worker starts socket server """
 
-    def __init__(self):
+    def __init__(self, config):
 
         super().__init__()
+
+        self.config = config
 
         # queue worker -> master
         self.queue_w2m = Queue(1)
@@ -35,6 +37,6 @@ class Listener(Process):
     def work(self):
 
         # run socket server
-        server = SocketServer(self.queue_w2m, self.queue_m2w)
+        server = SocketServer(self.config, self.queue_w2m, self.queue_m2w)
 
         server.run()

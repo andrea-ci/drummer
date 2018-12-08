@@ -15,8 +15,6 @@ class ArgParser:
         parser = self.define_parsers()
         args = vars(parser.parse_args(sys_argv[1:]))
 
-        # get command classname
-        #if args:
         classname = args.get('classname')
         del args['classname']
 
@@ -26,16 +24,21 @@ class ArgParser:
     def define_parsers(self):
 
         # create the top-level parser
-        parser = argparse.ArgumentParser(prog='Sledge')
+        parser = argparse.ArgumentParser(prog='Drummer')
 
         # add subparsers
-        subparsers = parser.add_subparsers(help='command help', title='Sledge commands', description='Featured operations')
+        subparsers = parser.add_subparsers(help='command help', title='Commands', description='Console operations')
+
+        # service:start
+        parser_00 = subparsers.add_parser('service:start', help='Start drummer service')
+        parser_00.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_00.set_defaults(classname='ServiceStart')
 
         # task:list
-        parser_tl = subparsers.add_parser('task:list', help='List available tasks')
-        #parser_tl.add_argument('bar', type=int, help='bar help')
-        parser_tl.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
-        parser_tl.set_defaults(classname='TaskList')
+        parser_01 = subparsers.add_parser('task:list', help='List available tasks')
+        #parser_01.add_argument('bar', type=int, help='bar help')
+        parser_01.add_argument('-v', '--verbose', help = 'increase output verbosity', action = 'count', default = 0)
+        parser_01.set_defaults(classname='TaskList')
 
         # task:exec
         parser_te = subparsers.add_parser('task:exec', help='Execute a task')

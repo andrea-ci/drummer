@@ -3,6 +3,7 @@
 from multiprocessing import Process, Queue
 from drummer.utils.classloader import ClassLoader
 from os import getpid as os_getpid
+from os import path
 
 class Runner(Process):
     """ This worker executes commands and tasks """
@@ -44,7 +45,7 @@ class Runner(Process):
 
         # load class to exec
         classname = executing_task.classname
-        classpath = 'tasks/{0}'.format(classname.lower())
+        classpath = classname.lower()
 
         timeout = executing_task.timeout
         params = executing_task.params

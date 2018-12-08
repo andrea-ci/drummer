@@ -28,6 +28,15 @@ class JsonFile():
 class YamlFile():
 
     @staticmethod
+    def write(filename, data):
+
+        with open(filename, 'w') as f:
+            yaml.dump(data, f, default_flow_style=False)
+
+        return True
+
+
+    @staticmethod
     def read(filename):
 
         with open(filename, 'r', encoding='utf-8') as f:

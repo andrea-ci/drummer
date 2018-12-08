@@ -1,13 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from drummer.database import SqliteSession, Schedule
 from drummer.foundation.jobs import JobLoader
 import sched
 import time
 
 class Extender(sched.scheduler):
 
-    def __init__(self, message_queue):
+    def __init__(self, config, message_queue):
 
         # init scheduler
         super().__init__(time.time, time.sleep)
@@ -16,7 +15,7 @@ class Extender(sched.scheduler):
         self.message_queue = message_queue
 
         # list of jobs
-        self.jobs = JobLoader().load_jobs()
+        self.jobs = JobLoader(config).load_jobs()
 
 
     def ext_action(self, job):

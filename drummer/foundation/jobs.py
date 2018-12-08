@@ -13,10 +13,10 @@ import time
 class JobManager:
     """ Manage status of jobs to be executed """
 
-    def __init__(self):
+    def __init__(self, config):
 
         # get logger
-        self.logger = FileLogger.get()
+        self.logger = FileLogger.get(config)
 
         # managed jobs
         self.jobs = []
@@ -188,34 +188,35 @@ class Job:
 class JobLoader:
     """ Loads schedules from database and generates related jobs """
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def load_jobs(self):
         """ build job objects from database schedules """
 
-        schedules = self._load_schedules()
+        config = self.config
+
+        # get all enabled schedules
+        session = SqliteSession.create(config)
+
+        schedules = session.query(Schedule).filter(Schedule.enabled==True).all()
+
+        session.close()
 
         jobs = [Job(schedule) for schedule in schedules]
 
         return jobs
 
 
-    def _load_schedules(self):
-        """ load enabled schedules from database """
-
-        # get all enabled schedules
-        session = SqliteSession.create()
-
-        schedules = session.query(Schedule).filter(Schedule.enabled==True).all()
-
-        session.close()
-
-        return schedules
-
-
     def load_job_by_id(self, schedule_id):
         """ load schedule by ID from database and generates related job """
 
+        config = self.config
+
         # get all enabled schedules
-        session = SqliteSession.create()
+        session = SqliteSession.create(config)
 
         schedule = session.query(Schedule).filter(Schedule.id==schedule_id).one()
 

@@ -5,7 +5,14 @@ from drummer.foundation.messages import Response, StatusCode, FollowUp
 class SocketTestEvent:
     """ simple event to check socket connection """
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         response = Response()
 

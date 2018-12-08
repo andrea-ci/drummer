@@ -7,10 +7,14 @@ from sqlalchemy import create_engine
 class SqliteSession():
 
     @staticmethod
-    def create():
+    def create(config):
+
+        # connection string
+        database = config['database']
+        conn_string = 'sqlite+pysqlite:///{0}'.format(database)
 
         # create engine
-        db_engine = create_engine('sqlite+pysqlite:///drummer.db', module=sqlite)
+        db_engine = create_engine(conn_string, module=sqlite)
 
         # create session
         Session = sessionmaker(bind=db_engine)

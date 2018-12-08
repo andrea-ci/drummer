@@ -11,10 +11,12 @@ from time import sleep
 class Scheduler(Process):
     """ This worker starts the extender as a thread """
 
-    def __init__(self):
+    def __init__(self, config):
 
         # worker init
         super().__init__()
+
+        self.config = config
 
         # queue worker -> master
         self.queue_w2m = Queue(100)
@@ -33,7 +35,10 @@ class Scheduler(Process):
     def start_extender(self):
         """ start extender thread """
 
-        extender = Extender(self.queue_extender)
+        config = self.config
+        queue_extender = self.queue_extender
+
+        extender = Extender(config, queue_extender)
 
         extender.run()
 
@@ -49,6 +54,8 @@ class Scheduler(Process):
 
 
     def work(self):
+
+        idle_time = self.config['idle-time']
 
         # connection to master
         queue_w2m = self.queue_w2m
@@ -66,4 +73,4 @@ class Scheduler(Process):
 
                 queue_w2m.put(job)
 
-            sleep(0.1)
+            sleep(idle_time)

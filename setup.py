@@ -33,5 +33,6 @@ setup(
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 3',
           'Topic :: System'
-     ]
+     ],
+     scripts=['bin/drummer-admin'],
 )

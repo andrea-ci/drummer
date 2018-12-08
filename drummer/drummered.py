@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from drummer.utils import Configuration, FileLogger, Queued, ClassLoader
+from drummer.utils import FileLogger, Queued, ClassLoader
 from drummer.foundation import TaskManager, JobManager, JobLoader
 from drummer.workers import Listener
 from drummer.scheduling import Scheduler
@@ -8,13 +8,13 @@ from time import sleep
 
 class Drummered:
 
-    def __init__(self):
+    def __init__(self, config):
 
         # get configuration
-        self.config = Configuration.load()
+        self.config = config
 
         # get logger
-        self.logger = FileLogger.get()
+        self.logger = FileLogger.get(config)
         self.logger.info('Starting Drummer service now...')
 
         # create task queues
@@ -33,22 +33,24 @@ class Drummered:
         # [INIT]
         # ----------------------------------------------- #
 
+        # get config
+        config = self.config
+
         # get logger
         logger = self.logger
 
         # create job manager
-        job_manager = JobManager()
+        job_manager = JobManager(config)
 
         # load internal queues
         queue_tasks_todo = self.queue_tasks_todo
         queue_tasks_done = self.queue_tasks_done
 
         # load config parameters
-        idle_time = self.config['idle-time']
-        max_runners = self.config['max-runners']
+        idle_time = config['idle-time']
 
         # create task runner
-        task_manager = TaskManager(max_runners)
+        task_manager = TaskManager(config)
 
         # handle runners
         #runner_conns = []
@@ -110,13 +112,16 @@ class Drummered:
 
     def load_event(self, request):
 
+        config = self.config
+
         # load event class to exec
         classname = request.classname
         classpath = request.classpath
 
         # execute the event and get result
         EventToExec = ClassLoader().load(classpath, classname)
-        response, follow_up = EventToExec().execute(request)
+
+        response, follow_up = EventToExec(config).execute(request)
 
         return response, follow_up
 
@@ -177,10 +182,12 @@ class Drummered:
 
     def create_listener(self):
 
+        config = self.config
         logger = self.logger
+
         logger.info('Starting Listener')
 
-        listener = Listener()
+        listener = Listener(config)
         listener_queue_w2m, listener_queue_m2w = listener.get_queues()
 
         listener.start()
@@ -199,10 +206,12 @@ class Drummered:
 
     def create_scheduler(self):
 
+        config = self.config
         logger = self.logger
+
         logger.info('Starting Scheduler')
 
-        scheduler = Scheduler()
+        scheduler = Scheduler(config)
         scheduler_queue_w2m = scheduler.get_queues()
 
         scheduler.start()
@@ -237,7 +246,7 @@ class Drummered:
             schedule_id = follow_up.value
             self.logger.info('Schedulation {0} is sent to queue for immediate execution'.format(schedule_id))
 
-            job = JobLoader().load_job_by_id(schedule_id)
+            job = JobLoader(self.config).load_job_by_id(schedule_id)
 
             # add job to be managed
             self.queue_tasks_todo = job_manager.add_job(job, self.queue_tasks_todo)

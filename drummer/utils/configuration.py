@@ -10,19 +10,19 @@ class ConfigurationException(Exception):
 class Configuration():
 
     @staticmethod
-    def load():
+    def load(BASE_DIR):
 
-        config_filename = path.join('config','drummer-config.yml')
-        tasks_filename = path.join('config','drummer-tasks.yml')
+        CONFIG_FILENAME = path.join(BASE_DIR, 'config/drummer-config.yml')
+        TASKS_FILENAME = path.join(BASE_DIR, 'config/drummer-tasks.yml')
 
         try:
-            configuration = YamlFile.read(config_filename)
+            configuration = YamlFile.read(CONFIG_FILENAME)
 
         except:
             raise ConfigurationException('Configuration file not found')
 
         try:
-            tasks = YamlFile.read(tasks_filename)
+            tasks = YamlFile.read(TASKS_FILENAME)
             configuration['tasks'] = tasks
 
         except:

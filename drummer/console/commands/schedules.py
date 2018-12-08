@@ -4,42 +4,22 @@ from drummer.foundation.messages import Request, StatusCode
 from drummer.sockets.client import SocketClient
 from prettytable import PrettyTable
 from sys import exit as sys_exit
-from .base import BaseCommand
+from .base import RemoteCommand
 from croniter import croniter
 import inquirer
 import json
 
-class ScheduleCommand(BaseCommand):
 
-    def test_socket_connection(self):
+class ScheduleList(RemoteCommand):
 
-        # prepare request to listener
-        request = Request()
-        request.set_classname('SocketTestEvent')
-        request.set_classpath(self.CLASSPATH)
+    def __init__(self, config):
 
-        try:
+        super().__init__(config)
 
-            # send request to listener
-            sc = SocketClient()
-            response = sc.send_request(request)
-
-            assert response.status == StatusCode.STATUS_OK
-
-            return True
-
-        except:
-
-            print('Connection test failed, maybe socket is down.')
-            sys_exit()
-
-        else:
-            return
-
-
-class ScheduleList(ScheduleCommand):
 
     def execute(self, args):
+
+        config = self.config
 
         # test socket connection
         self.test_socket_connection()
@@ -62,7 +42,7 @@ class ScheduleList(ScheduleCommand):
         #request.set_data(args)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         if response.status == StatusCode.STATUS_OK:
@@ -88,9 +68,16 @@ class ScheduleList(ScheduleCommand):
             print('Impossible to execute the command')
 
 
-class ScheduleAdd(ScheduleCommand):
+class ScheduleAdd(RemoteCommand):
+
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def execute(self, args):
+
+        config = self.config
 
         # handle command parameters
         # ...
@@ -112,7 +99,7 @@ class ScheduleAdd(ScheduleCommand):
         request.set_data(schedulation)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         print('Result: {0} -> {1}'.format(response.status, response.data))
@@ -264,9 +251,16 @@ class ScheduleAdd(ScheduleCommand):
         return schedulation_parameters
 
 
-class ScheduleRemove(ScheduleCommand):
+class ScheduleRemove(RemoteCommand):
+
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def execute(self, args):
+
+        config = self.config
 
         # test socket connection
         self.test_socket_connection()
@@ -278,7 +272,7 @@ class ScheduleRemove(ScheduleCommand):
         request.set_data(args)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         print('Result: {0} -> {1}'.format(response.status, response.data))
@@ -286,9 +280,16 @@ class ScheduleRemove(ScheduleCommand):
         return
 
 
-class ScheduleEnable(ScheduleCommand):
+class ScheduleEnable(RemoteCommand):
+
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def execute(self, args):
+
+        config = self.config
 
         # test socket connection
         self.test_socket_connection()
@@ -300,7 +301,7 @@ class ScheduleEnable(ScheduleCommand):
         request.set_data(args)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         print('Result: {0} -> {1}'.format(response.status, response.data))
@@ -308,9 +309,16 @@ class ScheduleEnable(ScheduleCommand):
         return
 
 
-class ScheduleDisable(ScheduleCommand):
+class ScheduleDisable(RemoteCommand):
+
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def execute(self, args):
+
+        config = self.config
 
         # test socket connection
         self.test_socket_connection()
@@ -322,7 +330,7 @@ class ScheduleDisable(ScheduleCommand):
         request.set_data(args)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         print('Result: {0} -> {1}'.format(response.status, response.data))
@@ -330,9 +338,16 @@ class ScheduleDisable(ScheduleCommand):
         return
 
 
-class ScheduleExec(ScheduleCommand):
+class ScheduleExec(RemoteCommand):
+
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def execute(self, args):
+
+        config = self.config
 
         # test socket connection
         self.test_socket_connection()
@@ -344,7 +359,7 @@ class ScheduleExec(ScheduleCommand):
         request.set_data(args)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         print('Result: {0} -> {1}'.format(response.status, response.data))
@@ -352,9 +367,16 @@ class ScheduleExec(ScheduleCommand):
         return
 
 
-class ScheduleGet(ScheduleCommand):
+class ScheduleGet(RemoteCommand):
+
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def execute(self, args):
+
+        config = self.config
 
         # test socket connection
         self.test_socket_connection()
@@ -373,7 +395,7 @@ class ScheduleGet(ScheduleCommand):
         request.set_data(args)
 
         # send request to listener
-        sc = SocketClient()
+        sc = SocketClient(config)
         response = sc.send_request(request)
 
         if response.status == StatusCode.STATUS_OK:

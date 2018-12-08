@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from logging.handlers import TimedRotatingFileHandler
 from .configuration import Configuration
-from os import path
 import logging
 
 
@@ -14,9 +13,7 @@ class FileLogger():
     """ get a logger for the application """
 
     @staticmethod
-    def get():
-
-        config = Configuration.load()
+    def get(config):
 
         # log configuration
         # ------------------------------------------------------- #
@@ -30,11 +27,8 @@ class FileLogger():
 
             logging_config = config.get('logging')
 
-            logpath = logging_config.get('path')
-            filename = logging_config.get('filename')
+            logfile = logging_config.get('filename')
             log_level = logging_config.get('level')
-
-            logfile = path.join(logpath, filename)
 
             fileLogFormatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
             fileLogHandler = TimedRotatingFileHandler(logfile, when='d', interval=7, backupCount=4)

@@ -9,13 +9,12 @@ class CommonSocketException(Exception):
 
 class CommonSocket():
 
-    def __init__(self):
+    def __init__(self, config):
 
         # Create TCP/IP socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # load configuration
-        config = Configuration.load()
         socket_config = config.get('socket')
 
         hostname = socket_config.get('address')

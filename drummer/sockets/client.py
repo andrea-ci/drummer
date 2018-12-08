@@ -10,6 +10,10 @@ class SocketClientException(Exception):
 
 class SocketClient(CommonSocket):
 
+    def __init__(self, config):
+
+        super().__init__(config)
+
 
     def send_request(self, request):
 

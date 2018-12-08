@@ -10,9 +10,9 @@ class SocketServerException(Exception):
 
 class SocketServer(CommonSocket):
 
-    def __init__(self, queue_w2m, queue_m2w):
+    def __init__(self, config, queue_w2m, queue_m2w):
 
-        super().__init__()
+        super().__init__(config)
 
         self.queue_w2m = queue_w2m
         self.queue_m2w = queue_m2w

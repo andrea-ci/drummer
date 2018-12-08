@@ -5,7 +5,14 @@ from drummer.console import ArgParser
 
 class Drummer:
 
-    def start(self, sys_argv):
+    def __init__(self, config):
+
+        self.config = config
+
+
+    def process(self, sys_argv):
+
+        config = self.config
 
         # get command from console
         classname, args = ArgParser().process(sys_argv)
@@ -14,4 +21,4 @@ class Drummer:
         Command = ClassLoader().load('drummer/console/commands', classname)
 
         # execute command
-        Command().execute(args)
+        Command(config).execute(args)

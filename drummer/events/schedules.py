@@ -3,15 +3,23 @@
 from drummer.foundation import Response, StatusCode, FollowUp
 from drummer.database import SqliteSession, Schedule
 
+
 class ScheduleAddEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         response = Response()
         follow_up = FollowUp('RELOAD')
 
         # create db session
-        session = SqliteSession.create()
+        session = SqliteSession.create(config)
 
         try:
 
@@ -47,7 +55,14 @@ class ScheduleAddEvent:
 
 class ScheduleListEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         response = Response()
 
@@ -58,7 +73,7 @@ class ScheduleListEvent:
         try:
 
             # get all schedules
-            session = SqliteSession.create()
+            session = SqliteSession.create(config)
 
             schedules = session.query(Schedule).group_by(Schedule.name).all()
 
@@ -92,7 +107,14 @@ class ScheduleListEvent:
 
 class ScheduleRemoveEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         # get schedulation id
         args = request.data
@@ -102,7 +124,7 @@ class ScheduleRemoveEvent:
         follow_up = FollowUp('RELOAD')
 
         # create db session
-        session = SqliteSession.create()
+        session = SqliteSession.create(config)
 
         try:
 
@@ -129,7 +151,14 @@ class ScheduleRemoveEvent:
 
 class ScheduleDisableEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         # get schedulation id
         args = request.data
@@ -139,7 +168,7 @@ class ScheduleDisableEvent:
         follow_up = FollowUp('RELOAD')
 
         # create db session
-        session = SqliteSession.create()
+        session = SqliteSession.create(config)
 
         try:
 
@@ -167,7 +196,14 @@ class ScheduleDisableEvent:
 
 class ScheduleEnableEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         # get schedulation id
         args = request.data
@@ -177,7 +213,7 @@ class ScheduleEnableEvent:
         follow_up = FollowUp('RELOAD')
 
         # create db session
-        session = SqliteSession.create()
+        session = SqliteSession.create(config)
 
         try:
 
@@ -205,7 +241,14 @@ class ScheduleEnableEvent:
 
 class ScheduleExecEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         # get schedulation id
         args = request.data
@@ -222,7 +265,14 @@ class ScheduleExecEvent:
 
 class ScheduleGetEvent:
 
+    def __init__(self, config):
+
+        self.config = config
+
+
     def execute(self, request):
+
+        config = self.config
 
         response = Response()
         follow_up = FollowUp(None)
@@ -236,7 +286,7 @@ class ScheduleGetEvent:
             schedule_id = args['schedule_id']
 
             # get all schedules
-            session = SqliteSession.create()
+            session = SqliteSession.create(config)
 
             schedule = session.query(Schedule).filter(Schedule.id==schedule_id).one()
 

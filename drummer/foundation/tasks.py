@@ -8,12 +8,12 @@ import uuid
 class TaskManager:
     """ manages tasks to be run """
 
-    def __init__(self, max_runners):
+    def __init__(self, config):
+
+        self.config = config
 
         # get logger
-        self.logger = FileLogger.get()
-
-        self.max_runners = max_runners
+        self.logger = FileLogger.get(config)
 
         # management of runners
         self.execution_data = []
@@ -22,8 +22,10 @@ class TaskManager:
     def run_task(self, queue_tasks_todo):
         """ pick a task from local queue and start runners """
 
+        config = self.config
         logger = self.logger
-        max_runners = self.max_runners
+
+        max_runners = config['max-runners']
 
         if not queue_tasks_todo.empty() and len(self.execution_data)<max_runners:
 
@@ -72,6 +74,7 @@ class TaskManager:
 
                 # pick the task
                 task_result = execution['queue'].get()
+
                 logger.info('Task {0} (UID {1}) ended with result {2}'.format(
                     execution['classname'],
                     execution['uid'],

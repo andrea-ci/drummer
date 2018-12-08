@@ -1,8 +1,0 @@
-[Unit]
-Description=sledge - daemon for scheduling tasks
-After=multi-user.target
-[Service]
-Type=idle
-ExecStart=/usr/bin/python3 /opt/sledge/sledged.py
-[Install]
-WantedBy=multi-user.target
