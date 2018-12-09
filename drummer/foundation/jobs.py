@@ -157,8 +157,7 @@ class Job:
         for tsk in task_data:
 
             # build task
-            task_dict = task_data[tsk]
-            task = Task.create_from_dict(tsk, task_dict)
+            task = Task(tsk, task_data[tsk])
 
             tasks.append(task)
 

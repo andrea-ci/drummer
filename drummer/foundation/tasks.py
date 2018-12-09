@@ -130,31 +130,17 @@ class TaskManager:
 
 
 class Task:
+    """ Task instance """
 
-    def __init__(self):
+    def __init__(self, classname, data):
 
-        self.classname = None
-        self.timeout = None
-        self.params = None
-        self.on_pipe = None
-        self.on_done = None
-        self.on_fail = None
-        self.result = None
-
-
-    @staticmethod
-    def create_from_dict(classname, data):
-
-        task = Task()
-
-        task.classname = classname
-        task.timeout = int(data['timeout'])
-        task.params = data['parameters']
-        task.on_pipe = data['onPipe']
-        task.on_done = data['onSuccess']
-        task.on_fail = data['onFail']
-
-        return task
+        self.classname = classname
+        self.filename = data['filename']
+        self.timeout = int(data['timeout'])
+        self.params = data['parameters']
+        self.on_pipe = data['onPipe']
+        self.on_done = data['onSuccess']
+        self.on_fail = data['onFail']
 
 
 class TaskExecution(Task):
@@ -164,12 +150,12 @@ class TaskExecution(Task):
 
         # get attributes from superclass
         self.classname = task.classname
+        self.filename = task.filename
         self.timeout = task.timeout
         self.params = task.params
         self.on_pipe = task.on_pipe
         self.on_done = task.on_done
         self.on_fail = task.on_fail
-        self.result = task.result
 
         # execution attributes
         self.uid = uuid.uuid4()

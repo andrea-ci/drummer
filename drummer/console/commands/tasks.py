@@ -22,12 +22,9 @@ class TaskExec(BaseCommand):
         except:
             print('Sorry, unable to read task list')
 
-        # task choice
         try:
 
-            print('\nSelect a task to execute:')
-
-            # select a task
+            # task choice
             choices = ['{0} - {1}'.format(tsk['classname'], tsk['description']) for tsk in registered_tasks]
 
             questions = [
@@ -35,8 +32,9 @@ class TaskExec(BaseCommand):
                       message = "Select task to execute",
                       choices = choices,
                       carousel = True,
-                  )
-              ]
+                )
+            ]
+
             ans = inquirer.prompt(questions)
 
             choice_idx = choices.index(ans['task_name'])
@@ -44,10 +42,10 @@ class TaskExec(BaseCommand):
             task_to_run = registered_tasks[choice_idx]
 
             classname = task_to_run['classname']
-            classpath = classname.lower()
+            filename = task_to_run['filename']
 
             # loading task class
-            Task = ClassLoader().load(classpath, classname)
+            Task = ClassLoader().load(filename, classname)
 
             # task execution
             response = Task().run(params)

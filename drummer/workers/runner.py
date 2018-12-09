@@ -17,6 +17,7 @@ class Runner(Process):
         self.queue_w2m = Queue(1)
         # queue master -> worker
         #self.queue_m2w = Queue(1)
+
         self.executing_task = executing_task
 
 
@@ -45,14 +46,17 @@ class Runner(Process):
 
         # load class to exec
         classname = executing_task.classname
-        classpath = classname.lower()
+        filename = executing_task.filename
 
         timeout = executing_task.timeout
         params = executing_task.params
 
-        # run the task and get task result
-        TaskToExec = ClassLoader().load(classpath, classname)
-        task_result = TaskToExec().run(params)
+        # load task class
+        TaskToExec = ClassLoader().load(filename, classname)
+
+        # init task and run
+        task_to_exec = TaskToExec()
+        task_result = task_to_exec.run(params)
 
         executing_task.result = task_result
 

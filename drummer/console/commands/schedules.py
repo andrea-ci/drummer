@@ -85,7 +85,7 @@ class ScheduleAdd(RemoteCommand):
         # test socket connection
         self.test_socket_connection()
 
-        registered_tasks = self.config['tasks']
+        registered_tasks = config['tasks']
 
         schedulation = self.ask_basics()
 
@@ -175,10 +175,16 @@ class ScheduleAdd(RemoteCommand):
         ]
 
         ans = inquirer.prompt(questions)
-        classname = classnames[choices.index(ans['task'])]
+
+        task_idx = choices.index(ans['task'])
+
+        chosen_task = registered_tasks[task_idx]
+
+        classname = chosen_task['classname']
 
         # set task parameters
         task = {}
+        task['filename'] = chosen_task['filename']
         task['timeout'] = ans['timeout']
         task['parameters'] = ans['parameters']
         task['onPipe'] = None
