@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from drummer.utils import ClassLoader
 from prettytable import PrettyTable
+from sys import path as sys_path
 from .base import BaseCommand
 import inquirer
 
@@ -9,9 +10,14 @@ class TaskExec(BaseCommand):
 
     def execute(self, params):
 
+        config = self.config
+
+        # add task folder to syspath
+        sys_path.append(config['taskdir'])
+
         # read tasks
         try:
-            registered_tasks = self.config['tasks']
+            registered_tasks = config['tasks']
 
         except:
             print('Sorry, unable to read task list')
@@ -38,7 +44,7 @@ class TaskExec(BaseCommand):
             task_to_run = registered_tasks[choice_idx]
 
             classname = task_to_run['classname']
-            classpath = 'tasks/{0}'.format(classname.lower())
+            classpath = classname.lower()
 
             # loading task class
             Task = ClassLoader().load(classpath, classname)
@@ -70,13 +76,18 @@ class TaskList(BaseCommand):
 
     def execute(self, params):
 
+        config = self.config
+
+        # add task folder to syspath
+        sys_path.append(config['taskdir'])
+
         table = PrettyTable()
         table.field_names = ['No.', 'Name', 'Description']
         table.align['Name'] = 'l'
         table.align['Description'] = 'l'
 
         try:
-            registered_tasks = self.config['tasks']
+            registered_tasks = config['tasks']
 
             print('\nList of registered tasks:')
 

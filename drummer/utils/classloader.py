@@ -15,6 +15,7 @@ class ClassLoader():
             mod_to_import = module_path.replace('/','.')
 
             mod = __import__(mod_to_import, fromlist=[classname])
+
             LoadedClass = getattr(mod, classname)
 
         except:
