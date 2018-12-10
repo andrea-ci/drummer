@@ -30,12 +30,12 @@ class TaskManager:
         if not queue_tasks_todo.empty() and len(self.execution_data)<max_runners:
 
             # pick a task
-            task_to_exec = queue_tasks_todo.get()
-            logger.info('Task {0} is going to run with UID {1}'.format(task_to_exec.classname, task_to_exec.uid))
+            task_execution = queue_tasks_todo.get()
+            logger.info('Task {0} is going to run with UID {1}'.format(task_execution.task.classname, task_execution.uid))
 
             # start a new runner for task
             logger.debug('Starting Runner')
-            runner = Runner(task_to_exec)
+            runner = Runner(config, logger, task_execution)
 
             # get runner queue
             queue_runner_w2m = runner.get_queues()
@@ -49,12 +49,12 @@ class TaskManager:
 
             # add task data object
             self.execution_data.append({
-                'classname':    task_to_exec.classname,
-                'uid':          task_to_exec.uid,
+                'classname':    task_execution.task.classname,
+                'uid':          task_execution.uid,
                 'handle':       runner,
                 'queue':        queue_runner_w2m,
                 'timestamp':    datetime.now(),
-                'timeout':      task_to_exec.timeout,
+                'timeout':      task_execution.task.timeout,
             })
 
         return queue_tasks_todo
@@ -129,8 +129,8 @@ class TaskManager:
         return
 
 
-class Task:
-    """ Task instance """
+class ManagedTask:
+    """ Task instance managed by scheduler """
 
     def __init__(self, classname, data):
 
@@ -143,19 +143,13 @@ class Task:
         self.on_fail = data['onFail']
 
 
-class TaskExecution(Task):
-    """ TaskExecution is an active instance of a Task """
+class ActiveTask(ManagedTask):
+    """ ActiveTask is an active instance of a Task """
 
     def __init__(self, task, job_name):
 
-        # get attributes from superclass
-        self.classname = task.classname
-        self.filename = task.filename
-        self.timeout = task.timeout
-        self.params = task.params
-        self.on_pipe = task.on_pipe
-        self.on_done = task.on_done
-        self.on_fail = task.on_fail
+        # tasl composition
+        self.task = task
 
         # execution attributes
         self.uid = uuid.uuid4()

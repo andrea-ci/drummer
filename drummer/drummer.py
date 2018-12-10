@@ -3,6 +3,7 @@
 from drummer.utils import ClassLoader
 from drummer.console import ArgParser
 
+
 class Drummer:
 
     def __init__(self, config):

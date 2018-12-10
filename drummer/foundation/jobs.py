@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from drummer.database import SqliteSession, Schedule
 from drummer.utils import FileLogger
-from .tasks import Task, TaskExecution
+from .tasks import ManagedTask, ActiveTask
 from .messages import StatusCode
 from datetime import datetime
 from croniter import croniter
@@ -42,7 +42,7 @@ class JobManager:
         # get task data
         task = job.get_task_data(classname)
 
-        task_execution = TaskExecution(task, job._name)
+        task_execution = ActiveTask(task, job._name)
 
         queue_tasks_todo.put(task_execution)
 
@@ -84,14 +84,14 @@ class JobManager:
 
         # get next task classname
         # if job is finished next task is None
-        if executed_task.on_pipe:
-            next_task = executed_task.on_pipe
+        if executed_task.task.on_pipe:
+            next_task = executed_task.task.on_pipe
 
-        elif executed_task.on_done and result.status == StatusCode.STATUS_OK:
-            next_task = executed_task.on_done
+        elif executed_task.task.on_done and result.status == StatusCode.STATUS_OK:
+            next_task = executed_task.task.on_done
 
-        elif executed_task.on_fail and result.status == StatusCode.STATUS_ERROR:
-            next_task = executed_task.on_fail
+        elif executed_task.task.on_fail and result.status == StatusCode.STATUS_ERROR:
+            next_task = executed_task.task.on_fail
 
         else:
             # no more tasks to execute
@@ -157,7 +157,7 @@ class Job:
         for tsk in task_data:
 
             # build task
-            task = Task(tsk, task_data[tsk])
+            task = ManagedTask(tsk, task_data[tsk])
 
             tasks.append(task)
 

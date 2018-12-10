@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from drummer.utils import ClassLoader
+from drummer.utils import ClassLoader, FileLogger
 from prettytable import PrettyTable
 from sys import path as sys_path
 from .base import BaseCommand
 import inquirer
+
 
 class TaskExec(BaseCommand):
 
     def execute(self, params):
 
         config = self.config
+        logger = FileLogger.get(config)
 
         # add task folder to syspath
         sys_path.append(config['taskdir'])
@@ -44,16 +46,17 @@ class TaskExec(BaseCommand):
             classname = task_to_run['classname']
             filename = task_to_run['filename']
 
-            # loading task class
-            Task = ClassLoader().load(filename, classname)
-
-            # task execution
-            response = Task().run(params)
-
         except:
             print('Impossible to execute task')
 
         else:
+
+            # loading task class
+            RunningTask = ClassLoader().load(filename, classname)
+
+            # task execution
+            running_task = RunningTask(config, logger)
+            response = running_task.run(params)
 
             result_table = PrettyTable()
             result_table.field_names = ['Response', 'Data']
@@ -65,7 +68,6 @@ class TaskExec(BaseCommand):
                 result_table.add_row([k, v])
                 print(result_table)
                 print()
-
 
         return
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from drummer.utils import FileLogger, Queued, ClassLoader
 from drummer.foundation import TaskManager, JobManager, JobLoader
-from drummer.workers import Listener
+from drummer.utils import FileLogger, Queued, ClassLoader
 from drummer.scheduling import Scheduler
+from drummer.workers import Listener
 from time import sleep
+
 
 class Drummered:
 
