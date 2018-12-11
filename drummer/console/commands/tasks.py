@@ -14,6 +14,14 @@ class TaskExec(BaseCommand):
         config = self.config
         logger = FileLogger.get(config)
 
+        # init result table
+        result_table = PrettyTable()
+        result_table.field_names = ['Response', 'Data']
+        result_table.align = 'l'
+
+        # command parameters
+        # params
+
         # add task folder to syspath
         sys_path.append(config['taskdir'])
 
@@ -30,37 +38,48 @@ class TaskExec(BaseCommand):
             choices = ['{0} - {1}'.format(tsk['classname'], tsk['description']) for tsk in registered_tasks]
 
             questions = [
-                inquirer.List('task_name',
-                      message = "Select task to execute",
+                inquirer.List('task',
+                      message = 'Select task to execute',
                       choices = choices,
                       carousel = True,
-                )
+                  ),
+                  inquirer.Text(
+                      'timeout',
+                      message = 'Timeout',
+                      default = '600'
+                  ),
+                  inquirer.Text(
+                      'args',
+                      message = 'Task parameters',
+                      default = None
+                  ),
             ]
 
             ans = inquirer.prompt(questions)
 
-            choice_idx = choices.index(ans['task_name'])
+            # chosen task
+            choice_idx = choices.index(ans['task'])
 
             task_to_run = registered_tasks[choice_idx]
 
             classname = task_to_run['classname']
             filename = task_to_run['filename']
 
-        except:
-            print('Impossible to execute task')
-
-        else:
+            # task arguments
+            args = ans['args']
 
             # loading task class
             RunningTask = ClassLoader().load(filename, classname)
 
             # task execution
             running_task = RunningTask(config, logger)
-            response = running_task.run(params)
+            response = running_task.run(args)
 
-            result_table = PrettyTable()
-            result_table.field_names = ['Response', 'Data']
-            result_table.align = 'l'
+        except:
+            print('Impossible to execute task')
+
+        else:
+
             result_table.add_row(['Status', response.status])
 
             for k,v in response.data.items():
