@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from drummer.utils.validation import InquirerValidation
 from drummer.utils import ClassLoader, FileLogger
 from prettytable import PrettyTable
 from sys import path as sys_path
@@ -14,6 +15,9 @@ class TaskExec(BaseCommand):
         config = self.config
         logger = FileLogger.get(config)
 
+        # add task folder to syspath
+        sys_path.append(config['taskdir'])
+
         # init result table
         result_table = PrettyTable()
         result_table.field_names = ['Response', 'Data']
@@ -21,9 +25,6 @@ class TaskExec(BaseCommand):
 
         # command parameters
         # params
-
-        # add task folder to syspath
-        sys_path.append(config['taskdir'])
 
         # read tasks
         try:
@@ -46,11 +47,12 @@ class TaskExec(BaseCommand):
                   inquirer.Text(
                       'timeout',
                       message = 'Timeout',
-                      default = '600'
+                      default = '600',
+                      validate = InquirerValidation.check_int
                   ),
                   inquirer.Text(
-                      'args',
-                      message = 'Task parameters',
+                      'arg_list',
+                      message = 'Arguments (comma-separated list of key=value)',
                       default = None
                   ),
             ]
@@ -63,13 +65,13 @@ class TaskExec(BaseCommand):
             task_to_run = registered_tasks[choice_idx]
 
             classname = task_to_run['classname']
-            filename = task_to_run['filename']
+            filepath = task_to_run['filepath']
 
             # task arguments
-            args = ans['args']
+            args = InquirerValidation.get_dict_from_args(ans['arg_list'])
 
             # loading task class
-            RunningTask = ClassLoader().load(filename, classname)
+            RunningTask = ClassLoader().load(filepath, classname)
 
             # task execution
             running_task = RunningTask(config, logger)

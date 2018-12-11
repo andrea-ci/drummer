@@ -7,12 +7,12 @@ class ClassLoaderException(Exception):
 class ClassLoader():
     """ loads class from the given module path """
 
-    def load(self, filename, classname):
+    def load(self, filepath, classname):
 
         try:
             # import the class
-            #mod_to_import = path.join(filename, classname.lower()).replace('/','.')
-            mod_to_import = filename.replace('/','.')
+            #mod_to_import = path.join(filepath, classname.lower()).replace('/','.')
+            mod_to_import = filepath.replace('/','.')
 
             mod = __import__(mod_to_import, fromlist=[classname])
 

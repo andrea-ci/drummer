@@ -117,10 +117,10 @@ class Drummered:
 
         # load event class to exec
         classname = request.classname
-        filename = request.filename
+        classpath = request.classpath
 
         # execute the event and get result
-        EventToExec = ClassLoader().load(filename, classname)
+        EventToExec = ClassLoader().load(classpath, classname)
 
         response, follow_up = EventToExec(config).execute(request)
 

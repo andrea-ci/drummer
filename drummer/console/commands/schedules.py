@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from drummer.foundation.messages import Request, StatusCode
+from drummer.utils.validation import InquirerValidation
+from drummer.foundation import Request, StatusCode
 from drummer.sockets.client import SocketClient
 from prettytable import PrettyTable
-from sys import exit as sys_exit
 from .base import RemoteCommand
-from croniter import croniter
 import inquirer
 import json
 
@@ -107,20 +106,6 @@ class ScheduleAdd(RemoteCommand):
         return
 
 
-    @staticmethod
-    def check_cron(_, candidate):
-        return croniter.is_valid(candidate)
-
-
-    @staticmethod
-    def check_int(_, candidate):
-        try:
-            int(candidate)
-            return True
-        except:
-            return False
-
-
     def ask_basics(self):
 
         questions = [
@@ -135,7 +120,7 @@ class ScheduleAdd(RemoteCommand):
             inquirer.Text(
                 'cronexp',
                 message = 'Cron expression',
-                validate = self.check_cron,
+                validate = InquirerValidation.check_cron,
             ),
             inquirer.Confirm(
                 'enabled',
@@ -158,7 +143,7 @@ class ScheduleAdd(RemoteCommand):
 
         questions = [
             inquirer.List('task',
-                  message = "Select task to execute",
+                  message = 'Select task to execute',
                   choices = choices,
                   carousel = True,
               ),
@@ -166,11 +151,12 @@ class ScheduleAdd(RemoteCommand):
                   'timeout',
                   message = 'Timeout',
                   default = '600',
-                  validate = self.check_int
+                  validate = InquirerValidation.check_int
               ),
               inquirer.Text(
-                  'parameters',
-                  message = 'Task parameters'
+                  'arg_list',
+                  message = 'Arguments (comma-separated list of key=value)',
+                  default = None
               ),
         ]
 
@@ -178,15 +164,15 @@ class ScheduleAdd(RemoteCommand):
 
         task_idx = choices.index(ans['task'])
 
-        chosen_task = registered_tasks[task_idx]
+        task_to_run = registered_tasks[task_idx]
 
-        classname = chosen_task['classname']
+        classname = task_to_run['classname']
 
-        # set task parameters
+        # set task data
         task = {}
-        task['filename'] = chosen_task['filename']
+        task['filepath'] = task_to_run['filepath']
         task['timeout'] = ans['timeout']
-        task['parameters'] = ans['parameters']
+        task['parameters'] = InquirerValidation.get_dict_from_args(ans['arg_list'])
         task['onPipe'] = None
         task['onSuccess'] = None
         task['onFail'] = None

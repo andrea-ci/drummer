@@ -11,3 +11,6 @@ class Task:
 
         self.config = config
         self.logger = logger
+
+    def run(self, args):
+        raise NotImplementedError('This method must be overriden by a concrete task')

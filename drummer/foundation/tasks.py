@@ -135,7 +135,7 @@ class ManagedTask:
     def __init__(self, classname, data):
 
         self.classname = classname
-        self.filename = data['filename']
+        self.filepath = data['filepath']
         self.timeout = int(data['timeout'])
         self.params = data['parameters']
         self.on_pipe = data['onPipe']

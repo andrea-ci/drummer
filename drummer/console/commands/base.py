@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from drummer.foundation.messages import Request, StatusCode
 from drummer.sockets.client import SocketClient
+from sys import exit as sys_exit
 
 class BaseCommand():
     """ Base command to be subclassed """

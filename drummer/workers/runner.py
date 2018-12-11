@@ -50,13 +50,13 @@ class Runner(Process):
 
         # load class to exec
         classname = task_execution.task.classname
-        filename = task_execution.task.filename
+        filepath = task_execution.task.filepath
 
         timeout = task_execution.task.timeout
         params = task_execution.task.params
 
         # loading task class
-        RunningTask = ClassLoader().load(filename, classname)
+        RunningTask = ClassLoader().load(filepath, classname)
 
         # task execution
         running_task = RunningTask(config, logger)

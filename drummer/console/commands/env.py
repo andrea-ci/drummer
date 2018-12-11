@@ -95,7 +95,7 @@ class EnvInit():
         task_data = [
             {
                 'classname': 'YourTaskClass',
-                'filename': 'filename.py',
+                'filepath': 'path/to/filename.py',
                 'description': 'Description of task'
             }
         ]
