@@ -53,14 +53,14 @@ class Runner(Process):
         filepath = task_execution.task.filepath
 
         timeout = task_execution.task.timeout
-        params = task_execution.task.params
+        args = task_execution.task.args
 
         # loading task class
         RunningTask = ClassLoader().load(filepath, classname)
 
         # task execution
         running_task = RunningTask(config, logger)
-        task_result = running_task.run(params)
+        task_result = running_task.run(args)
 
         task_execution.result = task_result
 

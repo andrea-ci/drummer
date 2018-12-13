@@ -137,7 +137,7 @@ class ManagedTask:
         self.classname = classname
         self.filepath = data['filepath']
         self.timeout = int(data['timeout'])
-        self.params = data['parameters']
+        self.args = data['args']
         self.on_pipe = data['onPipe']
         self.on_done = data['onSuccess']
         self.on_fail = data['onFail']

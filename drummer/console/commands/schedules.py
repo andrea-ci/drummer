@@ -16,7 +16,7 @@ class ScheduleList(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -31,14 +31,13 @@ class ScheduleList(RemoteCommand):
         table.align['Cronexp'] = 'l'
 
         # handle command parameters
-        # args = request.args
+        # command_args = request.args
         # ...
 
         # prepare request to listener
         request = Request()
         request.set_classname('ScheduleListEvent')
         request.set_classpath(self.CLASSPATH)
-        #request.set_data(args)
 
         # send request to listener
         sc = SocketClient(config)
@@ -74,7 +73,7 @@ class ScheduleAdd(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -172,7 +171,7 @@ class ScheduleAdd(RemoteCommand):
         task = {}
         task['filepath'] = task_to_run['filepath']
         task['timeout'] = ans['timeout']
-        task['parameters'] = InquirerValidation.get_dict_from_args(ans['arg_list'])
+        task['args'] = InquirerValidation.get_dict_from_args(ans['arg_list'])
         task['onPipe'] = None
         task['onSuccess'] = None
         task['onFail'] = None
@@ -250,7 +249,7 @@ class ScheduleRemove(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -261,7 +260,7 @@ class ScheduleRemove(RemoteCommand):
         request = Request()
         request.set_classname('ScheduleRemoveEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(args)
+        request.set_data(command_args)
 
         # send request to listener
         sc = SocketClient(config)
@@ -279,7 +278,7 @@ class ScheduleEnable(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -290,7 +289,7 @@ class ScheduleEnable(RemoteCommand):
         request = Request()
         request.set_classname('ScheduleEnableEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(args)
+        request.set_data(command_args)
 
         # send request to listener
         sc = SocketClient(config)
@@ -308,7 +307,7 @@ class ScheduleDisable(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -319,7 +318,7 @@ class ScheduleDisable(RemoteCommand):
         request = Request()
         request.set_classname('ScheduleDisableEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(args)
+        request.set_data(command_args)
 
         # send request to listener
         sc = SocketClient(config)
@@ -337,7 +336,7 @@ class ScheduleExec(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -348,7 +347,7 @@ class ScheduleExec(RemoteCommand):
         request = Request()
         request.set_classname('ScheduleExecEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(args)
+        request.set_data(command_args)
 
         # send request to listener
         sc = SocketClient(config)
@@ -366,7 +365,7 @@ class ScheduleGet(RemoteCommand):
         super().__init__(config)
 
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         config = self.config
 
@@ -384,7 +383,7 @@ class ScheduleGet(RemoteCommand):
         request = Request()
         request.set_classname('ScheduleGetEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(args)
+        request.set_data(command_args)
 
         # send request to listener
         sc = SocketClient(config)

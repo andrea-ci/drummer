@@ -10,7 +10,7 @@ import inquirer
 
 class TaskExec(BaseCommand):
 
-    def execute(self, params):
+    def execute(self, command_args):
 
         config = self.config
         logger = FileLogger.get(config)
@@ -24,7 +24,7 @@ class TaskExec(BaseCommand):
         result_table.align = 'l'
 
         # command parameters
-        # params
+        # command_args
 
         # read tasks
         try:
@@ -68,14 +68,14 @@ class TaskExec(BaseCommand):
             filepath = task_to_run['filepath']
 
             # task arguments
-            args = InquirerValidation.get_dict_from_args(ans['arg_list'])
+            task_args = InquirerValidation.get_dict_from_args(ans['arg_list'])
 
             # loading task class
             RunningTask = ClassLoader().load(filepath, classname)
 
             # task execution
             running_task = RunningTask(config, logger)
-            response = running_task.run(args)
+            response = running_task.run(task_args)
 
         except:
             print('Impossible to execute task')
@@ -95,7 +95,7 @@ class TaskExec(BaseCommand):
 
 class TaskList(BaseCommand):
 
-    def execute(self, params):
+    def execute(self, command_args):
 
         config = self.config
 

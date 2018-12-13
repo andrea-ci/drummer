@@ -11,11 +11,11 @@ import inquirer
 
 class EnvInit():
 
-    def execute(self, args):
+    def execute(self, command_args):
 
         print('Setting the environment for Drummer...')
 
-        ROOT_DIR = path.abspath(args['root_dir'])
+        ROOT_DIR = path.abspath(command_args['root_dir'])
 
         # task folder
         TASK_DIR = 'tasks'
@@ -31,7 +31,7 @@ class EnvInit():
         DATABASE_DIR = 'database'
         DATABASE_DIR_PATH = path.join(ROOT_DIR, DATABASE_DIR)
 
-        database_file = args.get('database')
+        database_file = command_args.get('database')
         database_filepath = path.join(DATABASE_DIR_PATH, database_file)
 
         SCRIPT_FILE = 'drummer-cli.py'
