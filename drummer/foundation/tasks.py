@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from drummer.utils.filelogger import FileLogger
+from drummer.utils.clogger import Clogger
 from drummer.workers import Runner
 from datetime import datetime
 import uuid
@@ -8,12 +8,12 @@ import uuid
 class TaskManager:
     """ manages tasks to be run """
 
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
 
         self.config = config
 
         # get logger
-        self.logger = FileLogger.get(config)
+        self.logger = kwargs.get('logger') or Clogger.get(config)
 
         # management of runners
         self.execution_data = []

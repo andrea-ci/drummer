@@ -81,8 +81,8 @@ class EnvInit():
             },
             'logging': {
                 'filename': '/var/log/drummer.log',
-                'type': 'file-rotation',
-                'level': 'DEBUG'
+                'level': 'DEBUG',
+                'rotation-period': 7
             },
             'database': database_filepath,
             'taskdir': TASK_DIR_PATH,

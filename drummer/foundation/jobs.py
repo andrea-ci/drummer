@@ -1,8 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from drummer.database import SqliteSession, Schedule
-from drummer.utils import FileLogger
 from .tasks import ManagedTask, ActiveTask
+from drummer.utils import Clogger
 from .messages import StatusCode
 from datetime import datetime
 from croniter import croniter
@@ -13,10 +13,10 @@ import time
 class JobManager:
     """ Manage status of jobs to be executed """
 
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
 
         # get logger
-        self.logger = FileLogger.get(config)
+        self.logger = kwargs.get('logger') or Clogger.get(config)
 
         # managed jobs
         self.jobs = []

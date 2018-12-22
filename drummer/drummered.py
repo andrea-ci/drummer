@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from drummer.foundation import TaskManager, JobManager, JobLoader
-from drummer.utils import FileLogger, Queued, ClassLoader
+from drummer.utils import Clogger, Queued, ClassLoader
 from drummer.scheduling import Scheduler
 from drummer.workers import Listener
 from time import sleep
@@ -15,8 +15,8 @@ class Drummered:
         self.config = config
 
         # get logger
-        self.logger = FileLogger.get(config)
-        self.logger.info('Starting Drummer service now...')
+        self.logger = Clogger.get(config)
+        self.logger.info('Starting Drummer service...')
 
         # create task queues
         self.queue_tasks_todo = Queued()

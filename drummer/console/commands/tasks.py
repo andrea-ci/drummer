@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from drummer.utils.validation import InquirerValidation
-from drummer.utils import ClassLoader, FileLogger
+from drummer.utils import ClassLoader, Clogger
 from prettytable import PrettyTable
 from sys import path as sys_path
 from .base import BaseCommand
@@ -13,7 +13,21 @@ class TaskExec(BaseCommand):
     def execute(self, command_args):
 
         config = self.config
-        logger = FileLogger.get(config)
+
+        verbosity = command_args['verbosity']
+
+        if verbosity == 0:
+            level = 'ERROR'
+        elif verbosity == 1:
+            level = 'WARNING'
+        elif verbosity == 2:
+            level = 'INFO'
+        else:
+            level = 'DEBUG'
+
+        logger = Clogger.get(config, streaming=True, level=level)
+
+        logger.debug('Starting command')
 
         # add task folder to syspath
         sys_path.append(config['taskdir'])
@@ -22,9 +36,6 @@ class TaskExec(BaseCommand):
         result_table = PrettyTable()
         result_table.field_names = ['Response', 'Data']
         result_table.align = 'l'
-
-        # command parameters
-        # command_args
 
         # read tasks
         try:

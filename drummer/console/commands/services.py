@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from sys import exit as sys_exit
-from sys import path as sys_path
 from drummer.drummered import Drummered
+from sys import path as sys_path
 from .base import BaseCommand
 
 
