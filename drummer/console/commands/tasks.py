@@ -27,7 +27,7 @@ class TaskExec(BaseCommand):
 
         logger = Clogger.get(config, streaming=True, level=level)
 
-        logger.debug('Starting command')
+        logger.debug('Starting task execution command')
 
         # add task folder to syspath
         sys_path.append(config['taskdir'])
@@ -42,7 +42,9 @@ class TaskExec(BaseCommand):
             registered_tasks = config['tasks']
 
         except:
-            print('Sorry, unable to read task list')
+            msg = 'Unable to read task list'
+            logger.error('msg')
+            print(msg)
 
         try:
 
@@ -54,12 +56,6 @@ class TaskExec(BaseCommand):
                       message = 'Select task to execute',
                       choices = choices,
                       carousel = True,
-                  ),
-                  inquirer.Text(
-                      'timeout',
-                      message = 'Timeout',
-                      default = '600',
-                      validate = InquirerValidation.check_int
                   ),
                   inquirer.Text(
                       'arg_list',
@@ -92,6 +88,8 @@ class TaskExec(BaseCommand):
             print('Impossible to execute task')
 
         else:
+
+            logger.debug('Task has terminated')
 
             result_table.add_row(['Status', response.status])
 
