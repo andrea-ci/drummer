@@ -103,10 +103,10 @@ You can start Drummer in two ways: as a systemd service (via systemctl command) 
 > \> python drummer-cli.py service:start
 
 The cli provides commands to:
-- list all schedules
-- add, remove, enable, disable, or execute immediately a schedule
-- list all registered task
-- execute a single task
+    - list all schedules
+    - add, remove, enable, disable, or execute immediately a schedule
+    - list all registered task
+    - execute a single task
 
 For details see:
 
