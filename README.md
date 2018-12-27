@@ -25,17 +25,17 @@ Now you are *almost* ready to start.
 ### How Drummer works
 
 Drummer machinery is composed of three processes:
-1. a scheduler process, built on top of [sched module](https://docs.python.org/3/library/sched.html "Python Event Scheduler")
-2. a socket listener, to serve communications with the Drummer cli
-3. a main process, which puts together all pieces and takes care of the overall behaviour
+    1. a scheduler process, built on top of [sched module](https://docs.python.org/3/library/sched.html "Python Event Scheduler")
+    2. a socket listener, to serve communications with the Drummer cli
+    3. a main process, which puts together all pieces and takes care of the overall behaviour
 
 In order to ensure the multi-tasking capability, each task is runned by a separate process.
 
 When you create a new environment for Drummer, you will notice several files and folders being created:
-- the **config** folder, for configuration and task file and, if you chose so, the systemd file;
-- a **database** folder, which contains the internal sqlite database with schedules;
-- a **tasks** folder, for placing your tasks;
-- *drummer-cli.py*, the command line application.
+    - the **config** folder, for configuration and task file and, if you chose so, the systemd file;
+    - a **database** folder, which contains the internal sqlite database with schedules;
+    - a **tasks** folder, for placing your tasks;
+    - **drummer-cli.py**, the command line application.
 
 
 ### Configuration
@@ -48,16 +48,15 @@ Among all, you can specify where to store the log file and the database, which f
 ### Tasks
 
 To be well formed, user-defined tasks should respect few basic requirements, i.e. they:
-- extend the **Task** class provided by **tasking** module
-- implement a **run** method as entry point
-- use the **Response** class, along with a valid **StatusCode***, for handling the task outcome
+    - extend the **Task** class provided by **tasking** module
+    - implement a **run** method as entry point
+    - use the **Response** class, along with a valid **StatusCode**, for handling the task outcome (valid **StatusCode** attributes are: "STATUS_OK", "STATUS_WARNING", "STATUS_ERROR")
 
 A fully working example:
 
 ```
 from drummer.tasking import Task
 from drummer.foundation import Response, StatusCode
-from datetime import datetime
 
 class MyTask(Task):
 
@@ -75,7 +74,7 @@ class MyTask(Task):
             now = datetime.now()
 
             with open('mytask.txt', 'a') as f:
-                f.write('Hello world! Current time is {0}\n'.format(str(now)))
+                f.write('Hello world!')
 
             logger.info('File has been updated')
 
@@ -95,8 +94,6 @@ class MyTask(Task):
 The *run* method takes a dictionary with optional task arguments. It is empty if no arguments are specified.
 
 To complete the registration process, you have to declare the task, along with its path, inside *drummer-tasks.yml*. Drummer must know the path of python file to load (expressed as relative path with respect to base folder), and the name of the class which exposed the *run* method.
-
-* Valid **StatusCode** attributes are: "STATUS_OK", "STATUS_WARNING", "STATUS_ERROR".
 
 
 ### cli

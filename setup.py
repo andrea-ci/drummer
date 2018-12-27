@@ -14,9 +14,9 @@ setup(
     maintainer='andrea capitanelli',
     maintainer_email='andrea.capitanelli@gmail.com',
     url='https://github.com/vegaviz/drummer',
-    packages=[
-        'drummer'
-    ],
+    package_dir={
+        'drummer': 'drummer'
+    },
     install_requires=[
         'blessings',
         'croniter',
