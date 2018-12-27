@@ -15,24 +15,24 @@ class EnvInit():
 
         print('Setting the environment for Drummer...')
 
-        ROOT_DIR = path.abspath(command_args['root_dir'])
+        BASE_FOLDER = path.abspath(command_args['BASE_FOLDER'])
 
         # task folder
         TASK_DIR = 'tasks'
-        TASK_DIR_PATH = path.join(ROOT_DIR, TASK_DIR)
+        TASK_DIR_PATH = path.join(BASE_FOLDER, TASK_DIR)
 
         # config folder
         CONFIG_DIR = 'config'
-        CONFIG_DIR_PATH = path.join(ROOT_DIR, CONFIG_DIR)
+        CONFIG_DIR_PATH = path.join(BASE_FOLDER, CONFIG_DIR)
         CONFIG_FILE = 'drummer-config.yml'
         TASK_FILE = 'drummer-tasks.yml'
 
         # database folder and filepath
         DATABASE_DIR = 'database'
-        DATABASE_DIR_PATH = path.join(ROOT_DIR, DATABASE_DIR)
+        DATABASE_DIR_PATH = path.join(BASE_FOLDER, DATABASE_DIR)
 
-        database_file = command_args.get('database')
-        database_filepath = path.join(DATABASE_DIR_PATH, database_file)
+        DATABASE_FILE = command_args.get('DATABASE_FILE')
+        database_filepath = path.join(DATABASE_DIR_PATH, DATABASE_FILE)
 
         SCRIPT_FILE = 'drummer-cli.py'
         SERVICE_FILE = 'drummered.service'
@@ -41,8 +41,8 @@ class EnvInit():
         # ----------------------------------------------- #
 
         # create root folder
-        if not path.exists(ROOT_DIR):
-            makedirs(ROOT_DIR)
+        if not path.exists(BASE_FOLDER):
+            makedirs(BASE_FOLDER)
 
         # create task folder
         if not path.exists(TASK_DIR_PATH):
@@ -112,7 +112,7 @@ class EnvInit():
         # SCRIPT CREATION
         # ----------------------------------------------- #
 
-        with open(path.join(ROOT_DIR, SCRIPT_FILE), 'w') as f:
+        with open(path.join(BASE_FOLDER, SCRIPT_FILE), 'w') as f:
             f.write(appdata.SCRIPT_CODE)
 
         print('Python script created.')
@@ -147,7 +147,7 @@ class EnvInit():
 
             service_code = service_code.replace('<pythonpath>', ans['path'])
 
-            command = '{0} service:start'.format(path.join(ROOT_DIR, SCRIPT_FILE))
+            command = '{0} service:start'.format(path.join(BASE_FOLDER, SCRIPT_FILE))
             service_code = service_code.replace('<command>', command)
 
             with open(path.join(CONFIG_DIR_PATH, SERVICE_FILE), 'w') as f:

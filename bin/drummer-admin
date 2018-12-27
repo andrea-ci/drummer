@@ -16,16 +16,16 @@ subparsers = parser.add_subparsers(help='command help', title='Admin commands', 
 
 # init
 parser_00 = subparsers.add_parser('init', help='Init Drummer environment')
-parser_00.add_argument('root_dir', action='store', help='Root folder for Drummer environment')
+parser_00.add_argument('BASE_FOLDER', action='store', help='Folder for Drummer environment')
 parser_00.add_argument(
-'--database',
-dest='database',
-const='drummer.sqlite',
-default='drummer.sqlite',
-action='store',
-nargs='?',
-type=str,
-help='Filename for internal schedulation database'
+    '--database',
+    dest='DATABASE_FILE',
+    const='drummer.sqlite',
+    default='drummer.sqlite',
+    action='store',
+    nargs='?',
+    type=str,
+    help='Filename for internal schedulation database'
 )
 parser_00.set_defaults(classname='EnvInit')
 
