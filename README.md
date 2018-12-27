@@ -1,10 +1,10 @@
 # Drummer
 
-Drummer is a python multi-process, multi-task job scheduler for Linux, best served as a systemd service. You can write your own tasks within logically defined jobs, i.e. task chains in which execution order depends on task outcome.
+Drummer is a python multi-process and multi-task job scheduler for Linux, best served as a systemd service. You can write your own tasks within logically defined jobs, i.e. task chains in which execution order depends on task outcome.
 
 For instance: if task A succeeds, execute task B; if it fails, execute task C; and no matter the result of A, always execute also task D.
 
-Drummer is heavily insipired by [Comodojo Extender](https://github.com/comodojo), and I wish to acknowledge its author.
+Drummer is heavily insipired by [Comodojo Extender](https://github.com/comodojo): I wish therefore to acknowledge its author.
 
 
 ### Quick start

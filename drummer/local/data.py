@@ -7,7 +7,7 @@ SCRIPT_CODE = """#!/usr/bin/env python3
 # DO NOT EDIT IT UNLESS YOU KNOW WHAT YOU ARE DOING
 
 from drummer.utils import Configuration
-from drummer.drummer import Drummer
+from drummer import Drummer
 from sys import argv as sys_argv
 from os import path
 

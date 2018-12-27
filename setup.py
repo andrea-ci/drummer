@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.md','r') as f:
     long_description = f.read()
@@ -14,9 +14,7 @@ setup(
     maintainer='andrea capitanelli',
     maintainer_email='andrea.capitanelli@gmail.com',
     url='https://github.com/vegaviz/drummer',
-    package_dir={
-        'drummer': 'drummer'
-    },
+    packages=find_packages(),
     install_requires=[
         'blessings',
         'croniter',
