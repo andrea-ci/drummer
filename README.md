@@ -25,17 +25,17 @@ Now you are *almost* ready to start.
 ### How Drummer works
 
 Drummer machinery is composed of three processes:
-    1. a scheduler process, built on top of [sched module](https://docs.python.org/3/library/sched.html "Python Event Scheduler")
-    2. a socket listener, to serve communications with the Drummer cli
-    3. a main process, which puts together all pieces and takes care of the overall behaviour
+1. a scheduler process, built on top of [sched module](https://docs.python.org/3/library/sched.html "Python Event Scheduler")
+2. a socket listener, to serve communications with the Drummer cli
+3. a main process, which puts together all pieces and takes care of the overall behaviour
 
 In order to ensure the multi-tasking capability, each task is runned by a separate process.
 
 When you create a new environment for Drummer, you will notice several files and folders being created:
-    - the **config** folder, for configuration and task file and, if you chose so, the systemd file;
-    - a **database** folder, which contains the internal sqlite database with schedules;
-    - a **tasks** folder, for placing your tasks;
-    - **drummer-cli.py**, the command line application.
+- the **config** folder, for configuration and task file and, if you chose so, the systemd file;
+- a **database** folder, which contains the internal sqlite database with schedules;
+- a **tasks** folder, for placing your tasks;
+- **drummer-cli.py**, the command line application.
 
 
 ### Configuration
@@ -48,9 +48,9 @@ Among all, you can specify where to store the log file and the database, which f
 ### Tasks
 
 To be well formed, user-defined tasks should respect few basic requirements, i.e. they:
-    - extend the **Task** class provided by **tasking** module
-    - implement a **run** method as entry point
-    - use the **Response** class, along with a valid **StatusCode**, for handling the task outcome (valid **StatusCode** attributes are: "STATUS_OK", "STATUS_WARNING", "STATUS_ERROR")
+- extend the **Task** class provided by **tasking** module
+- implement a **run** method as entry point
+- use the **Response** class, along with a valid **StatusCode**, for handling the task outcome (valid **StatusCode** attributes are: "STATUS_OK", "STATUS_WARNING", "STATUS_ERROR")
 
 A fully working example:
 
@@ -103,10 +103,10 @@ You can start Drummer in two ways: as a systemd service (via systemctl command) 
 > \> python drummer-cli.py service:start
 
 The cli provides commands to:
-    - list all schedules
-    - add, remove, enable, disable, or execute immediately a schedule
-    - list all registered task
-    - execute a single task
+- list all schedules
+- add, remove, enable, disable, or execute immediately a schedule
+- list all registered task
+- execute a single task
 
 For details see:
 
