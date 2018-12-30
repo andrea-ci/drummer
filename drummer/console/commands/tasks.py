@@ -44,7 +44,6 @@ class TaskExec(BaseCommand):
         except:
             msg = 'Unable to read task list'
             logger.error('msg')
-            print(msg)
 
         try:
 
@@ -84,8 +83,8 @@ class TaskExec(BaseCommand):
             running_task = RunningTask(config, logger)
             response = running_task.run(task_args)
 
-        except:
-            print('Impossible to execute task')
+        except Exception as err:
+            logger.error('Impossible to execute task: {0}'.format(str(err)))
 
         else:
 
@@ -96,8 +95,9 @@ class TaskExec(BaseCommand):
             for k,v in response.data.items():
 
                 result_table.add_row([k, v])
-                print(result_table)
-                print()
+
+            print(result_table)
+            print()
 
         return
 

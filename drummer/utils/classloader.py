@@ -18,7 +18,7 @@ class ClassLoader():
 
             LoadedClass = getattr(mod, classname)
 
-        except:
-            raise ClassLoaderException('Unable to load class')
+        except Exception as err:
+            raise ClassLoaderException('Unable to load class: {0}'.format(str(err)))
 
         return LoadedClass

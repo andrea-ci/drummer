@@ -95,6 +95,23 @@ The *run* method takes a dictionary with optional task arguments. It is empty if
 
 To complete the registration process, you have to declare the task, along with its path, inside *drummer-tasks.yml*. Drummer must know the path of python file to load (expressed as relative path with respect to base folder), and the name of the class which exposed the *run* method.
 
+Of course you can also *__init__* your task class; in that case, you must take care of configuration and logger, as in the following:
+
+```
+from drummer.tasking import Task
+from drummer.foundation import Response, StatusCode
+
+class MyTask(Task):
+
+    def __init__(self, config, logger):
+
+        # init Task class
+        super().__init__(config, logger)
+
+        # your init code here
+        # ...
+
+```
 
 ### cli
 
