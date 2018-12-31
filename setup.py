@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open('README.md','r') as f:
     long_description = f.read()
 
 setup(
     name='drummer',
-    version='1.0.0',
+    version='1.0.1',
     description='Multi-process, multi-tasking scheduler',
     author='andrea capitanelli',
     author_email='andrea.capitanelli@gmail.com',
     maintainer='andrea capitanelli',
     maintainer_email='andrea.capitanelli@gmail.com',
-    url='https://github.com/vegaviz/drummer',
-    packages=find_packages(),
+    url='https://github.com/drummer',
+    packages=[
+        'drummer'
+    ],
     install_requires=[
         'blessings',
         'croniter',
