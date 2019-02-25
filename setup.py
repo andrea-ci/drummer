@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 from setuptools import setup, find_packages
 
+
 with open('README.md','r') as f:
     long_description = f.read()
 
 setup(
     name='drummer',
-    version='1.0.2',
+    version='1.0.3',
     description='Multi-process, multi-tasking scheduler',
     author='andrea capitanelli',
     author_email='andrea.capitanelli@gmail.com',
@@ -37,5 +38,5 @@ setup(
     ],
     scripts=[
         'bin/drummer-admin'
-    ],
+    ]
 )

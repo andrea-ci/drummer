@@ -27,12 +27,19 @@ class EnvInit():
         CONFIG_FILE = 'drummer-config.yml'
         TASK_FILE = 'drummer-tasks.yml'
 
+        # log folder and filepath
+        LOG_DIR = 'logs'
+        LOG_DIR_PATH = path.join(BASE_FOLDER, LOG_DIR)
+
+        LOG_FILE = 'drummer.log'
+        LOG_FILEPATH = path.join(LOG_DIR_PATH, LOG_FILE)
+
         # database folder and filepath
         DATABASE_DIR = 'database'
         DATABASE_DIR_PATH = path.join(BASE_FOLDER, DATABASE_DIR)
 
         DATABASE_FILE = command_args.get('DATABASE_FILE')
-        database_filepath = path.join(DATABASE_DIR_PATH, DATABASE_FILE)
+        DATABASE_FILEPATH = path.join(DATABASE_DIR_PATH, DATABASE_FILE)
 
         SCRIPT_FILE = 'drummer-cli.py'
         SERVICE_FILE = 'drummered.service'
@@ -56,12 +63,16 @@ class EnvInit():
         if not path.exists(DATABASE_DIR_PATH):
             makedirs(DATABASE_DIR_PATH)
 
+        # create database folder
+        if not path.exists(LOG_DIR_PATH):
+            makedirs(LOG_DIR_PATH)
+
 
         # DATABASE CREATION
         # ----------------------------------------------- #
 
         # create database
-        conn_string = 'sqlite+pysqlite:///{0}'.format(database_filepath)
+        conn_string = 'sqlite+pysqlite:///{0}'.format(DATABASE_FILEPATH)
 
         db_engine = create_engine(conn_string, module=sqlite)
         Base.metadata.create_all(db_engine, checkfirst=True)
@@ -80,11 +91,11 @@ class EnvInit():
                 'message_len': 4096
             },
             'logging': {
-                'filename': '/var/log/drummer.log',
-                'level': 'DEBUG',
+                'filename': LOG_FILEPATH,
+                'level': 'INFO',
                 'max-size': 2048*1024
             },
-            'database': database_filepath,
+            'database': DATABASE_FILEPATH,
             'taskdir': TASK_DIR_PATH,
             'max-runners': 4,
             'idle-time': 0.1
