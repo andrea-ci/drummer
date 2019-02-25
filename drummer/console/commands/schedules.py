@@ -372,12 +372,17 @@ class ScheduleGet(RemoteCommand):
         # test socket connection
         self.test_socket_connection()
 
-        # init result table
-        table = PrettyTable()
-        table.field_names = ['ID', 'Name', 'Description', 'Cronexp', 'Enabled']
-        table.align['Name'] = 'l'
-        table.align['Description'] = 'l'
-        table.align['Cronexp'] = 'l'
+        # init overview table
+        table_overview = PrettyTable()
+        table_overview.field_names = ['ID', 'Name', 'Description', 'Cronexp', 'Enabled']
+        table_overview.align['Name'] = 'l'
+        table_overview.align['Description'] = 'l'
+        table_overview.align['Cronexp'] = 'l'
+
+        # init task table
+        table_task = PrettyTable()
+        table_task.field_names = ['No.', 'Task', 'Filepath', 'Timeout', 'Args', 'onPipe', 'onSuccess', 'onFail']
+        table_task.align = 'l'
 
         # prepare request to listener
         request = Request()
@@ -399,11 +404,32 @@ class ScheduleGet(RemoteCommand):
             cronexp = schedule_info.get('cronexp')
             enabled = schedule_info.get('enabled')
 
-            table.add_row([uid, name, description, cronexp, enabled])
+            table_overview.add_row([uid, name, description, cronexp, enabled])
 
             print()
-            print(table)
-            print(schedule_info.get('parameters'))
+            print('Job overview:')
+            print(table_overview)
+            print()
+
+            job_parameters = json.loads(schedule_info.get('parameters'))
+
+            for ii,(task_name,task_params) in enumerate(job_parameters['tasklist'].items()):
+
+                if (task_name==job_parameters['root']): task_name = task_name+'*'
+
+                filepath = task_params['filepath']
+                timeout = task_params['timeout']
+                args = task_params['args']
+                onPipe = task_params['onPipe']
+                onSuccess = task_params['onSuccess']
+                onFail = task_params['onFail']
+
+                table_task.add_row([ii, task_name, filepath, timeout, args, onPipe, onSuccess, onFail])
+
+            print('Job tasks:')
+            print(table_task)
+            print(' *Root task')
+            print()
 
         else:
             print('Impossible to get schedule info')
