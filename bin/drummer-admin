@@ -12,7 +12,7 @@ if len(sys_argv)==1:
 # create the top-level parser
 parser = argparse.ArgumentParser(prog='Drummer Admin')
 # add subparsers
-subparsers = parser.add_subparsers(help='command help', title='Admin commands', description='Drummer Management')
+subparsers = parser.add_subparsers(help='command help', title='Admin commands', description='Drummer Management', metavar='')
 
 # init
 parser_00 = subparsers.add_parser('init', help='Init Drummer environment')

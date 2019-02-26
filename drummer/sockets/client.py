@@ -61,7 +61,7 @@ class SocketClient(CommonSocket):
         receiving = True
         while receiving:
 
-            new_data = sock.recv(4096)
+            new_data = sock.recv(self.MSG_LEN)
             if new_data:
                 response += new_data
             else:

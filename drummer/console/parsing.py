@@ -27,7 +27,7 @@ class ArgParser:
         parser = argparse.ArgumentParser(prog='Drummer')
 
         # add subparsers
-        subparsers = parser.add_subparsers(help='command help', title='Commands', description='Console operations')
+        subparsers = parser.add_subparsers(help='command help', title='Commands', description='Console operations', metavar='')
 
         # service:start
         parser_00 = subparsers.add_parser('service:start', help='Start drummer service')

@@ -13,7 +13,7 @@ from os import path
 
 if __name__ == "__main__":
 
-    BASE_DIR = path.join(path.dirname(path.abspath(__file__)))
+    BASE_DIR = path.join(path.dirname(path.realpath(__file__)))
 
     config = Configuration.load(BASE_DIR)
 
