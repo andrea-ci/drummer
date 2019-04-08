@@ -8,7 +8,7 @@ with open('README.md','r') as f:
 
 setup(
     name='drummer',
-    version='1.0.3',
+    version='1.1.0',
     description='Multi-process, multi-tasking scheduler',
     author='andrea capitanelli',
     author_email='andrea.capitanelli@gmail.com',

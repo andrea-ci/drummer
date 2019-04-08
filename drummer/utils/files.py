@@ -40,6 +40,6 @@ class YamlFile():
     def read(filename):
 
         with open(filename, 'r', encoding='utf-8') as f:
-                filedata = yaml.load(f)
+                filedata = yaml.load(f, Loader=yaml.FullLoader)
 
         return filedata
