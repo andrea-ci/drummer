@@ -1,11 +1,16 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from drummer.foundation import Response, StatusCode
 
-""" This module provides a convenient interface for implementing user-defined tasks """
-
-
 class Task:
+    """Base class for tasks.
+
+    This class is subclassed by user-defined tasks.
+
+    Attributes:
+        config: Dict with environment configuration.
+        logger: Logger object.
+
+    """
 
     def __init__(self, config, logger):
 
@@ -13,4 +18,4 @@ class Task:
         self.logger = logger
 
     def run(self, args):
-        raise NotImplementedError('This method must be overriden by a concrete task')
+        raise NotImplementedError('This method must be implemented by a real task')

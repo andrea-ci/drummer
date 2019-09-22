@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from drummer.foundation import TaskManager, JobManager, JobLoader
-from drummer.utils import Clogger, Queued, ClassLoader
+from drummer.utils import Queued
+from drummer.utils.fio import load_class
+from drummer.utils.logger import get_logger
 from drummer.scheduling import Scheduler
 from drummer.workers import Listener
 from time import sleep
@@ -15,7 +16,7 @@ class Drummered:
         self.config = config
 
         # get logger
-        self.logger = Clogger.get(config)
+        self.logger = get_logger(config)
         self.logger.info('Starting Drummer service...')
 
         # create task queues
@@ -27,7 +28,6 @@ class Drummered:
 
         # create listener package
         self.listener_bundle = self.create_listener()
-
 
     def start(self):
 
@@ -65,17 +65,13 @@ class Drummered:
             # [HEALTH CHECK]
             # ----------------------------------------------- #
 
-            # check scheduler
+            # check whether scheduler is alive
             if not self.scheduler_bundle['handle'].is_alive():
-
-                # create new scheduler
                 self.logger.warning('Scheduler has exited, going to restart it')
                 self.scheduler_bundle = self.create_scheduler()
 
-            # check listener
+            # check whether listener is alive
             if not self.listener_bundle['handle'].is_alive():
-
-                # create new listener
                 self.logger.warning('Listener has exited, going to restart it')
                 self.listener_bundle = self.create_listener()
 
@@ -110,7 +106,6 @@ class Drummered:
 
         return
 
-
     def load_event(self, request):
 
         config = self.config
@@ -120,12 +115,11 @@ class Drummered:
         classpath = request.classpath
 
         # execute the event and get result
-        EventToExec = ClassLoader().load(classpath, classname)
+        EventToExec = load_class(classpath, classname, relative=True)
 
         response, follow_up = EventToExec(config).execute(request)
 
         return response, follow_up
-
 
     def check_messages_from_listener(self, job_manager):
 
@@ -157,7 +151,6 @@ class Drummered:
 
         return job_manager
 
-
     def check_messages_from_scheduler(self, job_manager):
 
         logger = self.logger
@@ -173,13 +166,12 @@ class Drummered:
             job = scheduler_queue_w2m.get()
 
             # handle request from scheduler
-            logger.info('Job "{0}" is going to be executed'.format(job))
+            logger.info(f'Job "{job}" is going to be executed')
 
             # add job to be managed
             queue_tasks_todo = job_manager.add_job(job, queue_tasks_todo)
 
         return job_manager
-
 
     def create_listener(self):
 
@@ -194,7 +186,7 @@ class Drummered:
         listener.start()
         pid = listener_queue_w2m.get()
 
-        logger.info('Listener successfully started with pid {0}'.format(pid))
+        logger.info(f'Listener successfully started with pid {pid}')
 
         listener_bundle = {
             'handle': listener,
@@ -203,7 +195,6 @@ class Drummered:
         }
 
         return listener_bundle
-
 
     def create_scheduler(self):
 
@@ -218,14 +209,13 @@ class Drummered:
         scheduler.start()
         pid = scheduler_queue_w2m.get()
 
-        logger.info('Scheduler successfully started with pid {0}'.format(pid))
+        logger.info(f'Scheduler successfully started with pid {pid}')
 
         scheduler_bundle = {
             'handle': scheduler,
             'queue_w2m': scheduler_queue_w2m
         }
         return scheduler_bundle
-
 
     def process_follow_up(self, job_manager, follow_up):
 
@@ -245,7 +235,7 @@ class Drummered:
         elif follow_up.action == 'EXECUTE':
 
             schedule_id = follow_up.value
-            self.logger.info('Schedulation {0} is sent to queue for immediate execution'.format(schedule_id))
+            self.logger.info(f'Schedulation {schedule_id} is sent to queue for immediate execution')
 
             job = JobLoader(self.config).load_job_by_id(schedule_id)
 

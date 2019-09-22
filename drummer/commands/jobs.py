@@ -1,22 +1,27 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""Job commands.
+
+This module includes all commands related to job management.
+
+All these commands subclass RemoteCommand because they are executed remotely by
+Drummered service.
+"""
+import json
+from .base import RemoteCommand
 from drummer.utils.validation import InquirerValidation
 from drummer.foundation import Request, StatusCode
 from drummer.sockets.client import SocketClient
 from prettytable import PrettyTable
-from .base import RemoteCommand
 import inquirer
-import json
 
 
-class ScheduleList(RemoteCommand):
+class JobList(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -30,13 +35,9 @@ class ScheduleList(RemoteCommand):
         table.align['Description'] = 'l'
         table.align['Cronexp'] = 'l'
 
-        # handle command parameters
-        # command_args = request.args
-        # ...
-
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleListEvent')
+        request.set_classname('JobListEvent')
         request.set_classpath(self.CLASSPATH)
 
         # send request to listener
@@ -45,11 +46,9 @@ class ScheduleList(RemoteCommand):
 
         if response.status == StatusCode.STATUS_OK:
 
-            schedule_list = response.data['Result']
+            job_list = response.data['Result']
 
-            print('\nScheduled jobs:')
-
-            for s in schedule_list:
+            for s in job_list:
 
                 uid = s.get('id')
                 name = s.get('name')
@@ -66,14 +65,13 @@ class ScheduleList(RemoteCommand):
             print('Impossible to execute the command')
 
 
-class ScheduleAdd(RemoteCommand):
+class JobAdd(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -85,36 +83,42 @@ class ScheduleAdd(RemoteCommand):
 
         registered_tasks = config['tasks']
 
-        schedulation = self.ask_basics()
+        job = self.ask_basics()
 
-        # get schedulation data from the user
-        schedulation['parameters'] = self.set_schedulation_parameters(registered_tasks)
+        # get job data from the user
+        job['parameters'] = self.set_job_parameters(registered_tasks)
 
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleAddEvent')
+        request.set_classname('JobAddEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(schedulation)
+        request.set_data(job)
 
         # send request to listener
         sc = SocketClient(config)
         response = sc.send_request(request)
 
-        print('Result: {0} -> {1}'.format(response.status, response.data))
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['Status', 'Message']
+        table.align['Status'] = 'c'
+        table.align['Message'] = 'l'
+        table.add_row([response.status, response.data['msg']])
+        print(table)
+        print()
 
         return
-
 
     def ask_basics(self):
 
         questions = [
             inquirer.Text(
                 'name',
-                message = 'Name of schedule'
+                message = 'Name of job'
             ),
             inquirer.Text(
                 'description',
-                message = 'Description of schedule',
+                message = 'Description of job',
             ),
             inquirer.Text(
                 'cronexp',
@@ -128,17 +132,16 @@ class ScheduleAdd(RemoteCommand):
             )
         ]
 
-        schedulation = inquirer.prompt(questions)
+        job = inquirer.prompt(questions)
 
-        return schedulation
+        return job
 
-
-    def set_task(self, registered_tasks, schedulation_parameters):
+    def set_task(self, registered_tasks, job_parameters):
 
         classnames = [tsk['classname'] for tsk in registered_tasks]
 
         # select a task
-        choices = ['{0} - {1}'.format(tsk['classname'], tsk['description']) for tsk in registered_tasks]
+        choices = [f'{tsk["classname"]} - {tsk["description"]}' for tsk in registered_tasks]
 
         questions = [
             inquirer.List('task',
@@ -176,28 +179,27 @@ class ScheduleAdd(RemoteCommand):
         task['onSuccess'] = None
         task['onFail'] = None
 
-        schedulation_parameters['tasklist'][classname] = task
+        job_parameters['tasklist'][classname] = task
 
-        return schedulation_parameters, classname
-
+        return job_parameters, classname
 
     def set_connection(self, registered_tasks, parameters, base_task):
 
         question_pipe = [
             inquirer.Confirm('onPipe',
-                message = '[{0}] Do you want to pipe another task?'.format(base_task),
+                message = f'[{base_task}] Do you want to pipe another task?',
                 default = False,
             )
         ]
         question_success = [
             inquirer.Confirm('onSuccess',
-                message = '[{0}] Do you want to execute another task on success?'.format(base_task),
+                message = f'[{base_task}] Do you want to execute another task on success?',
                 default = False,
             )
         ]
         question_fail = [
             inquirer.Confirm('onFail',
-                message = '[{0}] Do you want to execute another task on fail?'.format(base_task),
+                message = f'[{base_task}] Do you want to execute another task on fail?',
                 default = False,
             )
         ]
@@ -225,31 +227,29 @@ class ScheduleAdd(RemoteCommand):
 
         return parameters
 
+    def set_job_parameters(self, registered_tasks):
 
-    def set_schedulation_parameters(self, registered_tasks):
-
-        schedulation_parameters = {'tasklist': {}}
+        job_parameters = {'tasklist': {}}
 
         # get a task and set connections
-        schedulation_parameters, classname = self.set_task(registered_tasks, schedulation_parameters)
+        job_parameters, classname = self.set_task(registered_tasks, job_parameters)
 
-        schedulation_parameters['root'] = classname
-        schedulation_parameters = self.set_connection(registered_tasks, schedulation_parameters, classname)
+        job_parameters['root'] = classname
+        job_parameters = self.set_connection(registered_tasks, job_parameters, classname)
 
         # serialize to json
-        schedulation_parameters = json.dumps(schedulation_parameters)
+        job_parameters = json.dumps(job_parameters)
 
-        return schedulation_parameters
+        return job_parameters
 
 
-class ScheduleRemove(RemoteCommand):
+class JobRemove(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -258,27 +258,33 @@ class ScheduleRemove(RemoteCommand):
 
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleRemoveEvent')
+        request.set_classname('JobRemoveEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(command_args)
+        request.set_data(cmd_args)
 
         # send request to listener
         sc = SocketClient(config)
         response = sc.send_request(request)
 
-        print('Result: {0} -> {1}'.format(response.status, response.data))
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['Status', 'Message']
+        table.align['Status'] = 'c'
+        table.align['Message'] = 'l'
+        table.add_row([response.status, response.data['msg']])
+        print(table)
+        print()
 
         return
 
 
-class ScheduleEnable(RemoteCommand):
+class JobEnable(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -287,27 +293,33 @@ class ScheduleEnable(RemoteCommand):
 
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleEnableEvent')
+        request.set_classname('JobEnableEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(command_args)
+        request.set_data(cmd_args)
 
         # send request to listener
         sc = SocketClient(config)
         response = sc.send_request(request)
 
-        print('Result: {0} -> {1}'.format(response.status, response.data))
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['Status', 'Message']
+        table.align['Status'] = 'c'
+        table.align['Message'] = 'l'
+        table.add_row([response.status, response.data['msg']])
+        print(table)
+        print()
 
         return
 
 
-class ScheduleDisable(RemoteCommand):
+class JobDisable(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -316,27 +328,33 @@ class ScheduleDisable(RemoteCommand):
 
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleDisableEvent')
+        request.set_classname('JobDisableEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(command_args)
+        request.set_data(cmd_args)
 
         # send request to listener
         sc = SocketClient(config)
         response = sc.send_request(request)
 
-        print('Result: {0} -> {1}'.format(response.status, response.data))
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['Status', 'Message']
+        table.align['Status'] = 'c'
+        table.align['Message'] = 'l'
+        table.add_row([response.status, response.data['msg']])
+        print(table)
+        print()
 
         return
 
 
-class ScheduleExec(RemoteCommand):
+class JobExec(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -345,27 +363,33 @@ class ScheduleExec(RemoteCommand):
 
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleExecEvent')
+        request.set_classname('JobExecEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(command_args)
+        request.set_data(cmd_args)
 
         # send request to listener
         sc = SocketClient(config)
         response = sc.send_request(request)
 
-        print('Result: {0} -> {1}'.format(response.status, response.data))
+        # init result table
+        table = PrettyTable()
+        table.field_names = ['Status', 'Message']
+        table.align['Status'] = 'c'
+        table.align['Message'] = 'l'
+        table.add_row([response.status, response.data['msg']])
+        print(table)
+        print()
 
         return
 
 
-class ScheduleGet(RemoteCommand):
+class JobGet(RemoteCommand):
 
     def __init__(self, config):
 
         super().__init__(config)
 
-
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
@@ -386,9 +410,9 @@ class ScheduleGet(RemoteCommand):
 
         # prepare request to listener
         request = Request()
-        request.set_classname('ScheduleGetEvent')
+        request.set_classname('JobGetEvent')
         request.set_classpath(self.CLASSPATH)
-        request.set_data(command_args)
+        request.set_data(cmd_args)
 
         # send request to listener
         sc = SocketClient(config)

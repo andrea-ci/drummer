@@ -1,12 +1,14 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from drummer.utils.classloader import ClassLoader
+from drummer.utils.fio import load_class
 from multiprocessing import Process, Queue
 from os import getpid as os_getpid
 from os import path
 
 class Runner(Process):
-    """ This worker executes commands and tasks """
+    """This class implements a worker.
+
+    Workers run as separate processes and execute commands and tasks.
+    """
 
     def __init__(self, config, logger, task_execution):
 
@@ -21,11 +23,9 @@ class Runner(Process):
 
         self.task_execution = task_execution
 
-
     def get_queues(self):
         #return self.queue_w2m, self.queue_m2w
         return self.queue_w2m
-
 
     def run(self):
 
@@ -35,7 +35,6 @@ class Runner(Process):
 
         # begin working
         self.work()
-
 
     def work(self):
 
@@ -56,7 +55,7 @@ class Runner(Process):
         args = task_execution.task.args
 
         # loading task class
-        RunningTask = ClassLoader().load(filepath, classname)
+        RunningTask = load_class(filepath, classname)
 
         # task execution
         running_task = RunningTask(config, logger)

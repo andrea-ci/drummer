@@ -1,31 +1,27 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from drummer.utils.files import YamlFile
 from os import path
+from drummer.utils.fio import read_yaml
 
 class ConfigurationException(Exception):
     pass
 
+def load_config(BASE_DIR):
+    """Loads configuration and task list from yaml files."""
 
-class Configuration():
+    config_filename = path.join(BASE_DIR, 'config/drummer-config.yml')
+    tasks_filename = path.join(BASE_DIR, 'config/drummer-tasks.yml')
 
-    @staticmethod
-    def load(BASE_DIR):
+    try:
+        config = read_yaml(config_filename)
+    except:
+        raise ConfigurationException('Configuration file not found')
 
-        CONFIG_FILENAME = path.join(BASE_DIR, 'config/drummer-config.yml')
-        TASKS_FILENAME = path.join(BASE_DIR, 'config/drummer-tasks.yml')
+    try:
+        tasks = read_yaml(tasks_filename)
+        config['tasks'] = tasks
+    except:
+        raise ConfigurationException('Task file not found')
 
-        try:
-            configuration = YamlFile.read(CONFIG_FILENAME)
+    config['base_dir'] = BASE_DIR
 
-        except:
-            raise ConfigurationException('Configuration file not found')
-
-        try:
-            tasks = YamlFile.read(TASKS_FILENAME)
-            configuration['tasks'] = tasks
-
-        except:
-            raise ConfigurationException('Task file not found')
-
-        return configuration
+    return config

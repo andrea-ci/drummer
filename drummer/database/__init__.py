@@ -1,9 +1,10 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""Schedulation database.
 
-# generic
-from .sessions import SqliteSession
+This module provides classes for schedulation database.
+
+Database is implemented with sqlite drivers and ORM entities.
+"""
 from .sqlbase import Base
-
-# orm entities
-from .orm.schedule import Schedule
+from .sessions import SqliteSession
+from .schedule import Schedule

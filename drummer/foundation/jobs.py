@@ -1,29 +1,27 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from drummer.database import SqliteSession, Schedule
-from .tasks import ManagedTask, ActiveTask
-from drummer.utils import Clogger
-from .messages import StatusCode
-from datetime import datetime
-from croniter import croniter
 import json
 import time
+from .tasks import ManagedTask, ActiveTask
+from .messages import StatusCode
+from drummer.database import SqliteSession, Schedule
+from drummer.utils.logger import get_logger
+from datetime import datetime
+from croniter import croniter
 
 
 class JobManager:
-    """ Manage status of jobs to be executed """
+    """Manages jobs to be executed. """
 
     def __init__(self, config, **kwargs):
 
         # get logger
-        self.logger = kwargs.get('logger') or Clogger.get(config)
+        self.logger = kwargs.get('logger') or get_logger(config)
 
         # managed jobs
         self.jobs = []
 
-
     def add_job(self, job, queue_tasks_todo):
-        """ add a new job to be executed """
+        """Adds a new job to be executed."""
 
         # update job list
         self.jobs.append(job)
@@ -35,9 +33,8 @@ class JobManager:
 
         return queue_tasks_todo
 
-
     def add_to_queue(self, job, classname, queue_tasks_todo):
-        """ add a new task to todo queue """
+        """Adds a new task to todo queue."""
 
         # get task data
         task = job.get_task_data(classname)
@@ -47,7 +44,6 @@ class JobManager:
         queue_tasks_todo.put(task_execution)
 
         return queue_tasks_todo
-
 
     def update_status(self, queue_tasks_todo, queue_tasks_done):
         """ load task results and update job status"""
@@ -70,7 +66,6 @@ class JobManager:
                 self.remove_job(executed_task.related_job)
 
         return queue_tasks_todo, queue_tasks_done
-
 
     def get_next_task(self, executed_task):
         """ get next task to be executed within job """
@@ -99,14 +94,12 @@ class JobManager:
 
         return next_task
 
-
     def get_job_by_name(self, job_name):
         """ get job by name """
 
         job = [j for j in self.jobs if j._name == job_name][0]
 
         return job
-
 
     def remove_job(self, job_name):
         """ remove a job by name """
@@ -118,7 +111,7 @@ class JobManager:
 
 
 class Job:
-    """ A Job is an active instance of a schedulation """
+    """A Job is an active instance of a schedulation. """
 
     def __init__(self, schedule):
         """ takes a Schedule object and provides a convenient mapping """
@@ -136,14 +129,11 @@ class Job:
         # job enabled flag
         self._enabled = schedule.enabled
 
-
     def __str__(self):
-        return '{0} - {1}'.format(self._name, self._description)
-
+        return f'{self._name} - {self._description}'
 
     def __eq__(self, other):
         return self._name == other._name
-
 
     def _set_task_data(self, parameters):
 
@@ -163,17 +153,14 @@ class Job:
 
         return root_task, tasks
 
-
     def get_root(self):
         return self._root
-
 
     def get_task_data(self, classname):
 
         task_data = [tsk for tsk in self._tasks if tsk.classname==classname][0]
 
         return task_data
-
 
     def get_next_exec_time(self):
 
@@ -185,12 +172,11 @@ class Job:
 
 
 class JobLoader:
-    """ Loads schedules from database and generates related jobs """
+    """Loads schedules from database and generates related Job objects. """
 
     def __init__(self, config):
 
         self.config = config
-
 
     def load_jobs(self):
         """ build job objects from database schedules """
@@ -207,7 +193,6 @@ class JobLoader:
         jobs = [Job(schedule) for schedule in schedules]
 
         return jobs
-
 
     def load_job_by_id(self, schedule_id):
         """ load schedule by ID from database and generates related job """

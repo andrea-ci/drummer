@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from multiprocessing import Process, Queue
 from queue import Queue as threading_queue
@@ -6,7 +5,6 @@ from os import getpid as os_getpid
 from .extender import Extender
 from threading import Thread
 from time import sleep
-
 
 class Scheduler(Process):
     """ This worker starts the extender as a thread """
@@ -27,10 +25,8 @@ class Scheduler(Process):
         # create queue for messages
         self.queue_extender = threading_queue(100)
 
-
     def get_queues(self):
         return self.queue_w2m
-
 
     def start_extender(self):
         """ start extender thread """
@@ -42,7 +38,6 @@ class Scheduler(Process):
 
         extender.run()
 
-
     def run(self):
 
         # get pid and send to master
@@ -51,7 +46,6 @@ class Scheduler(Process):
 
         # begin working
         self.work()
-
 
     def work(self):
 

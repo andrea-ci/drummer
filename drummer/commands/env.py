@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from os import path, makedirs
 from drummer.database import Base, Schedule
-from drummer.utils.files import YamlFile
+from drummer.utils.fio import write_yaml
 import drummer.local.data as appdata
 from sqlalchemy.orm import sessionmaker
 from sqlite3 import dbapi2 as sqlite
 from sqlalchemy import create_engine
-from os import path, makedirs
 import inquirer
 
 class EnvInit():
@@ -15,7 +14,7 @@ class EnvInit():
 
         print('Setting the environment for Drummer...')
 
-        BASE_FOLDER = path.abspath(command_args['BASE_FOLDER'])
+        BASE_FOLDER = path.abspath(command_args['base_folder'])
 
         # task folder
         TASK_DIR = 'tasks'
@@ -38,7 +37,7 @@ class EnvInit():
         DATABASE_DIR = 'database'
         DATABASE_DIR_PATH = path.join(BASE_FOLDER, DATABASE_DIR)
 
-        DATABASE_FILE = command_args.get('DATABASE_FILE')
+        DATABASE_FILE = command_args.get('--database')
         DATABASE_FILEPATH = path.join(DATABASE_DIR_PATH, DATABASE_FILE)
 
         SCRIPT_FILE = 'drummer-cli.py'
@@ -72,7 +71,7 @@ class EnvInit():
         # ----------------------------------------------- #
 
         # create database
-        conn_string = 'sqlite+pysqlite:///{0}'.format(DATABASE_FILEPATH)
+        conn_string = f'sqlite+pysqlite:///{DATABASE_FILEPATH}'
 
         db_engine = create_engine(conn_string, module=sqlite)
         Base.metadata.create_all(db_engine, checkfirst=True)
@@ -101,7 +100,7 @@ class EnvInit():
             'idle-time': 0.1
         }
 
-        YamlFile.write(path.join(CONFIG_DIR_PATH, CONFIG_FILE), config_data)
+        write_yaml(path.join(CONFIG_DIR_PATH, CONFIG_FILE), config_data)
 
         task_data = [
             {
@@ -111,13 +110,13 @@ class EnvInit():
             }
         ]
 
-        YamlFile.write(path.join(CONFIG_DIR_PATH, TASK_FILE), task_data)
+        write_yaml(path.join(CONFIG_DIR_PATH, TASK_FILE), task_data)
 
         # task readme
         with open(path.join(TASK_DIR_PATH, 'README.txt'), 'w') as f:
-            f.write('Insert your task files in this folder')
+            f.write('Insert your task fio in this folder')
 
-        print('Configuration files created.')
+        print('Configuration fio created.')
 
 
         # SCRIPT CREATION
@@ -158,10 +157,10 @@ class EnvInit():
 
             service_code = service_code.replace('<pythonpath>', ans['path'])
 
-            command = '{0} service:start'.format(path.join(BASE_FOLDER, SCRIPT_FILE))
+            command = f'{path.join(BASE_FOLDER, SCRIPT_FILE)} service:start'
             service_code = service_code.replace('<command>', command)
 
             with open(path.join(CONFIG_DIR_PATH, SERVICE_FILE), 'w') as f:
                 f.write(service_code)
 
-            print('Service file created in {0}'.format(CONFIG_DIR_PATH))
+            print(f'Service file created in {CONFIG_DIR_PATH}')

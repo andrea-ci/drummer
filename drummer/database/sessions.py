@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from sqlalchemy.orm import sessionmaker
 from sqlite3 import dbapi2 as sqlite
@@ -11,7 +10,7 @@ class SqliteSession():
 
         # connection string
         database = config['database']
-        conn_string = 'sqlite+pysqlite:///{0}'.format(database)
+        conn_string = f'sqlite+pysqlite:///{database}'
 
         # create engine
         db_engine = create_engine(conn_string, module=sqlite)

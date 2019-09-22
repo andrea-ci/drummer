@@ -1,1 +1,1 @@
-# empty
+# -*- coding: utf-8 -*-

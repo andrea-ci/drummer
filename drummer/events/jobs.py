@@ -1,15 +1,19 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
+"""Job events.
+
+This module includes all commands related to job management.
+
+All these commands subclass RemoteCommand because they are executed remotely by
+Drummered service.
+"""
 from drummer.foundation import Response, StatusCode, FollowUp
 from drummer.database import SqliteSession, Schedule
 
-
-class ScheduleAddEvent:
+class JobAddEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -24,28 +28,27 @@ class ScheduleAddEvent:
         try:
 
             # get schedulation data from the user
-            schedulation = request.data
+            job_data = request.data
 
-            # create and add schedule object
-            schedule = Schedule(
-                name = schedulation.get('name'),
-                description = schedulation.get('description'),
-                cronexp = schedulation.get('cronexp'),
-                parameters = schedulation.get('parameters'),
-                enabled = schedulation.get('status')
-            )
+            # create and add job object
+            job = Schedule(name=job_data['name'],
+                description=job_data['description'],
+                cronexp=job_data['cronexp'],
+                parameters=job_data['parameters'],
+                enabled=job_data['enabled'])
 
             # save
-            session.add(schedule)
+            session.add(job)
             session.commit()
 
-        except Exception:
+        except Exception as err:
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_data({'msg': 'Impossible to add the schedule.'})
+            msg = f'Impossible to add the job: {str(err)}.'
+            response.set_data({'msg': msg})
 
         else:
             response.set_status(StatusCode.STATUS_OK)
-            response.set_data({'msg': 'Schedule has been added.'})
+            response.set_data({'msg': 'Job has been added.'})
 
         finally:
             session.close()
@@ -53,12 +56,11 @@ class ScheduleAddEvent:
         return response, follow_up
 
 
-class ScheduleListEvent:
+class JobListEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -74,12 +76,10 @@ class ScheduleListEvent:
 
             # get all schedules
             session = SqliteSession.create(config)
-
             schedules = session.query(Schedule).group_by(Schedule.name).all()
-
             session.close()
 
-            schedule_list = []
+            job_list = []
             for s in schedules:
 
                 d = {}
@@ -89,9 +89,9 @@ class ScheduleListEvent:
                 d['cronexp'] = s.cronexp
                 d['enabled'] = s.enabled
 
-                schedule_list.append(d)
+                job_list.append(d)
 
-            data['Result'] = schedule_list
+            data['Result'] = job_list
 
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
@@ -105,12 +105,11 @@ class ScheduleListEvent:
         return response, follow_up
 
 
-class ScheduleRemoveEvent:
+class JobRemoveEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -118,7 +117,7 @@ class ScheduleRemoveEvent:
 
         # get schedulation id
         args = request.data
-        schedule_id = args['schedule_id']
+        job_id = args['job_id']
 
         response = Response()
         follow_up = FollowUp('RELOAD')
@@ -129,7 +128,7 @@ class ScheduleRemoveEvent:
         try:
 
             # delete
-            sched_to_remove = session.query(Schedule).filter(Schedule.id==schedule_id).one()
+            sched_to_remove = session.query(Schedule).filter(Schedule.id==job_id).one()
             session.delete(sched_to_remove)
 
             # save
@@ -137,11 +136,11 @@ class ScheduleRemoveEvent:
 
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_data({'msg': 'Impossible to remove the schedule.'})
+            response.set_data({'msg': 'Impossible to remove the job.'})
 
         else:
             response.set_status(StatusCode.STATUS_OK)
-            response.set_data({'msg': 'Schedule has been removed.'})
+            response.set_data({'msg': 'Job has been removed.'})
 
         finally:
             session.close()
@@ -149,12 +148,11 @@ class ScheduleRemoveEvent:
         return response, follow_up
 
 
-class ScheduleDisableEvent:
+class JobDisableEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -162,7 +160,7 @@ class ScheduleDisableEvent:
 
         # get schedulation id
         args = request.data
-        schedule_id = args['schedule_id']
+        job_id = args['job_id']
 
         response = Response()
         follow_up = FollowUp('RELOAD')
@@ -173,7 +171,7 @@ class ScheduleDisableEvent:
         try:
 
             # disable
-            sched = session.query(Schedule).filter(Schedule.id==schedule_id).one()
+            sched = session.query(Schedule).filter(Schedule.id==job_id).one()
             sched.enabled = False
 
             # save
@@ -182,11 +180,11 @@ class ScheduleDisableEvent:
 
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_data({'msg': 'Impossible to disable the schedule.'})
+            response.set_data({'msg': 'Impossible to disable the job.'})
 
         else:
             response.set_status(StatusCode.STATUS_OK)
-            response.set_data({'msg': 'Schedule has been disabled.'})
+            response.set_data({'msg': 'Job has been disabled.'})
 
         finally:
             session.close()
@@ -194,12 +192,11 @@ class ScheduleDisableEvent:
         return response, follow_up
 
 
-class ScheduleEnableEvent:
+class JobEnableEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -207,7 +204,7 @@ class ScheduleEnableEvent:
 
         # get schedulation id
         args = request.data
-        schedule_id = args['schedule_id']
+        job_id = args['job_id']
 
         response = Response()
         follow_up = FollowUp('RELOAD')
@@ -218,7 +215,7 @@ class ScheduleEnableEvent:
         try:
 
             # enable
-            sched = session.query(Schedule).filter(Schedule.id==schedule_id).one()
+            sched = session.query(Schedule).filter(Schedule.id==job_id).one()
             sched.enabled = True
 
             # save
@@ -227,11 +224,11 @@ class ScheduleEnableEvent:
 
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)
-            response.set_data({'msg': 'Impossible to enable the schedule.'})
+            response.set_data({'msg': 'Impossible to enable the job.'})
 
         else:
             response.set_status(StatusCode.STATUS_OK)
-            response.set_data({'msg': 'Schedule has been enabled.'})
+            response.set_data({'msg': 'Job has been enabled.'})
 
         finally:
             session.close()
@@ -239,12 +236,11 @@ class ScheduleEnableEvent:
         return response, follow_up
 
 
-class ScheduleExecEvent:
+class JobExecEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -252,23 +248,22 @@ class ScheduleExecEvent:
 
         # get schedulation id
         args = request.data
-        schedule_id = args['schedule_id']
+        job_id = args['job_id']
 
-        follow_up = FollowUp('EXECUTE', schedule_id)
+        follow_up = FollowUp('EXECUTE', job_id)
 
         response = Response()
         response.set_status(StatusCode.STATUS_OK)
-        response.set_data({'msg': 'Schedule has been queued for execution.'})
+        response.set_data({'msg': 'Job has been queued for execution.'})
 
         return response, follow_up
 
 
-class ScheduleGetEvent:
+class JobGetEvent:
 
     def __init__(self, config):
 
         self.config = config
-
 
     def execute(self, request):
 
@@ -283,25 +278,25 @@ class ScheduleGetEvent:
 
             # get schedulation id
             args = request.data
-            schedule_id = args['schedule_id']
+            job_id = args['job_id']
 
             # get all schedules
             session = SqliteSession.create(config)
 
-            schedule = session.query(Schedule).filter(Schedule.id==schedule_id).one()
+            job = session.query(Schedule).filter(Schedule.id==job_id).one()
 
             session.close()
 
-            schedule_dict = {
-                'id': schedule.id,
-                'name': schedule.name,
-                'description': schedule.description,
-                'cronexp': schedule.cronexp,
-                'enabled': schedule.enabled,
-                'parameters': schedule.parameters,
+            job_dict = {
+                'id': job.id,
+                'name': job.name,
+                'description': job.description,
+                'cronexp': job.cronexp,
+                'enabled': job.enabled,
+                'parameters': job.parameters,
             }
 
-            data['Result'] = schedule_dict
+            data['Result'] = job_dict
 
         except Exception:
             response.set_status(StatusCode.STATUS_ERROR)

@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from .commonsocket import CommonSocket
 from drummer.foundation import Request, Response, StatusCode
@@ -16,7 +15,6 @@ class SocketServer(CommonSocket):
 
         self.queue_w2m = queue_w2m
         self.queue_m2w = queue_m2w
-
 
     def run(self):
 

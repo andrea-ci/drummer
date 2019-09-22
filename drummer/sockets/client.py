@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from drummer.foundation import Response
 from .commonsocket import CommonSocket
@@ -13,7 +12,6 @@ class SocketClient(CommonSocket):
     def __init__(self, config):
 
         super().__init__(config)
-
 
     def send_request(self, request):
 
@@ -53,7 +51,6 @@ class SocketClient(CommonSocket):
             sock.close()
 
         return response
-
 
     def get_response(self, sock):
 

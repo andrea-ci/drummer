@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from drummer.foundation.jobs import JobLoader
 import sched
@@ -17,7 +16,6 @@ class Extender(sched.scheduler):
         # list of jobs
         self.jobs = JobLoader(config).load_jobs()
 
-
     def ext_action(self, job):
         """ re-schedules next execution time and writes into the scheduler queue """
 
@@ -31,7 +29,6 @@ class Extender(sched.scheduler):
         self.enterabs(exec_time, 1, self.ext_action, argument=(job,), kwargs={})
 
         return
-
 
     def run(self):
 

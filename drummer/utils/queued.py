@@ -1,9 +1,8 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 class Queued:
-    """ a simple FIFO queue """
-    
+    """This class implements a simple FIFO queue. """
+
     def __init__(self):
         self._queue = []
 

@@ -1,6 +1,4 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from drummer.utils import Configuration
 import socket
 
 class CommonSocketException(Exception):
@@ -29,7 +27,6 @@ class CommonSocket():
         self.server_address = server_address
         self.max_connections = max_connections
         self.MSG_LEN = MSG_LEN
-
 
     def receive_data(self, connection):
 

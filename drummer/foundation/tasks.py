@@ -1,37 +1,38 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from drummer.utils.clogger import Clogger
-from drummer.workers import Runner
-from datetime import datetime
 import uuid
+from datetime import datetime
+from drummer.workers import Runner
+from drummer.utils.logger import get_logger
 
 class TaskManager:
-    """ manages tasks to be run """
+    """Class for managing tasks to be run."""
 
     def __init__(self, config, **kwargs):
 
+        # get facilities
         self.config = config
-
-        # get logger
-        self.logger = kwargs.get('logger') or Clogger.get(config)
+        self.logger = kwargs.get('logger') or get_logger(config)
 
         # management of runners
         self.execution_data = []
 
-
     def run_task(self, queue_tasks_todo):
-        """ pick a task from local queue and start runners """
+        """Picks a task from local queue and start a new runner to execute it.
+
+        Tasks are executed only if there are runners available (see max-runners
+        parameter).
+        """
 
         config = self.config
         logger = self.logger
 
         max_runners = config['max-runners']
 
-        if not queue_tasks_todo.empty() and len(self.execution_data)<max_runners:
+        if not queue_tasks_todo.empty() and len(self.execution_data) < max_runners:
 
             # pick a task
             task_execution = queue_tasks_todo.get()
-            logger.info('Task {0} is going to run with UID {1}'.format(task_execution.task.classname, task_execution.uid))
+            logger.info(f'Task {task_execution.task.classname} is going to run with UID {task_execution.uid}')
 
             # start a new runner for task
             logger.debug('Starting Runner')
@@ -45,7 +46,7 @@ class TaskManager:
 
             # get pid
             pid = queue_runner_w2m.get()
-            logger.info('Runner successfully started with pid {0}'.format(pid))
+            logger.info(f'Runner successfully started with pid {pid}')
 
             # add task data object
             self.execution_data.append({
@@ -59,9 +60,8 @@ class TaskManager:
 
         return queue_tasks_todo
 
-
     def load_results(self, queue_tasks_done):
-        """ load task result from runners and save to local queue """
+        """Loads task result from runners and save to local queue """
 
         logger = self.logger
 
@@ -94,25 +94,28 @@ class TaskManager:
 
         return queue_tasks_done
 
-
     def check_timeouts(self):
 
         logger = self.logger
 
         for ii,runner_data in enumerate(self.execution_data):
 
-            total_seconds = (datetime.now()-runner_data['timestamp']).total_seconds()
+            total_seconds = (datetime.now() - runner_data['timestamp']).total_seconds()
 
             if (total_seconds > runner_data['timeout']):
-                # inserire dati del task
-                logger.debug('Timeout exceeded, going to terminate task {0} (UID: {1})'.format(runner_data['classname'], runner_data['uid']))
+
+                classname = runner_data['classname']
+                uid = runner_data['uid']
+                logger.debug(f'Timeout exceeded, going to terminate task {classname} (UID: {uid})')
                 self._cleanup_runners([ii])
 
         return True
 
-
     def _cleanup_runners(self, idx_runners_to_terminate):
-        """ clean-up: explicitly terminate runner processes and remove their queues """
+        """Performs clean-up of runners marked for termination.
+
+        Runners are explicitly terminated and their queues are removed.
+        """
 
         # clean handles
         execution_data = []
@@ -130,7 +133,7 @@ class TaskManager:
 
 
 class ManagedTask:
-    """ Task instance managed by scheduler """
+    """Task instance managed by scheduler."""
 
     def __init__(self, classname, data):
 
@@ -144,13 +147,12 @@ class ManagedTask:
 
 
 class ActiveTask(ManagedTask):
-    """ ActiveTask is an active instance of a Task """
+    """Active instance of a ManagedTask."""
 
     def __init__(self, task, job_name):
 
         # tasl composition
         self.task = task
-
         # execution attributes
         self.uid = uuid.uuid4()
         self.related_job = job_name

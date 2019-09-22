@@ -1,31 +1,32 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from drummer.utils.validation import InquirerValidation
-from drummer.utils import ClassLoader, Clogger
-from prettytable import PrettyTable
 from sys import path as sys_path
-from .base import BaseCommand
+from drummer.commands.base import BaseCommand
+from drummer.utils.fio import load_class
+from drummer.utils.logger import get_logger
+from drummer.utils.validation import InquirerValidation
+from prettytable import PrettyTable
 import inquirer
 
 
 class TaskExec(BaseCommand):
 
-    def execute(self, command_args):
+    def execute(self, cmd_args):
 
         config = self.config
 
-        verbosity = command_args['verbosity']
-
+        verbosity = cmd_args['--verbosity']
         if verbosity == 0:
             level = 'ERROR'
         elif verbosity == 1:
             level = 'WARNING'
         elif verbosity == 2:
             level = 'INFO'
-        else:
+        elif verbosity == 3:
             level = 'DEBUG'
+        else:
+            raise ValueError('Verbosity must be an integer between 0 and 3.')
 
-        logger = Clogger.get(config, streaming=True, level=level)
+        logger = get_logger(config, streaming=True, level=level)
 
         logger.debug('Starting task execution command')
 
@@ -48,7 +49,8 @@ class TaskExec(BaseCommand):
         try:
 
             # task choice
-            choices = ['{0} - {1}'.format(tsk['classname'], tsk['description']) for tsk in registered_tasks]
+            choices = [f'{tsk["classname"]} - {tsk["description"]}'
+                for tsk in registered_tasks]
 
             questions = [
                 inquirer.List('task',
@@ -65,7 +67,6 @@ class TaskExec(BaseCommand):
 
             ans = inquirer.prompt(questions)
 
-            # chosen task
             choice_idx = choices.index(ans['task'])
 
             task_to_run = registered_tasks[choice_idx]
@@ -77,14 +78,14 @@ class TaskExec(BaseCommand):
             task_args = InquirerValidation.get_dict_from_args(ans['arg_list'])
 
             # loading task class
-            RunningTask = ClassLoader().load(filepath, classname)
+            RunningTask = load_class(filepath, classname)
 
             # task execution
             running_task = RunningTask(config, logger)
             response = running_task.run(task_args)
 
         except Exception as err:
-            logger.error('Impossible to execute task: {0}'.format(str(err)))
+            logger.error(f'Impossible to execute task: {str(err)}')
 
         else:
 
@@ -92,41 +93,10 @@ class TaskExec(BaseCommand):
 
             result_table.add_row(['Status', response.status])
 
-            for k,v in response.data.items():
-
+            for k, v in response.data.items():
                 result_table.add_row([k, v])
 
             print(result_table)
             print()
 
         return
-
-
-class TaskList(BaseCommand):
-
-    def execute(self, command_args):
-
-        config = self.config
-
-        # add task folder to syspath
-        sys_path.append(config['taskdir'])
-
-        table = PrettyTable()
-        table.field_names = ['No.', 'Name', 'Description']
-        table.align['Name'] = 'l'
-        table.align['Description'] = 'l'
-
-        try:
-            registered_tasks = config['tasks']
-
-            print('\nList of registered tasks:')
-
-            for ii,tsk in enumerate(registered_tasks):
-                table.add_row([ii, tsk['classname'], tsk['description']])
-            print(table)
-            print()
-
-        except:
-            raise Exception('unable to load task list')
-
-        return None

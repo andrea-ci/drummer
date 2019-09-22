@@ -1,36 +1,42 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from setuptools import setup, find_packages
 from os import path as os_path
+from setuptools import setup, find_packages
+
+# Package meta-data.
+NAME = 'drummer'
+DESCRIPTION = 'A multi-process, multi-tasking job scheduler.'
+URL = 'https://github.com/acapitanelli/drummer'
+AUTHOR = 'Andrea Capitanelli'
+EMAIL = 'andrea@capitanelli.gmail.com'
+VERSION = '1.2.0'
 
 # short/long description
-short_desc = 'A multi-process, multi-tasking job scheduler'
 here = os_path.abspath(os_path.dirname(__file__))
 try:
-    with open(os_path.join(here,'README.md'),'r',encoding='utf-8') as f:
-        long_desc = '\n' + f.read()
+    with open(os_path.join(here, 'README.md'), 'r', encoding='utf-8') as file:
+        long_desc = '\n' + file.read()
 except FileNotFoundError:
-    long_desc = short_desc
+    long_desc = DESCRIPTION
 
 setup(
-    name='drummer',
-    version='1.1.1',
-    description=short_desc,
-    author='andrea capitanelli',
-    author_email='andrea.capitanelli@gmail.com',
-    maintainer='andrea capitanelli',
-    maintainer_email='andrea.capitanelli@gmail.com',
-    url='https://github.com/acapitanelli/drummer',
+    name=NAME,
+    version=VERSION,
+    description=DESCRIPTION,
+    author=AUTHOR,
+    author_email=EMAIL,
+    maintainer=AUTHOR,
+    maintainer_email=EMAIL,
+    url=URL,
+    python_requires='>=3.6.0',
     packages=find_packages(),
     install_requires=[
-        'blessings',
+        'clips',
         'croniter',
         'inquirer',
         'PTable',
         'PyYAML',
-        'readchar',
-        'six',
-        'SQLAlchemy',
+        'SQLAlchemy'
     ],
     long_description=long_desc,
     long_description_content_type='text/markdown',
@@ -44,6 +50,6 @@ setup(
         'Topic :: System'
     ],
     scripts=[
-        os_path.join(here,'bin/drummer-admin')
+        os_path.join(here, 'bin/drummer-admin')
     ]
 )

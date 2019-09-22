@@ -1,16 +1,14 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from drummer.foundation.messages import Response, StatusCode, FollowUp
 
 class SocketTestEvent:
-    """ simple event to check socket connection """
+    """Simple event to check socket connection."""
 
     def __init__(self, config):
-
         self.config = config
 
-
     def execute(self, request):
+        """Performs a socket connection test."""
 
         config = self.config
 
