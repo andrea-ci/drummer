@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from drummer.sockets.server import SocketServer
-from multiprocessing import Process, Queue
 from os import getpid as os_getpid
+from multiprocessing import Process, Queue
+from drummer.sockets.server import SocketServer
 
 class Listener(Process):
     """ This worker starts socket server """

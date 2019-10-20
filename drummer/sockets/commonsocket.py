@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 import socket
-
-class CommonSocketException(Exception):
-    pass
-
+from drummer.errors import Errors
 
 class CommonSocket():
 
@@ -42,7 +39,7 @@ class CommonSocket():
             bytes_received += len(chunk)
 
             if chunk == b'':
-                raise CommonSocketException('Socket breakdown')
+                raise ConnectionError(Errors.E0203)
 
             data += chunk
 

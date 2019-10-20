@@ -8,7 +8,7 @@ SCRIPT_CODE = """#!/usr/bin/env python3
 # DO NOT EDIT IT UNLESS YOU KNOW WHAT YOU ARE DOING
 
 from drummer import Drummer
-from drummer.utils.configuration import load_config
+from drummer.configuration import load_config
 from sys import argv as sys_argv
 from os import path
 

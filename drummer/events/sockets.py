@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from drummer.foundation.messages import Response, StatusCode, FollowUp
+from drummer.messages import Response, StatusCode, FollowUp
 
 class SocketTestEvent:
     """Simple event to check socket connection."""

@@ -9,7 +9,7 @@ DESCRIPTION = 'A multi-process, multi-tasking job scheduler.'
 URL = 'https://github.com/acapitanelli/drummer'
 AUTHOR = 'Andrea Capitanelli'
 EMAIL = 'andrea@capitanelli.gmail.com'
-VERSION = '1.2.0'
+VERSION = '1.3.0'
 
 # short/long description
 here = os_path.abspath(os_path.dirname(__file__))

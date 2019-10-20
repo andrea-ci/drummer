@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from sys import exit as sys_exit
-from drummer.foundation.messages import Request, StatusCode
+from drummer.messages import Request, StatusCode
 from drummer.sockets.client import SocketClient
 
 class BaseCommand():
@@ -14,7 +14,7 @@ class BaseCommand():
         self.config = config
 
     def execute(self):
-        raise NotImplementedError('This is an abstract method to override')
+        raise NotImplementedError
 
 
 class RemoteCommand(BaseCommand):

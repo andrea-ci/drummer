@@ -2,10 +2,10 @@
 import ast
 from os import walk as os_walk
 from os import path
+from drummer.logger import get_logger
 from drummer.commands.base import BaseCommand
 from drummer.utils.fio import load_class, write_yaml
-from drummer.utils.logger import get_logger
-from drummer.tasking import Task
+from drummer.tasks import Task
 from prettytable import PrettyTable
 
 class TaskUpdate(BaseCommand):

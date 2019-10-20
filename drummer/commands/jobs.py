@@ -8,8 +8,8 @@ Drummered service.
 """
 import json
 from .base import RemoteCommand
-from drummer.utils.validation import InquirerValidation
-from drummer.foundation import Request, StatusCode
+from drummer.utils.validation import check_cron, check_int, get_dict_from_args
+from drummer.messages import Request, StatusCode
 from drummer.sockets.client import SocketClient
 from prettytable import PrettyTable
 import inquirer
@@ -75,9 +75,6 @@ class JobAdd(RemoteCommand):
 
         config = self.config
 
-        # handle command parameters
-        # ...
-
         # test socket connection
         self.test_socket_connection()
 
@@ -123,7 +120,7 @@ class JobAdd(RemoteCommand):
             inquirer.Text(
                 'cronexp',
                 message = 'Cron expression',
-                validate = InquirerValidation.check_cron,
+                validate = check_cron,
             ),
             inquirer.Confirm(
                 'enabled',
@@ -153,7 +150,7 @@ class JobAdd(RemoteCommand):
                   'timeout',
                   message = 'Timeout',
                   default = '600',
-                  validate = InquirerValidation.check_int
+                  validate = check_int
               ),
               inquirer.Text(
                   'arg_list',
@@ -174,7 +171,7 @@ class JobAdd(RemoteCommand):
         task = {}
         task['filepath'] = task_to_run['filepath']
         task['timeout'] = ans['timeout']
-        task['args'] = InquirerValidation.get_dict_from_args(ans['arg_list'])
+        task['args'] = get_dict_from_args(ans['arg_list'])
         task['onPipe'] = None
         task['onSuccess'] = None
         task['onFail'] = None

@@ -14,4 +14,4 @@ class Queued:
         return self._queue.pop(0)
 
     def empty(self):
-        return len(self._queue)==0
+        return len(self._queue) == 0

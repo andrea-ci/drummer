@@ -6,7 +6,7 @@ This module includes all commands related to job management.
 All these commands subclass RemoteCommand because they are executed remotely by
 Drummered service.
 """
-from drummer.foundation import Response, StatusCode, FollowUp
+from drummer.messages import Response, StatusCode, FollowUp
 from drummer.database import SqliteSession, Schedule
 
 class JobAddEvent:

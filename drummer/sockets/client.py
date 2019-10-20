@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
-from drummer.foundation import Response
 from .commonsocket import CommonSocket
-
-
-class SocketClientException(Exception):
-    pass
-
+from drummer.messages import Response
+from drummer.errors import Errors
 
 class SocketClient(CommonSocket):
 
@@ -25,10 +21,10 @@ class SocketClient(CommonSocket):
             sock.connect(server_address)
 
         except ConnectionRefusedError as e:
-            raise SocketClientException('Socket refused connection')
+            raise ConnectionRefusedError(Errors.E0300)
 
         except Exception:
-            raise SocketClientException('Connection error')
+            raise ConnectionError(Errors.E0201)
 
         try:
             # encode and send request
@@ -36,7 +32,7 @@ class SocketClient(CommonSocket):
 
             res = sock.sendall(encoded_request)
             if res:
-                raise SocketClientException('Cannot send request message to server')
+                raise ConnectionError(Errors.E0202)
 
             # get data from server and decode
             encoded_response = self.receive_data(sock)
@@ -44,7 +40,7 @@ class SocketClient(CommonSocket):
             response = Response.decode(encoded_response)
 
         except:
-            raise SocketClientException('Impossible to send request to server')
+            raise ConnectionError(Errors.E0202)
 
         finally:
             # close connection

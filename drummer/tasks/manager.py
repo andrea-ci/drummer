@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
-import uuid
 from datetime import datetime
 from drummer.workers import Runner
-from drummer.utils.logger import get_logger
 
 class TaskManager:
     """Class for managing tasks to be run."""
 
-    def __init__(self, config, **kwargs):
+    def __init__(self, config, logger):
 
         # get facilities
         self.config = config
-        self.logger = kwargs.get('logger') or get_logger(config)
+        self.logger = logger
 
         # management of runners
         self.execution_data = []
 
     def run_task(self, queue_tasks_todo):
-        """Picks a task from local queue and start a new runner to execute it.
+        """Picks a task from local queue and starts a new runner to execute it.
 
         Tasks are executed only if there are runners available (see max-runners
         parameter).
@@ -31,12 +29,14 @@ class TaskManager:
         if not queue_tasks_todo.empty() and len(self.execution_data) < max_runners:
 
             # pick a task
-            task_execution = queue_tasks_todo.get()
-            logger.info(f'Task {task_execution.task.classname} is going to run with UID {task_execution.uid}')
+            active_task = queue_tasks_todo.get()
+            name = active_task.task.classname
+            uid = active_task.uid
+            logger.info(f'Task {name} is going to run with UID {uid}')
 
             # start a new runner for task
-            logger.debug('Starting Runner')
-            runner = Runner(config, logger, task_execution)
+            logger.debug('Starting a new <Runner> process')
+            runner = Runner(config, logger, active_task)
 
             # get runner queue
             queue_runner_w2m = runner.get_queues()
@@ -46,16 +46,16 @@ class TaskManager:
 
             # get pid
             pid = queue_runner_w2m.get()
-            logger.info(f'Runner successfully started with pid {pid}')
+            logger.info(f'Runner has successfully started with pid {pid}')
 
             # add task data object
             self.execution_data.append({
-                'classname':    task_execution.task.classname,
-                'uid':          task_execution.uid,
+                'classname':    active_task.task.classname,
+                'uid':          active_task.uid,
                 'handle':       runner,
                 'queue':        queue_runner_w2m,
                 'timestamp':    datetime.now(),
-                'timeout':      task_execution.task.timeout,
+                'timeout':      active_task.task.timeout,
             })
 
         return queue_tasks_todo
@@ -68,28 +68,26 @@ class TaskManager:
         idx_runners_to_terminate = []
 
         # check tasks executed by runners
-        for ii,execution in enumerate(self.execution_data):
+        for ii, data in enumerate(self.execution_data):
 
-            if not execution['queue'].empty():
+            if not data['queue'].empty():
 
                 # pick the task
-                task_result = execution['queue'].get()
+                executed = data['queue'].get() # active_task
+                task_name = data['classname']
+                uid = data['uid']
 
-                logger.info('Task {0} (UID {1}) ended with result {2}'.format(
-                    execution['classname'],
-                    execution['uid'],
-                    task_result.result.status
-                ))
+                logger.info(f'Task {task_name} (UID {uid}) has terminated with result {executed.result.status}')
+                logger.info(f'Task {uid} says: {str(executed.result.data)}')
 
                 # update done queue
-                queue_tasks_done.put(task_result)
+                queue_tasks_done.put(executed)
 
                 # prepare runners to clean
                 idx_runners_to_terminate.append(ii)
 
         # clean-up finished runners
         if idx_runners_to_terminate:
-
             self._cleanup_runners(idx_runners_to_terminate)
 
         return queue_tasks_done
@@ -98,7 +96,7 @@ class TaskManager:
 
         logger = self.logger
 
-        for ii,runner_data in enumerate(self.execution_data):
+        for ii, runner_data in enumerate(self.execution_data):
 
             total_seconds = (datetime.now() - runner_data['timestamp']).total_seconds()
 
@@ -106,7 +104,7 @@ class TaskManager:
 
                 classname = runner_data['classname']
                 uid = runner_data['uid']
-                logger.debug(f'Timeout exceeded, going to terminate task {classname} (UID: {uid})')
+                logger.info(f'Timeout exceeded, task {classname} (UID: {uid}) will be terminated')
                 self._cleanup_runners([ii])
 
         return True
@@ -128,32 +126,3 @@ class TaskManager:
                 execution_data.append(execution)
 
         self.execution_data = execution_data
-
-        return
-
-
-class ManagedTask:
-    """Task instance managed by scheduler."""
-
-    def __init__(self, classname, data):
-
-        self.classname = classname
-        self.filepath = data['filepath']
-        self.timeout = int(data['timeout'])
-        self.args = data['args']
-        self.on_pipe = data['onPipe']
-        self.on_done = data['onSuccess']
-        self.on_fail = data['onFail']
-
-
-class ActiveTask(ManagedTask):
-    """Active instance of a ManagedTask."""
-
-    def __init__(self, task, job_name):
-
-        # tasl composition
-        self.task = task
-        # execution attributes
-        self.uid = uuid.uuid4()
-        self.related_job = job_name
-        self.result = None

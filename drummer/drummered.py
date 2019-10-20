@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-from drummer.foundation import TaskManager, JobManager, JobLoader
-from drummer.utils import Queued
-from drummer.utils.fio import load_class
-from drummer.utils.logger import get_logger
-from drummer.scheduling import Scheduler
-from drummer.workers import Listener
+from .workers import Scheduler, Listener
+from .tasks.manager import TaskManager
+from .jobs.manager import JobManager
+from .jobs.loader import JobLoader
+from .utils.fio import load_class
+from .logger import get_logger
+from .utils import Queued
 from time import sleep
 
 
@@ -41,7 +42,7 @@ class Drummered:
         logger = self.logger
 
         # create job manager
-        job_manager = JobManager(config)
+        job_manager = JobManager(config, logger)
 
         # load internal queues
         queue_tasks_todo = self.queue_tasks_todo
@@ -51,11 +52,7 @@ class Drummered:
         idle_time = config['idle-time']
 
         # create task runner
-        task_manager = TaskManager(config)
-
-        # handle runners
-        #runner_conns = []
-        #max_runners = 4
+        task_manager = TaskManager(config, logger)
 
 
         # [MAIN LOOP]
@@ -67,12 +64,12 @@ class Drummered:
 
             # check whether scheduler is alive
             if not self.scheduler_bundle['handle'].is_alive():
-                self.logger.warning('Scheduler has exited, going to restart it')
+                self.logger.warning('Scheduler has exited, it will be restarted')
                 self.scheduler_bundle = self.create_scheduler()
 
             # check whether listener is alive
             if not self.listener_bundle['handle'].is_alive():
-                self.logger.warning('Listener has exited, going to restart it')
+                self.logger.warning('Listener has exited, it will be restarted')
                 self.listener_bundle = self.create_listener()
 
 

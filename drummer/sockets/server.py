@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 from .commonsocket import CommonSocket
-from drummer.foundation import Request, Response, StatusCode
-
-# accepted connections
-class SocketServerException(Exception):
-    pass
-
+from drummer.messages import Request, Response, StatusCode
+from drummer.errors import Errors
 
 class SocketServer(CommonSocket):
 
@@ -35,8 +31,8 @@ class SocketServer(CommonSocket):
             connection, client_address = sock.accept()
 
             with connection:
-                try:
 
+                try:
                     # get data from client
                     encoded_request = self.receive_data(connection)
 
@@ -54,7 +50,7 @@ class SocketServer(CommonSocket):
                     res = connection.sendall(encoded_response)
 
                 except Exception:
-                    raise SocketServerException('error in server socket')
+                    raise ConnectionError(Errors.E0204)
 
                 finally:
                     # Clean up the connection

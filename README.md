@@ -55,8 +55,7 @@ To be well formed, user-defined tasks should respect few basic requirements, i.e
 A fully working example:
 
 ```
-from drummer import Task
-from drummer.foundation import Response, StatusCode
+from drummer import Task, Response, StatusCode
 
 class MyTask(Task):
 
@@ -71,7 +70,7 @@ class MyTask(Task):
 
         try:
 
-            with open('mytask.txt', 'a') as f:
+            with open('mytask.txt', 'w') as f:
                 f.write('Hello world!')
 
             logger.info('File has been updated')
@@ -93,7 +92,7 @@ The *run* method takes a dictionary with optional task arguments. It is empty if
 
 To complete the registration process, you have to declare the task, along with its path, inside *drummer-tasks.yml*. Drummer must know the path of python file to load (expressed as relative path with respect to base folder), and the name of the class which exposed the *run* method.
 
-You can automatically update the task list by issuing the **task:update** command. Drummer will parse all valid tasks found inside the *taskdir* folder.
+You can automatically update the task list with the **task:update** command. Drummer will parse all valid tasks found inside the *taskdir* folder.
 
 Of course you can also *__init__* your task class; in that case, you must take care of configuration and logger, as in the following:
 

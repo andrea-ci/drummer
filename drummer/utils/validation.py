@@ -1,27 +1,26 @@
 # -*- coding: utf-8 -*-
 from croniter import croniter
 
-class InquirerValidation:
+def check_cron(_, candidate):
+    """Validates cron expression."""
 
-    @staticmethod
-    def check_cron(_, candidate):
-        return croniter.is_valid(candidate)
+    return croniter.is_valid(candidate)
 
+def check_int(_, candidate):
+    """Checks whether candidate is <int>."""
+    try:
+        int(candidate)
+        return True
 
-    @staticmethod
-    def check_int(_, candidate):
-        try:
-            int(candidate)
-            return True
-        except:
-            return False
+    except:
+        return False
 
-    @staticmethod
-    def get_dict_from_args(args):
+def get_dict_from_args(args):
+    """Extracts a dict from task argument string."""
 
-        d = {}
-        if args:
-            for k,v in [p.strip().split('=') for p in args.split(',')]:
-                d[k] = v
+    d = {}
+    if args:
+        for k,v in [p.strip().split('=') for p in args.split(',')]:
+            d[k] = v
 
-        return d
+    return d

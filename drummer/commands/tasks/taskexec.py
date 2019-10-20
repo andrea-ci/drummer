@@ -1,30 +1,30 @@
 # -*- coding: utf-8 -*-
 from sys import path as sys_path
 from drummer.commands.base import BaseCommand
+from drummer.logger import get_logger
 from drummer.utils.fio import load_class
-from drummer.utils.logger import get_logger
-from drummer.utils.validation import InquirerValidation
+from drummer.utils.validation import get_dict_from_args
+from drummer.errors import Errors
 from prettytable import PrettyTable
 import inquirer
-
 
 class TaskExec(BaseCommand):
 
     def execute(self, cmd_args):
 
         config = self.config
-
         verbosity = cmd_args['--verbosity']
-        if verbosity == 0:
+
+        if verbosity == '0':
             level = 'ERROR'
-        elif verbosity == 1:
+        elif verbosity == '1':
             level = 'WARNING'
-        elif verbosity == 2:
+        elif verbosity == '2':
             level = 'INFO'
-        elif verbosity == 3:
+        elif verbosity == '3':
             level = 'DEBUG'
         else:
-            raise ValueError('Verbosity must be an integer between 0 and 3.')
+            raise ValueError(Errors.E0002)
 
         logger = get_logger(config, streaming=True, level=level)
 
@@ -75,7 +75,7 @@ class TaskExec(BaseCommand):
             filepath = task_to_run['filepath']
 
             # task arguments
-            task_args = InquirerValidation.get_dict_from_args(ans['arg_list'])
+            task_args = get_dict_from_args(ans['arg_list'])
 
             # loading task class
             RunningTask = load_class(filepath, classname)

@@ -1,35 +1,31 @@
 # -*- coding: utf-8 -*-
 import json
-
-class MessageException(Exception):
-    pass
-
-class RequestException(Exception):
-    pass
-
+from .errors import Errors
 
 class FollowUp:
+    """Class for post-event actions to run."""
 
     def __init__(self, action, value=None):
-
         self.action = action
         self.value = value
 
 
 class StatusCode:
+    """Codes for <Response> objects."""
     STATUS_OK = 'OK'
     STATUS_WARNING = 'WARNING'
     STATUS_ERROR = 'ERROR'
 
 
 class MessageType:
+    """Categories for <Request> and <Response> objects."""
     TYPE_REQUEST = 'REQUEST'
     TYPE_RESPONSE = 'RESPONSE'
     TYPE_INFO = 'INFO'
 
 
 class SerializableMessage:
-    """ General class for serializable messages """
+    """Class for serializable messages."""
 
     def __init__(self):
         self.type = None
@@ -40,7 +36,7 @@ class SerializableMessage:
         if isinstance(data, dict) and self._is_serializable(data):
             self.data = data
         else:
-            raise RequestException('Sorry, data must be a serializable dict')
+            raise TypeError(Errors.E0100)
 
     def _is_serializable(self, data):
         """ check if data is json-serializable """
@@ -77,13 +73,13 @@ class SerializableMessage:
             sep = padded_data.find('}0')+1
             data_dict = json.loads(padded_data[:sep])
         except:
-            raise MessageException('Message cannot be decoded')
+            raise ValueError(Errors.E0101)
 
         return data_dict
 
 
 class Request(SerializableMessage):
-    """ Request object """
+    """Class for client requests."""
 
     def __init__(self):
         super().__init__()
@@ -92,21 +88,23 @@ class Request(SerializableMessage):
         self.classpath = None
 
     def set_classname(self, classname):
-        """ class to invoke for fulfilling the request """
+        """Sets name of class to call."""
+
         if isinstance(classname, str):
             self.classname = classname
         else:
-            raise RequestException('Classname must be a string')
+            raise TypeError(Errors.E0102)
 
     def set_classpath(self, classpath):
-        """ class to invoke for fulfilling the request """
+        """Sets filepath for class."""
+
         if isinstance(classpath, str):
             self.classpath = classpath
         else:
-            raise RequestException('Classpath must be a string')
+            raise TypeError(Errors.E0103)
 
     def obj_to_dict(self):
-        """ converts to dict """
+        """Serializes itself to a dict."""
 
         data_dict = super().obj_to_dict()
         data_dict['classname'] = self.classname
@@ -128,7 +126,7 @@ class Request(SerializableMessage):
 
 
 class Response(SerializableMessage):
-    """ Response object """
+    """Class for task response. """
 
     def __init__(self):
         super().__init__()
@@ -136,13 +134,13 @@ class Response(SerializableMessage):
         self.status = None
 
     def set_status(self, status):
-        """ set status code """
+        """Sets status code """
         if status not in (StatusCode.STATUS_OK, StatusCode.STATUS_WARNING, StatusCode.STATUS_ERROR):
-            raise ResponseException('Status code not supported')
+            raise ValueError(Errors.E0104)
         self.status = status
 
     def obj_to_dict(self):
-        """ converts to dict """
+        """Serializes itself to dict """
 
         data_dict = super().obj_to_dict()
         data_dict['status'] = self.status
@@ -159,20 +157,3 @@ class Response(SerializableMessage):
         response.data = data_dict.get('data')
 
         return response
-
-
-if __name__ == '__main__':
-
-    response = Response()
-    response.set_status(StatusCode.STATUS_OK)
-    #response.set_description('tutto ok')
-
-    data = {'0': 'pippo', '1': {'a': 'pluto', 'b': 'minnie'}}
-    response.set_data(data)
-
-    encoded = response.encode(1024)
-    print(encoded)
-    decoded = Response.decode(encoded)
-    print(decoded.obj_to_dict())
-    #encoded = ByteMessage(1024).encode(response)
-    #decoded = ByteMessage(1024).decode(encoded)

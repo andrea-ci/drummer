@@ -47,7 +47,7 @@ class Drummer:
         cmd_01 = console.add_command('task:list', help='List available tasks')
         cmd_02 = console.add_command('task:exec', help='Execute a task')
         cmd_02.add_argument('-v', '--verbosity', help='Set output verbosity',
-            valued=True, default=1)
+            valued=True, default='2')
         cmd_03 = console.add_command('task:update', help='Update task list')
 
         console.add_section('Jobs')

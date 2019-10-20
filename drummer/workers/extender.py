@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from drummer.foundation.jobs import JobLoader
+from drummer.jobs.loader import JobLoader
 import sched
 import time
 

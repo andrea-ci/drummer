@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from drummer.utils.fio import load_class
 from multiprocessing import Process, Queue
 from os import getpid as os_getpid
 from os import path
+from drummer.utils.fio import load_class
+from drummer.messages import Response, StatusCode
 
 class Runner(Process):
     """This class implements a worker.
@@ -10,7 +11,7 @@ class Runner(Process):
     Workers run as separate processes and execute commands and tasks.
     """
 
-    def __init__(self, config, logger, task_execution):
+    def __init__(self, config, logger, active_task):
 
         # worker init
         super().__init__()
@@ -21,7 +22,7 @@ class Runner(Process):
         self.config = config
         self.logger = logger
 
-        self.task_execution = task_execution
+        self.active_task = active_task
 
     def get_queues(self):
         #return self.queue_w2m, self.queue_m2w
@@ -45,25 +46,31 @@ class Runner(Process):
         queue_w2m = self.queue_w2m
 
         # get the task to exec
-        task_execution = self.task_execution
+        active_task = self.active_task
 
         # load class to exec
-        classname = task_execution.task.classname
-        filepath = task_execution.task.filepath
+        classname = active_task.task.classname
+        filepath = active_task.task.filepath
 
-        timeout = task_execution.task.timeout
-        args = task_execution.task.args
+        timeout = active_task.task.timeout
+        args = active_task.task.args
 
-        # loading task class
-        RunningTask = load_class(filepath, classname)
+        try:
+            # loading task class
+            RunningTask = load_class(filepath, classname)
 
-        # task execution
-        running_task = RunningTask(config, logger)
-        task_result = running_task.run(args)
+            # task execution
+            running_task = RunningTask(config, logger)
+            response = running_task.run(args)
 
-        task_execution.result = task_result
+        except Exception as err:
 
-        # queue_done
-        queue_w2m.put(task_execution)
+            response = Response()
+            response.set_status(StatusCode.STATUS_ERROR)
+            response.set_data({'result': str(err)})
 
-        return
+        finally:
+
+            # queue_done
+            active_task.result = response
+            queue_w2m.put(active_task)
