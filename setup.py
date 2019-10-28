@@ -8,7 +8,7 @@ NAME = 'drummer'
 DESCRIPTION = 'A multi-process, multi-tasking job scheduler.'
 URL = 'https://github.com/acapitanelli/drummer'
 AUTHOR = 'Andrea Capitanelli'
-EMAIL = 'andrea@capitanelli.gmail.com'
+EMAIL = 'andrea.capitanelli@gmail.com'
 VERSION = '1.3.0'
 
 # short/long description
