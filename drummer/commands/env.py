@@ -6,7 +6,6 @@ import drummer.local.data as appdata
 from sqlalchemy.orm import sessionmaker
 from sqlite3 import dbapi2 as sqlite
 from sqlalchemy import create_engine
-import inquirer
 
 class EnvInit():
 
@@ -83,16 +82,17 @@ class EnvInit():
 
         config_data = {
             'application-name': 'Drummer',
+            'base_dir': BASE_FOLDER,
+            'logging': {
+                'filename': LOG_FILEPATH,
+                'level': 'INFO',
+                'max-size': 2048*1024
+            },
             'socket': {
                 'address': 'localhost',
                 'port': 10200,
                 'max_connections': 1,
                 'message_len': 4096
-            },
-            'logging': {
-                'filename': LOG_FILEPATH,
-                'level': 'INFO',
-                'max-size': 2048*1024
             },
             'database': DATABASE_FILEPATH,
             'taskdir': TASK_DIR_PATH,
@@ -114,9 +114,9 @@ class EnvInit():
 
         # task readme
         with open(path.join(TASK_DIR_PATH, 'README.txt'), 'w') as f:
-            f.write('Insert your task fio in this folder')
+            f.write('Insert your task files in this folder')
 
-        print('Configuration fio created.')
+        print('Configuration files created.')
 
 
         # SCRIPT CREATION
@@ -131,36 +131,12 @@ class EnvInit():
         # SERVICE CREATION
         # ----------------------------------------------- #
 
-        question = [
-            inquirer.Confirm(
-                'service',
-                message = 'Create service file?',
-                default = True,
-            )
-        ]
+        command = f'{path.join(BASE_FOLDER, SCRIPT_FILE)} service:start'
 
-        ans = inquirer.prompt(question)
+        service_code = appdata.SERVICE_CODE
+        service_code = service_code.replace('<command>', command)
 
-        if ans['service']:
+        with open(path.join(CONFIG_DIR_PATH, SERVICE_FILE), 'w') as f:
+            f.write(service_code)
 
-            question = [
-                inquirer.Text(
-                    'path',
-                    message = 'Python executable to use',
-                    default = '/usr/bin/env python3'
-                )
-            ]
-
-            ans = inquirer.prompt(question)
-
-            service_code = appdata.SERVICE_CODE
-
-            service_code = service_code.replace('<pythonpath>', ans['path'])
-
-            command = f'{path.join(BASE_FOLDER, SCRIPT_FILE)} service:start'
-            service_code = service_code.replace('<command>', command)
-
-            with open(path.join(CONFIG_DIR_PATH, SERVICE_FILE), 'w') as f:
-                f.write(service_code)
-
-            print(f'Service file created in {CONFIG_DIR_PATH}')
+        print(f'Service file created in {CONFIG_DIR_PATH}')
