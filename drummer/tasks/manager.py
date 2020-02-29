@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from drummer.workers import Runner
+from drummer.messages import Response, StatusCode
 
 class TaskManager:
     """Class for managing tasks to be run."""
@@ -14,7 +15,7 @@ class TaskManager:
         # management of runners
         self.execution_data = []
 
-    def run_task(self, queue_tasks_todo):
+    def run_tasks(self, queue_tasks_todo):
         """Picks a task from local queue and starts a new runner to execute it.
 
         Tasks are executed only if there are runners available (see max-runners
@@ -30,12 +31,13 @@ class TaskManager:
 
             # pick a task
             active_task = queue_tasks_todo.get()
+
             name = active_task.task.classname
             uid = active_task.uid
             logger.info(f'Task {name} is going to run with UID {uid}')
 
             # start a new runner for task
-            logger.debug('Starting a new <Runner> process')
+            logger.debug('Starting a new <Runner> process.')
             runner = Runner(config, logger, active_task)
 
             # get runner queue
@@ -46,12 +48,11 @@ class TaskManager:
 
             # get pid
             pid = queue_runner_w2m.get()
-            logger.info(f'Runner has successfully started with pid {pid}')
+            logger.info(f'Runner has successfully started with pid {pid}.')
 
             # add task data object
             self.execution_data.append({
-                'classname':    active_task.task.classname,
-                'uid':          active_task.uid,
+                'active_task':  active_task,
                 'handle':       runner,
                 'queue':        queue_runner_w2m,
                 'timestamp':    datetime.now(),
@@ -60,54 +61,61 @@ class TaskManager:
 
         return queue_tasks_todo
 
-    def load_results(self, queue_tasks_done):
-        """Loads task result from runners and save to local queue """
+    def check_tasks(self, queue_tasks_done):
+        """Loads task results from runners and save to local queue.
+        Manages also tasks in timeout.
+        """
 
         logger = self.logger
-
         idx_runners_to_terminate = []
 
-        # check tasks executed by runners
-        for ii, data in enumerate(self.execution_data):
+        for ii, runner_data in enumerate(self.execution_data):
 
-            if not data['queue'].empty():
+            # check task execution
+            if not runner_data['queue'].empty():
 
                 # pick the task
-                executed = data['queue'].get() # active_task
-                task_name = data['classname']
-                uid = data['uid']
+                executed = runner_data['queue'].get() # active_task
+                task_name = runner_data['active_task'].task.classname
+                uid = runner_data['active_task'].uid
 
-                logger.info(f'Task {task_name} (UID {uid}) has terminated with result {executed.result.status}')
-                logger.info(f'Task {uid} says: {str(executed.result.data)}')
+                logger.info(f'Task {task_name} (UID {uid}) has terminated with result {executed.result.status}.')
+                logger.info(f'Task {uid} says: {str(executed.result.data)}.')
 
-                # update done queue
+                # update executed queue
                 queue_tasks_done.put(executed)
 
-                # prepare runners to clean
+                # prepare for cleanup
                 idx_runners_to_terminate.append(ii)
+
+            # check for task timeout
+            else:
+                total_seconds = (datetime.now() - runner_data['timestamp']).total_seconds()
+
+                if (total_seconds > runner_data['active_task'].task.timeout):
+
+                    classname = runner_data['active_task'].task.classname
+                    uid = runner_data['active_task'].uid
+                    logger.info(f'Timeout exceeded, task {classname} (UID: {uid}) will be terminated.')
+
+                    # timeout gives error result
+                    response = Response()
+                    response.set_status(StatusCode.STATUS_ERROR)
+                    response.set_data({'result': 'Task went in timeout.'})
+
+                    # update executed queue
+                    executed = runner_data['active_task']
+                    executed.result = response
+                    queue_tasks_done.put(executed)
+
+                    # prepare for cleanup
+                    idx_runners_to_terminate.append(ii)
 
         # clean-up finished runners
         if idx_runners_to_terminate:
             self._cleanup_runners(idx_runners_to_terminate)
 
         return queue_tasks_done
-
-    def check_timeouts(self):
-
-        logger = self.logger
-
-        for ii, runner_data in enumerate(self.execution_data):
-
-            total_seconds = (datetime.now() - runner_data['timestamp']).total_seconds()
-
-            if (total_seconds > runner_data['timeout']):
-
-                classname = runner_data['classname']
-                uid = runner_data['uid']
-                logger.info(f'Timeout exceeded, task {classname} (UID: {uid}) will be terminated')
-                self._cleanup_runners([ii])
-
-        return True
 
     def _cleanup_runners(self, idx_runners_to_terminate):
         """Performs clean-up of runners marked for termination.
@@ -117,7 +125,7 @@ class TaskManager:
 
         # clean handles
         execution_data = []
-        for ii,execution in enumerate(self.execution_data):
+        for ii, execution in enumerate(self.execution_data):
 
             if ii in idx_runners_to_terminate:
                 execution['handle'].terminate()

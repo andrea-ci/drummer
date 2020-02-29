@@ -62,7 +62,7 @@ class JobList(RemoteCommand):
             print()
 
         else:
-            print('Impossible to execute the command')
+            print('Impossible to execute the command.')
 
 
 class JobAdd(RemoteCommand):
@@ -453,4 +453,4 @@ class JobGet(RemoteCommand):
             print()
 
         else:
-            print('Impossible to get schedule info')
+            print('Impossible to get schedule info.')

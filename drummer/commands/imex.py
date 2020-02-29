@@ -21,7 +21,7 @@ class SchedImport(BaseCommand):
     def execute(self, cmd_args):
 
         filename = cmd_args.get('--filename') or 'schedulation.yaml'
-        print(f'Importing schedulation from {filename}')
+        print(f'Importing schedulation from {filename}.')
 
         config = self.config
 
@@ -38,7 +38,7 @@ class SchedImport(BaseCommand):
 
             for sch in schedulation:
 
-                print(f'Importing job {sch["name"]}')
+                print(f'Importing job {sch["name"]}.')
 
                 # create job object
                 job = Schedule(name=sch['name'],
@@ -66,7 +66,7 @@ class SchedExport(BaseCommand):
 
     def execute(self, cmd_args):
 
-        print('Exporting schedulation to file')
+        print('Exporting schedulation to file.')
 
         filename = cmd_args.get('--filename') or 'schedulation.yaml'
 

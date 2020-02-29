@@ -139,4 +139,4 @@ class EnvInit():
         with open(path.join(CONFIG_DIR_PATH, SERVICE_FILE), 'w') as f:
             f.write(service_code)
 
-        print(f'Service file created in {CONFIG_DIR_PATH}')
+        print(f'Service file created in {CONFIG_DIR_PATH}.')

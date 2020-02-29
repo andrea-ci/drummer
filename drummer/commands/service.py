@@ -29,4 +29,4 @@ class ServiceStart(BaseCommand):
             drummered.start()
 
         except Exception as err:
-            print(f'Impossible to start Drummer service: {str(err)}')
+            print(f'Impossible to start Drummer service: {str(err)}.')

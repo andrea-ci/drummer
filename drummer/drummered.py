@@ -64,12 +64,12 @@ class Drummered:
 
             # check whether scheduler is alive
             if not self.scheduler_bundle['handle'].is_alive():
-                self.logger.warning('Scheduler has exited, it will be restarted')
+                self.logger.warning('Scheduler has exited, it will be restarted.')
                 self.scheduler_bundle = self.create_scheduler()
 
             # check whether listener is alive
             if not self.listener_bundle['handle'].is_alive():
-                self.logger.warning('Listener has exited, it will be restarted')
+                self.logger.warning('Listener has exited, it will be restarted.')
                 self.listener_bundle = self.create_listener()
 
 
@@ -86,14 +86,11 @@ class Drummered:
             # [TASK/JOB CHECK]
             # ----------------------------------------------- #
 
-            # check for finished tasks
-            queue_tasks_done = task_manager.load_results(queue_tasks_done)
-
-            # check for task timeouts
-            task_manager.check_timeouts()
+            # check executed tasks
+            queue_tasks_done = task_manager.check_tasks(queue_tasks_done)
 
             # check tasks to be executed
-            queue_tasks_todo = task_manager.run_task(queue_tasks_todo)
+            queue_tasks_todo = task_manager.run_tasks(queue_tasks_todo)
 
             # update todo queue
             queue_tasks_todo, queue_tasks_done = job_manager.update_status(queue_tasks_todo, queue_tasks_done)
